@@ -1,5 +1,5 @@
 import { apiSlice } from "../apiSlice";
-import type { Make } from "../types";
+import type { Make } from "../types/Car";
 
 const CarEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

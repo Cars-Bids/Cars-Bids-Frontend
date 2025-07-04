@@ -8,7 +8,7 @@ import {
 import conf from "../../app/conf/basic.conf.json";
 import type { RootState } from '../../app/store';
 import { logout, setCredentials } from './authSlice';
-import type { AuthResponse } from './types';
+import type { AuthResponse } from './types/Profile';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: conf.baseUrl,
