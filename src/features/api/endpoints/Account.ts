@@ -1,5 +1,6 @@
 import { apiSlice } from "../apiSlice";
-import type { AuthResponse, LoginRequest, RefreshTokenRequest } from "../types";
+import type { AuthResponse, LoginRequest, RefreshTokenRequest } from "../types/Profile";
+
 
 const AccountEndopints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
