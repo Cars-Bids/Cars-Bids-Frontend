@@ -1,6 +1,7 @@
 import { apiSlice } from "../apiSlice";
 import type { AuthResponse, LoginRequest, RefreshTokenRequest } from "../types/Profile";
 
+
 const AccountEndopints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<void, FormData>({

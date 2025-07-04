@@ -1,6 +1,7 @@
 import { apiSlice } from "../apiSlice";
 import type { Model, CreateModel } from "../types/Car";
 
+
 const ModelsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getModels: builder.query<Model[], void>({

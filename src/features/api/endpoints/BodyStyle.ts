@@ -1,6 +1,7 @@
 import { apiSlice } from "../apiSlice";
 import type { Style } from "../types/Car";
 
+
 const BodyStylesEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStyles: builder.query<Style[], void>({

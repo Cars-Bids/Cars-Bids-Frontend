@@ -1,6 +1,7 @@
 import { apiSlice } from "../apiSlice";
 import type { Profile, ProfileUpdateRequest } from "../types/Profile";
 
+
 const ProfileEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProfile: builder.query<Profile | null, void>({

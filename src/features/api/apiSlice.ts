@@ -10,6 +10,7 @@ import type { RootState } from '../../app/store';
 import { logout, setCredentials } from './authSlice';
 import type { AuthResponse } from './types/Profile';
 
+
 const baseQuery = fetchBaseQuery({
   baseUrl: conf.baseUrl,
   prepareHeaders: (headers, { getState }) => {
