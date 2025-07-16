@@ -1,11 +1,18 @@
 import './App.css'
-
+import { Route, Routes ,BrowserRouter} from 'react-router-dom'
+import MainLayout from './components/Main/index.tsx'
+import HomePage from './pages/Base/HomePage.tsx'
 function App() {
   return (
     <>
-    <h1 className="text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text animate-pulse drop-shadow-lg tracking-wide text-center mt-10">
-      TailwindCSS
-    </h1>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          {/* інші сторінки */}
+        </Route>
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
