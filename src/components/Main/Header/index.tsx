@@ -3,10 +3,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
-import { LoginPopup } from '../Modal';
+// import { LoginPopup , SignUpPopup} from '../Modal';
+import {AuthPopup} from '../Modal';
 export default function Navbar() {
   const [search, setSearch] = useState("");
-  const [activeItem, setActiveItem] = useState("Auctions"); // Default active item
+  const [activeItem, setActiveItem] = useState("Auctions"); 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-3 shadow-lg">
@@ -121,7 +122,8 @@ export default function Navbar() {
           >
             SignUp
           </Button>
-          <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+       
+            <AuthPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         </div>
 
         {/* Mobile Menu */}

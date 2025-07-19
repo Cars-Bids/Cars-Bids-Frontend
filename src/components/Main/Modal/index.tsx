@@ -8,21 +8,104 @@ import { X } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+interface LoginData {
+  email: string;
+  password: string;
+}
 
-interface LoginPopupProps {
+interface SignupData {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export function AuthPopup({ isOpen, onClose }: PopupProps) {
+  const [loginData, setLoginData] = useState<LoginData>({
+    email: "",
+    password: "",
+  });
+
+  const [signupData, setSignupData] = useState<SignupData>({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [forgotEmail, setForgotEmail] = useState("");
+
+  const [currentStep, setCurrentStep] = useState<
+    "login" | "signup" | "signupPassword" | "forgotPassword" | "checkEmail"
+  >("login");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt with:", { email, password });
-    onClose();
+    if (currentStep === "login") {
+      console.log("Login attempt with:", {
+        email: loginData.email,
+        password: loginData.password,
+      });
+      onClose();
+    } else if (currentStep === "signup") {
+      setCurrentStep("signupPassword");
+    } else if (currentStep === "signupPassword") {
+      console.log("Sign up with:", signupData);
+      onClose();
+    } else if (currentStep === "forgotPassword") {
+      console.log("Sending reset link to:", forgotEmail);
+      switchTo("checkEmail");
+    }
+    else if (currentStep === "checkEmail") {
+      console.log("Check email step");
+      setCurrentStep("login");
+    }
+  };
+  type Step =
+    | "login"
+    | "signup"
+    | "signupPassword"
+    | "forgotPassword"
+    | "checkEmail";
+
+  const switchTo = (step: Step) => {
+    setCurrentStep(step);
+
+    if (step === "login") {
+      setLoginData({ email: "", password: "" });
+    }
+
+    if (step === "signup") {
+      setSignupData({
+  
+        email: "",
+        username: "",
+        password: "",
+        confirmPassword: "",
+      });
+    }
+
+    if (step === "signupPassword") {
+      setSignupData((prev) => ({
+        ...prev,
+        password: "",
+        confirmPassword: "",
+      }));
+    }
+    if (step === "forgotPassword") {
+      setForgotEmail("");
+    }
+    if (step === "checkEmail") {
+      setForgotEmail("");
+    }
   };
 
   return (
@@ -31,8 +114,28 @@ export function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
         className="bg-neutral-900 text-white max-w-sm p-6 rounded-xl border border-red-600 shadow-xl"
         showCloseButton={false}
       >
-        {/* Close Button */}
-        <div className="flex justify-end mb-2">
+        <div className="flex justify-between items-center mb-2">
+          {/* Back Button — лише якщо не login */}
+          {currentStep !== "login" && currentStep !== "signup" ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (currentStep === "signupPassword") switchTo("signup");
+                else if (currentStep === "forgotPassword") switchTo("login");
+                else if (currentStep === "checkEmail")
+                  switchTo("forgotPassword");
+              }}
+              className="text-gray-400 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm hover:bg-white/5"
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          ) : (
+            <div /> // Щоб зберегти простір зліва
+          )}
+
+          {/* Close Button — завжди праворуч */}
           <DialogClose asChild>
             <Button
               variant="ghost"
@@ -66,103 +169,306 @@ export function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
         </div>
 
         {/* Welcome Text */}
-        <h2 className="text-xl font-semibold text-center mb-6">Welcome back</h2>
+        {currentStep === "login" && (
+          <h2 className="text-xl font-semibold text-center mb-6">
+            Welcome back
+          </h2>
+        )}
+        {currentStep === "signup" && (
+          <h2 className="text-xl font-semibold text-center mb-6">Sign Up</h2>
+        )}
+        {currentStep === "signupPassword" && (
+          <h2 className="text-xl font-semibold text-center mb-6">Sign Up</h2>
+        )}
+        {currentStep === "forgotPassword" && (
+          <h2 className="text-xl font-semibold text-center mb-6">
+            Forgot Password?
+          </h2>
+        )
+        }
+        {currentStep === "checkEmail" && (
+          <h2 className="text-xl font-semibold text-center mb-6">
+            Check your email
+          </h2>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email" className="text-l font-semibold mb-3">Enter your email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@yourmail.com"
-              required
-              className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2"
-            />
+          {currentStep == "login" && (
+            <div>
+              <Label htmlFor="email" className="text-xl font-semibold mb-3">
+                Enter your email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={loginData.email}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, email: e.target.value })
+                }
+                placeholder="example@yourmail.com"
+                required
+                className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2"
+              />
+            </div>
+          )}
+          {currentStep == "signup" && (
+            <div>
+              <Label htmlFor="email" className="text-xl font-semibold mb-3">
+                Enter your email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={signupData.email}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, email: e.target.value })
+                }
+                placeholder="example@yourmail.com"
+                required
+                className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2"
+              />
+            </div>
+          )}
+
+          {currentStep === "signup" && (
+            <div>
+              <Label htmlFor="username" className="text-xl font-semibold mb-3">
+                Enter your username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                value={signupData.username}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, username: e.target.value })
+                }
+                placeholder="Your username"
+                required
+                className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2"
+              />
+            </div>
+          )}
+
+          {currentStep === "login" && (
+            <div>
+              {" "}
+              <Label htmlFor="password" className="text-xl font-semibold mb-3">
+                Enter your password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={loginData.password}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                  placeholder="example password"
+                  required
+                  className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === "signupPassword" && (
+            <>
+              <Label htmlFor="password" className="text-xl font-semibold mb-3">
+                Create your password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={signupData.password}
+                  onChange={(e) =>
+                    setSignupData({ ...signupData, password: e.target.value })
+                  }
+                  placeholder="Password"
+                  required
+                  className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              <Label
+                htmlFor="confirmPassword"
+                className="text-xl font-semibold mb-3"
+              >
+                Confirm password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={signupData.confirmPassword}
+                  onChange={(e) =>
+                    setSignupData({
+                      ...signupData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  placeholder="Confirm Password"
+                  required
+                  className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+
+          {currentStep === "forgotPassword" && (
+            <>
+              <p className="text-sm text-center text-gray-400 mt-2">
+                Don't worry we got you covered. Please enter registered email
+                below. We will send you a verification link.
+              </p>
+              <Label
+                htmlFor="forgotEmail"
+                className="text-xl font-semibold mb-3"
+              >
+                Enter your email
+              </Label>
+              <Input
+                id="forgotEmail"
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                placeholder="example@yourmail.com"
+                required
+                className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2"
+              />
+            </>
+          )}
+          {currentStep === "checkEmail" && (
+            <>
+              <p className="text-sm text-center text-gray-400 mt-2">
+               We have sent the password reset link to your email. Please check your inbox and follow the instructions to reset your password.
+              </p>
+              
+            </>
+          )}
+          {currentStep === "login" && (
+            <div className="flex justify-between items-center text-sm text-gray-400">
+              <label className="flex items-center gap-2">
+                <Checkbox id="remember" className="border-gray-600" />
+                Remember me
+              </label>
+              <button
+                type="button"
+                className="hover:underline text-gray-300"
+                onClick={() => switchTo("forgotPassword")}
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+          <div className="flex justify-center mt-4">
+            <Button
+              type="submit"
+              className=" bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg"
+            >
+              {currentStep === "login" && "Continue"}
+              {currentStep === "signup" && "Continue"}
+              {currentStep === "signupPassword" && "Create account"}
+              {currentStep === "forgotPassword" && "Send Reset Link"}
+              {currentStep === "checkEmail" && "Back to Login"}
+            </Button>
           </div>
- <Label htmlFor="password" className="text-l font-semibold mb-3">Enter your password</Label>
-       <div className="relative">
- 
-  <Input
-    id="password"
-    type={showPassword ? "text" : "password"}
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    placeholder="example_password"
-    required
-    className="bg-neutral-800 border border-neutral-700 text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10"
-  />
-  <button
-    type="button"
-    onClick={() => setShowPassword((prev) => !prev)}
-    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
-  >
-    {showPassword ? (
-      <EyeOff className="h-5 w-5" />
-    ) : (
-      <Eye className="h-5 w-5" />
-    )}
-  </button>
-</div>
-          <div className="flex justify-between items-center text-sm text-gray-400">
-            <label className="flex items-center gap-2">
-              <Checkbox id="remember" className="border-gray-600" />
-              Remember me
-            </label>
-            <button type="button" className="hover:underline text-gray-300">
-              Forgot password?
+          {(currentStep === "login" || currentStep === "signup") && (
+            <>
+              {/* Divider */}
+              <div className="flex items-center my-4">
+                <div className="flex-grow h-px bg-neutral-700" />
+                <span className="px-2 text-gray-500 text-sm">or</span>
+                <div className="flex-grow h-px bg-neutral-700" />
+              </div>
+
+              {/* Social Login */}
+              <div className="flex justify-center gap-4 mb-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                >
+                  <FcGoogle className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                >
+                  <FaApple className="h-5 w-5 text-white" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                >
+                  <FaFacebook className="h-5 w-5 text-blue-500" />
+                </Button>
+              </div>
+            </>
+          )}
+          {currentStep === "login" && (
+            <button
+              type="button"
+              className="w-full text-center text-sm text-gray-400 mt-2"
+              onClick={() => switchTo("signup")}
+            >
+              Don’t have an account?{" "}
+              <span className="text-red-600 hover:underline">Sign Up</span>
             </button>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg"
-          >
-            Continue
-          </Button>
+          )}
+          {currentStep === "signup" && (
+            <>
+              <button
+                type="button"
+                className="w-full text-center text-sm text-gray-400 mt-2"
+                onClick={() => switchTo("login")}
+              >
+                Already have an account?{" "}
+                <span className="text-red-600 hover:underline">
+                  Sign in here
+                </span>
+              </button>
+              <p className="text-sm text-center text-gray-400 mt-2">
+                By pressing continue I agree to Steria Terms and conditions
+              </p>
+            </>
+          )}
         </form>
-
-        {/* Divider */}
-        <div className="flex items-center my-4">
-          <div className="flex-grow h-px bg-neutral-700" />
-          <span className="px-2 text-gray-500 text-sm">or</span>
-          <div className="flex-grow h-px bg-neutral-700" />
-        </div>
-
-        {/* Social Login */}
-        <div className="flex justify-center gap-4 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-          >
-            <FcGoogle className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-          >
-            <FaApple className="h-5 w-5 text-white" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-          >
-            <FaFacebook className="h-5 w-5 text-blue-500" />
-          </Button>
-        </div>
-
-        {/* Footer */}
-        <p className="text-sm text-center text-gray-400">
-          Don’t have an account?{" "}
-          <button type="button" className="text-red-600 hover:underline">
-            Sign Up
-          </button>
-        </p>
       </DialogContent>
     </Dialog>
   );
