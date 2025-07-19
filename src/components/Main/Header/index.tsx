@@ -3,11 +3,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
-
+import { LoginPopup } from '../Modal';
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [activeItem, setActiveItem] = useState("Auctions"); // Default active item
-
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-3 shadow-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -112,6 +112,7 @@ export default function Navbar() {
             />
           </div>
           <Button
+             onClick={() => setIsLoginOpen(true)}
             className="bg-gradient-to-r from-red-600 to-red-700 
                        hover:from-transparent hover:to-transparent 
                        hover:text-red-500 hover:border hover:border-red-500 
@@ -120,6 +121,7 @@ export default function Navbar() {
           >
             SignUp
           </Button>
+          <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         </div>
 
         {/* Mobile Menu */}
@@ -236,6 +238,7 @@ export default function Navbar() {
                   </div>
                 </div>
                 <Button
+                  onClick={() => setIsLoginOpen(true)}
                   className="bg-gradient-to-r from-red-600 to-red-700 
                              hover:from-transparent hover:to-transparent hover:bg-none 
                              hover:text-red-500 hover:border hover:border-red-500 

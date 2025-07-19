@@ -1,4 +1,4 @@
-import React from "react";
+
 import {
   FaYoutube,
   FaInstagram,
@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa6";
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear(); // Dynamically get the current year
+  const currentYear = new Date().getFullYear(); 
 
   return (
     <footer className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-8 shadow-md">
