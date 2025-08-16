@@ -1,9 +1,18 @@
+import FeaturedCars from "@/components/Main/PhotoPrew/index";
+
 const HomePage = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen ">
-      <h1 className="text-4xl font-bold mb-4 text-red-600">Welcome to the <span className=" text-white">Home Page</span></h1>
-      <p className="text-lg  text-white">This is the main landing page of the application.</p>
+    <div className="flex flex-col items-center justify-center min-h-screen  ">
+    
+      {/* Два компоненти в одному рядку */}
+      <div className="flex flex-row gap-6 w-full max-w-7xl">
+        
+        <FeaturedCars  />
+          <FeaturedCars variant="right" />
+   
+      </div>
     </div>
   );
-}
+};
+
 export default HomePage;

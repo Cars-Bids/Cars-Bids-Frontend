@@ -5,22 +5,24 @@ import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 // import { LoginPopup , SignUpPopup} from '../Modal';
 import {AuthPopup} from '../Modal';
+import { Link } from 'react-router-dom';
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [activeItem, setActiveItem] = useState("Auctions"); 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-3 shadow-lg">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-3 ">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
+        
           <svg
             width="1510"
             height="258"
             viewBox="0 0 1510 258"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-28 h-7 sm:w-32 sm:h-8 md:w-36 md:h-9 lg:w-40 lg:h-10 drop-shadow-md"
+            className="w-28 h-7 sm:w-32 sm:h-8 md:w-36 md:h-9 lg:w-40 lg:h-10 "
             preserveAspectRatio="xMidYMid meet"
           >
             <g clip-path="url(#clip0_2_14)">
@@ -63,7 +65,7 @@ export default function Navbar() {
               </clipPath>
             </defs>
           </svg>
-        </div>
+        </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
@@ -74,13 +76,13 @@ export default function Navbar() {
           >
             Auctions
           </a>
-          <a
-            href="#"
+          <Link
+            to="/sell-your-car"
             className={`hover:text-red-400 font-medium text-scaling ${activeItem === "Sell your car" ? "border-b-2 border-red-400" : ""}`}
             onClick={() => setActiveItem("Sell your car")}
           >
             Sell your car
-          </a>
+          </Link>
           <a
             href="#"
             className={`hover:text-red-400 font-medium text-scaling ${activeItem === "What’s Steria?" ? "border-b-2 border-red-400" : ""}`}
@@ -145,10 +147,10 @@ export default function Navbar() {
             >
               <div className="flex flex-col gap-6 mt-6">
                 {/* Logo in Mobile Menu */}
-                <div className="mb-4">
+                <Link to="/" className="mb-4">
                   <svg
-                    width="1510"
-                    height="258"
+                    width="112" // Базовий розмір для w-28
+                    height="28" // Базовий розмір для h-7
                     viewBox="0 0 1510 258"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -195,21 +197,21 @@ export default function Navbar() {
                       </clipPath>
                     </defs>
                   </svg>
-                </div>
-                <Button
-                  variant="default"
-                  className={`bg-red-600 hover:bg-red-700 text-white w-full py-3 font-semibold text-scaling-lg ${activeItem === "Auctions" ? "border-b-2 border-red-400" : ""}`}
+                </Link>
+                <a
+                
+                  className={`hover:text-red-400 font-medium py-2 border-b border-neutral-700 text-scaling ${activeItem === "Auctions" ? "border-b-2 border-red-400" : ""}`}
                   onClick={() => setActiveItem("Auctions")}
                 >
                   Auctions
-                </Button>
-                <a
-                  href="#"
+                </a>
+                <Link 
+                  to="/sell-your-car"
                   className={`hover:text-red-400 font-medium py-2 border-b border-neutral-700 text-scaling ${activeItem === "Sell your car" ? "border-b-2 border-red-400" : ""}`}
                   onClick={() => setActiveItem("Sell your car")}
                 >
                   Sell your car
-                </a>
+                </Link>
                 <a
                   href="#"
                   className={`hover:text-red-400 font-medium py-2 border-b border-neutral-700 text-scaling ${activeItem === "What’s Steria?" ? "border-b-2 border-red-400" : ""}`}
@@ -225,7 +227,7 @@ export default function Navbar() {
                   Leaderboard
                 </a>
                 <div className="mt-6">
-                  <div className="flex items-center gap-2 bg-neutral-800 px-3 py-2 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-2 bg-neutral-800 px-3 py-2 rounded-lg ">
                     <span className="text-gray-400">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
