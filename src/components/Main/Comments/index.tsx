@@ -3,14 +3,18 @@ import { Star } from "lucide-react";
 const RewiewsSection = () => {
   return (
     <section className="w-full px-4 py-12 sm:px-6 sm:py-16 flex flex-col items-center justify-center gap-6 sm:gap-8 rounded-xl  mx-auto" >
-      <h2 className="w-[80vw] text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 max-w-[1850px]" >
+      <h2 className="w-[80vw]  text-2xl sm:text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 sm:mb-6 max-w-[1440px] text-center sm:text-left" >
         What sellers are saying
       </h2>
-      <div className="w-[80vw] inline-flex flex-col justify-start items-start gap-4 sm:gap-6 max-w-[1850px]">
-        <div className="self-stretch inline-flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 overflow-hidden">
+<div className="w-[90vw] inline-flex flex-col justify-start items-start gap-6 sm:gap-6 max-w-[1850px]">
+
+        <div className="self-stretch inline-flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 overflow-hidden px-4">
           <div className="w-full sm:w-80 h-52 relative flex-shrink-0">
-            <div className="w-64 sm:w-72 h-40 left-[15px] top-[36px] absolute bg-red-600 rounded-[37.37px] transform -skew-x-12"></div>
-            <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl inline-flex flex-col justify-between items-start overflow-auto">
+            <div className="w-64 sm:w-72 h-40 left-[15px] top-[36px] absolute bg-red-600 rounded-[37.37px] transform -skew-x-12   dark:shadow-none"></div>
+           <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute
+                bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl 
+                inline-flex flex-col justify-between items-start overflow-auto
+               shadow-extra-lg dark:shadow-none border border-gray-200 ">
               <div className="self-stretch justify-start text-dark text-sm font-normal font-synonym">
                 Some of the most helpful and kind people to work with! Will
                 for sure sell with them again.
@@ -42,7 +46,10 @@ const RewiewsSection = () => {
           </div>
           <div className="w-full sm:w-80 h-52 relative flex-shrink-0">
             <div className="w-64 sm:w-72 h-40 left-[15px] top-[36px] absolute bg-red-600 rounded-[37.37px] transform -skew-x-12"></div>
-            <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl inline-flex flex-col justify-between items-start overflow-auto">
+   <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute
+                bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl 
+                inline-flex flex-col justify-between items-start overflow-auto
+               shadow-extra-lg dark:shadow-none border border-gray-200 ">
               <div className="self-stretch justify-start text-dark text-sm font-normal font-synonym">
                 Some of the most helpful and kind people to work with! Will
                 for sure sell with them again.
@@ -74,7 +81,10 @@ const RewiewsSection = () => {
           </div>
           <div className="w-full sm:w-80 h-52 relative flex-shrink-0">
             <div className="w-64 sm:w-72 h-40 left-[15px] top-[36px] absolute bg-red-600 rounded-[37.37px] transform -skew-x-12"></div>
-            <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl inline-flex flex-col justify-between items-start overflow-auto">
+            <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute
+                bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl 
+                inline-flex flex-col justify-between items-start overflow-auto
+               shadow-extra-lg dark:shadow-none border border-gray-200 ">
               <div className="self-stretch justify-start text-dark text-sm font-normal font-synonym">
                 This is by far the greatest place to sell your car online.
                 I’ve sold 5 cars with them now and am never going back to
@@ -107,7 +117,10 @@ const RewiewsSection = () => {
           </div>
           <div className="w-full sm:w-80 h-52 relative flex-shrink-0">
             <div className="w-64 sm:w-72 h-40 left-[15px] top-[36px] absolute bg-red-600 rounded-[37.37px] transform -skew-x-12"></div>
-            <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl inline-flex flex-col justify-between items-start overflow-auto">
+           <div className="w-56 sm:w-64 h-36 px-4 py-3 left-[70px] sm:left-[80.08px] top-0 absolute
+                bg-white rounded-tl-3xl rounded-tr-3xl rounded-br-3xl 
+                inline-flex flex-col justify-between items-start overflow-auto
+               shadow-extra-lg dark:shadow-none border border-gray-200 ">
               <div className="self-stretch justify-start text-dark text-sm font-normal font-synonym">
                 Some of the most helpful and kind people to work with! Will
                 for sure sell with them again.

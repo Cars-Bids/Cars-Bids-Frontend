@@ -15,5 +15,32 @@
 @theme{
 --font-amulya: 'Amulya', sans-serif;
 --font-synonym: 'Synonym', sans-serif;
+--shadow-extra-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+--shadow-top-md: 0 -4px 6px -1px rgba(0,0,0,0.1), 0 -2px 4px -2px rgba(0,0,0,0.1);
 
 }   
+@custom-variant dark (&:where(.dark, .dark *));
+/* Світла тема */
+.theme-light {
+  --color-black: rgba(18, 18, 18, 1);
+  --color-graphite: rgba(44, 44, 44, 1);
+  --color-logo-red: rgba(239, 41, 41, 1);
+  --color-blue: rgba(92, 161, 255, 1);
+  --color-green: rgba(195, 247, 58, 1);
+  --color-gray: rgba(208, 208, 208, 1);
+  --color-white: rgba(255, 255, 255, 1);
+  --color-red: rgba(206, 32, 35, 1);
+  --color-dark: rgba(33, 33, 33, 1);
+  --color-background: var(--color-white);
+  --color-text: var(--color-black);
+  --color-accent: var(--color-logo-red);
+}
+
+/* Темна тема */
+:root {
+  --color-background: white; /* тільки два дефіси */
+}
+
+.dark {
+  --color-background: #2C2C2C;
+}
