@@ -4,11 +4,12 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./index.html",
+    "./src/**/*.css"
   ],
   theme: {
     extend: {
       fontFamily: {
-        'amulya': ['Amulya Variable', 'sans-serif'],
+        'amulya': ["Amulya Variable"],
         'synonym': ['Synonym Variable', 'sans-serif'],
       },
     

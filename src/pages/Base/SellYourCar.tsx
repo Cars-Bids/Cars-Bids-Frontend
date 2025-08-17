@@ -1,4 +1,6 @@
 import RewiewsSection from "@/components/Main/Comments";
+import RecentSales from "@/components/Main/Photo_commponets/SellYourCar";
+import FAQSection from "@/components/Main/Accordion";
 import {
   CircleDollarSign,
   Clock,
@@ -14,7 +16,7 @@ const SellYourCar = () => {
     <div>
       <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto">
         {/* Ліва частина — текст */}
-        <div className="flex flex-col justify-start items-start gap-9 max-w-xl text-center lg:text-left max-w-[1850px]">
+        <div className="flex flex-col justify-start items-start gap-9 max-w-xl text-center lg:text-left max-w-[1440px]">
           <div className="flex flex-col gap-3">
             <h2 className="text-white text-4xl md:text-5xl font-bold font-amulya leading-tight">
               Your Car Deserves the Spotlight.
@@ -60,9 +62,12 @@ const SellYourCar = () => {
           </div>
 
           {/* Кнопка */}
-          <button className=" px-7 py-4 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
-            Sell now — it’s free
-          </button>
+       <div className="flex justify-center md:justify-start w-full">
+  <button className="px-7 py-4 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
+    Sell now — it’s free
+  </button>
+</div>
+
         </div>
 
         {/* Права частина — картинки (приховані на мобільних) */}
@@ -98,11 +103,11 @@ const SellYourCar = () => {
         </div>
       </section>
       <section className="w-full px-6 py-16  py-12 lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
-        <h2 className="w-[80vw] text-3xl sm:text-4xl font-bold text-white mb-6 text-right max-w-[1850px] mx-auto">
+        <h2 className="w-[80vw] text-3xl sm:text-4xl font-bold text-white mb-6 text-right max-w-[1440px] mx-auto">
           Why choose Steria?
         </h2>
 
-        <div className=" w-[80vw]  flex flex-wrap justify-center  sm:gap-8 lg:gap-9  lg:px-4 p-6 sm:p-8 rounded-xl bg-neutral-900  gap-y-6  mx-6  items-center max-w-[1850px] mx-auto">
+        <div className=" w-[80vw]  flex flex-wrap justify-center  sm:gap-8 lg:gap-9  lg:px-4 p-6 sm:p-8 rounded-xl bg-neutral-900  gap-y-6  mx-6  items-center max-w-[1440px] mx-auto">
           {/* Блок 1 */}
           <div className="flex flex-col items-center gap-4 w-full sm:w-64 md:w-72 p-4 rounded-xl border-2 border-red-500 bg-neutral-900">
             <div className="p-5 bg-black rounded-[74px] flex justify-center items-center">
@@ -144,70 +149,76 @@ const SellYourCar = () => {
           </div>
         </div>
       </section>
+     
+       <RecentSales />
       <RewiewsSection />
    <section className="w-full px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 flex flex-col items-center justify-center gap-6 sm:gap-8 rounded-xl  mx-auto">
-  <div className="w-[80vw] py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-10 rounded-[20px] inline-flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-9 overflow-hidden bg-[#121212]  max-w-[1850px]">
+  <div className="w-[80vw] py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-10 rounded-[20px] inline-flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-9 overflow-hidden bg-[#121212]  max-w-[1440px]">
     <div className="justify-start text-white text-xl sm:text-2xl md:text-3xl font-bold font-amulya">
       How to sell your car
     </div>
-    <div className="inline-flex flex-col sm:flex-row justify-center items-start gap-4 sm:gap-6 md:gap-28 w-full">
-      <div className="w-full sm:w-48 h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
-        <div className="left-[-5px] sm:left-[-57.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-9xl font-bold font-synonym">
-          01
-        </div>
-        <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
-          <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
-            Submit your car
-          </div>
-          <div className="self-stretch justify-start text-white text-sm sm:text-base font-medium font-synonym">
-            Fill out a quick form and upload a few photos — we’ll get back to
-            you fast.
-          </div>
-        </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row justify-center items-start gap-6 md:gap-12 lg:gap-28 w-full">
+  {/* Step 01 */}
+  <div className="w-full sm:w-auto h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
+    <div className="left-[5px] sm:left-[-5.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-8xl md:text-9xl font-bold font-synonym">
+      01
+    </div>
+    <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
+      <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
+        Submit your car
       </div>
-      <div className="w-full sm:w-48 h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
-        <div className="left-[-5px] sm:left-[-61.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-9xl font-bold font-synonym">
-          02
-        </div>
-        <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
-          <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
-            We create your listing
-          </div>
-          <div className="self-stretch justify-start text-white text-sm sm:text-base font-medium font-synonym">
-            Our team builds a high-quality, eye-catching listing to draw
-            serious buyers.
-          </div>
-        </div>
-      </div>
-      <div className="w-full sm:w-48 h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
-        <div className="left-[-5px] sm:left-[-64.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-9xl font-bold font-synonym">
-          03
-        </div>
-        <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
-          <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
-            Auction goes live
-          </div>
-          <div className="self-stretch justify-start text-white text-sm sm:text-base font-medium font-synonym">
-            Your car gets in front of thousands of active buyers. Watch the
-            bids roll in.
-          </div>
-        </div>
-      </div>
-      <div className="w-full sm:w-60 h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
-        <div className="left-[-5px] sm:left-[-66.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-9xl font-bold font-synonym">
-          04
-        </div>
-        <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
-          <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
-            You get paid
-          </div>
-          <div className="self-stretch justify-start text-white text-sm sm:text-base font-medium font-synonym">
-            Once sold, we connect you with the buyer and help close the deal —
-            no selling fees, no stress.
-          </div>
-        </div>
+      <div className="self-stretch justify-start text-white text-sm sm:text-base md:text-lg font-medium font-synonym">
+        Fill out a quick form and upload a few photos — we’ll get back to you fast.
       </div>
     </div>
+  </div>
+
+  {/* Step 02 */}
+  <div className="w-full sm:w-auto h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
+    <div className="left-[5px] sm:left-[-5.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-8xl md:text-9xl font-bold font-synonym">
+      02
+    </div>
+    <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
+      <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
+        Get approved
+      </div>
+      <div className="self-stretch justify-start text-white text-sm sm:text-base md:text-lg font-medium font-synonym">
+        Our team reviews your submission and gives you the green light.
+      </div>
+    </div>
+  </div>
+
+  {/* Step 03 */}
+  <div className="w-full sm:w-auto h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
+    <div className="left-[5px] sm:left-[-5.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-8xl md:text-9xl font-bold font-synonym">
+      03
+    </div>
+    <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
+      <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
+        Auction live
+      </div>
+      <div className="self-stretch justify-start text-white text-sm sm:text-base md:text-lg font-medium font-synonym">
+        Your listing goes live — bidders compete to buy your car.
+      </div>
+    </div>
+  </div>
+
+  {/* Step 04 */}
+  <div className="w-full sm:w-auto h-28 relative inline-flex flex-col justify-center items-start gap-2.5">
+    <div className="left-[5px] sm:left-[-5.50px] top-[-20px] sm:top-[-32px] absolute justify-start text-red-600/20 text-6xl sm:text-8xl md:text-9xl font-bold font-synonym">
+      04
+    </div>
+    <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
+      <div className="justify-start text-white text-lg sm:text-xl md:text-2xl font-bold font-amulya">
+        Get paid
+      </div>
+      <div className="self-stretch justify-start text-white text-sm sm:text-base md:text-lg font-medium font-synonym">
+        After the sale, you get your money quickly and securely.
+      </div>
+    </div>
+  </div>
+</div>
+
     <div className="px-4 sm:px-6 py-2 sm:py-3 inline-flex justify-center items-center gap-2.5">
       <button className="px-5 sm:px-7 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-base sm:text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
         Get started now
@@ -215,6 +226,14 @@ const SellYourCar = () => {
     </div>
   </div>
 </section>
+ <section className="w-full px-6 py-16  py-12 lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
+        <h2 className="w-[80vw] text-3xl sm:text-4xl font-bold text-white mb-6 text-right max-w-[1440px] mx-auto">
+         Frequently asked questions
+        </h2>
+        <FAQSection />
+       
+      
+      </section>
     </div>
   );
 };

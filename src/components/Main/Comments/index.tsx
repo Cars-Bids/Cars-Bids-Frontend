@@ -140,6 +140,7 @@ const RewiewsSection = () => {
         </div>
       </div>
     </section>
+    
   );
 };
 
