@@ -87,7 +87,7 @@ export default function RecentSales() {
   return (
     <section className="w-full px-4 sm:px-6 lg:px-12 py-12 sm:py-16 flex flex-col items-center gap-8 mx-auto">
       <div className="w-full max-w-[1440px] mx-auto flex flex-col gap-4 relative">
-        <h4 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold">
+        <h4 className="text-black dark:text-white text-xl sm:text-2xl lg:text-3xl font-bold">
           Our recent sales
         </h4>
 
@@ -96,7 +96,7 @@ export default function RecentSales() {
         <div className="relative group">
           <div
             ref={scrollRef}
-            className="flex gap-4 overflow-x-auto scroll-smooth px-2 sm:px-0 snap-x snap-mandatory"
+            className="flex gap-4 overflow-x-auto scroll-smooth px-2 sm:px-0 snap-x snap-mandatory pb-4"
             style={{ scrollBehavior: "smooth" }}
           >
             {cars.map((car) => (
@@ -118,10 +118,10 @@ export default function RecentSales() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <div className="text-white text-base sm:text-lg font-bold leading-tight">
+                  <div className="text-black dark:text-white text-base sm:text-lg font-bold leading-tight">
                     {car.title}
                   </div>
-                  <div className="text-white/80 text-xs sm:text-sm">
+                  <div className="text-black/80 dark:text-white/80 text-xs sm:text-sm">
                     {car.description}
                   </div>
                 </div>

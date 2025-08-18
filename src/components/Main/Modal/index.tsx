@@ -4,11 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { X, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
-import { Eye, EyeOff } from "lucide-react";
-import { ArrowLeft } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
@@ -63,12 +61,18 @@ interface PopupProps {
 export function AuthPopup({ isOpen, onClose }: PopupProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [currentStep, setCurrentStep] = useState<
     "login" | "signup" | "signupPassword" | "forgotPassword" | "checkEmail"
   >("login");
 
-  const switchTo = (step: "login" | "signup" | "signupPassword" | "forgotPassword" | "checkEmail") => {
+  const switchTo = (
+    step:
+      | "login"
+      | "signup"
+      | "signupPassword"
+      | "forgotPassword"
+      | "checkEmail"
+  ) => {
     setCurrentStep(step);
   };
 
@@ -113,7 +117,7 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="bg-neutral-900 text-white max-w-sm p-6 rounded-xl border border-red-600 shadow-xl"
+        className="bg-white dark:bg-neutral-900 text-white max-w-sm p-6 rounded-xl border border-2 border-red-600 shadow-xl"
         showCloseButton={false}
       >
         <div className="flex justify-between items-center mb-2">
@@ -124,9 +128,10 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
               onClick={() => {
                 if (currentStep === "signupPassword") switchTo("signup");
                 else if (currentStep === "forgotPassword") switchTo("login");
-                else if (currentStep === "checkEmail") switchTo("forgotPassword");
+                else if (currentStep === "checkEmail")
+                  switchTo("forgotPassword");
               }}
-              className="text-gray-400 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm hover:bg-white/5"
+              className="text-black hover:bg-black/5 dark:text-gray-400 hover:text-black dark:hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm dark:hover:bg-white/5"
               aria-label="Back"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -138,7 +143,7 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm hover:bg-white/5"
+              className="text-black hover:bg-black/5 dark:text-gray-400 hover:text-black dark:hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm dark:hover:bg-white/5"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -161,28 +166,33 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
             <path
               d="M36.0599 32.4787V39H9.75105C8.76962 39 7.72486 38.8082 6.55347 38.4566C5.44539 38.1369 4.36898 37.5615 3.4192 36.7943C2.43776 35.9951 1.61462 34.9721 0.981437 33.7254C0.316593 32.4787 0 30.9443 0 29.1221V8.50328C0 7.57623 0.158296 6.64918 0.474889 5.72213C0.728163 4.79508 1.20305 3.86803 1.8679 2.97295C2.53274 2.1418 3.35588 1.43852 4.49562 0.831147C5.50871 0.287705 6.8384 0 8.38971 0H19.3122V6.52131H8.10477C8.10477 6.52131 7.94648 6.55328 7.88316 6.55328C7.62988 6.55328 7.34495 6.68115 7.18665 6.80902C6.93338 6.96885 6.77508 7.19262 6.68011 7.44836C6.52181 7.73607 6.42683 8.15164 6.42683 8.53525V29.1221C6.45849 30.177 6.74342 31.0082 7.31329 31.5836C7.88316 32.191 8.73796 32.4787 9.78271 32.4787H36.0599Z"
               fill="#DEDEDE"
+              className="dark:fill-[#DEDEDE] fill-black"
             />
           </svg>
         </div>
 
         {currentStep === "login" && (
-          <h2 className="text-xl font-semibold text-center mb-6">
+          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
             Welcome back
           </h2>
         )}
         {currentStep === "signup" && (
-          <h2 className="text-xl font-semibold text-center mb-6">Sign Up</h2>
+          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
+            Sign Up
+          </h2>
         )}
         {currentStep === "signupPassword" && (
-          <h2 className="text-xl font-semibold text-center mb-6">Sign Up</h2>
+          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
+            Sign Up
+          </h2>
         )}
         {currentStep === "forgotPassword" && (
-          <h2 className="text-xl font-semibold text-center mb-6">
+          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
             Forgot Password?
           </h2>
         )}
         {currentStep === "checkEmail" && (
-          <h2 className="text-xl font-semibold text-center mb-6">
+          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
             Check your email
           </h2>
         )}
@@ -207,36 +217,51 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
               : undefined
           }
           validateOnChange={true}
-          validateOnBlur={false} 
+          validateOnBlur={false}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, touched, errors }) => (
-            <Form className="space-y-4">
-              {currentStep === "login" && (
-                <div>
-                  <Label htmlFor="email" className="text-xl font-semibold mb-3">
-                    Enter your email
-                  </Label>
-                  <Field
-                    as={Input}
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="example@yourmail.com"
-                    required
-                    className={`bg-neutral-800 border ${
-                      touched.email && errors.email
-                        ? "border-red-500"
-                        : "border-neutral-700"
-                    } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600`}
-                  />
-                  {touched.email && <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />}
-                </div>
-              )}
-              {currentStep === "signup" && (
-                <>
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => {
+            // Determine if the submit button should be disabled based on the current step
+            const isButtonDisabled = () => {
+              if (isSubmitting) return true;
+              if (currentStep === "login") {
+                return (
+                  !values.email ||
+                  !values.password ||
+                  !!errors.email ||
+                  !!errors.password
+                );
+              }
+              if (currentStep === "signup") {
+                return (
+                  !values.email ||
+                  !values.username ||
+                  !!errors.email ||
+                  !!errors.username
+                );
+              }
+              if (currentStep === "signupPassword") {
+                return (
+                  !values.password ||
+                  !values.confirmPassword ||
+                  !!errors.password ||
+                  !!errors.confirmPassword
+                );
+              }
+              if (currentStep === "forgotPassword") {
+                return !values.forgotEmail || !!errors.forgotEmail;
+              }
+              return false; // Enable for checkEmail step
+            };
+
+            return (
+              <Form className="space-y-4">
+                {currentStep === "login" && (
                   <div>
-                    <Label htmlFor="email" className="text-xl font-semibold mb-3">
+                    <Label
+                      htmlFor="email"
+                      className="dark:text-white text-black text-xl font-semibold mb-3"
+                    >
                       Enter your email
                     </Label>
                     <Field
@@ -244,74 +269,107 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
                       id="email"
                       name="email"
                       type="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="example@yourmail.com"
                       required
-                      className={`bg-neutral-800 border ${
+                      className={`bg-neutral-100 dark:bg-neutral-800 border ${
                         touched.email && errors.email
                           ? "border-red-500"
-                          : "border-neutral-700"
-                      } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600`}
+                          : touched.email && !errors.email
+                          ? "border-green-500"
+                         : "border-neutral-300 dark:border-neutral-800"
+                      } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
                     />
-                  
+                    {touched.email && (
+                      <ErrorMessage
+                        name="email"
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    )}
                   </div>
-                    {touched.email && <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />}
+                )}
+                {currentStep === "signup" && (
+                  <>
+                    <div>
+                      <Label
+                        htmlFor="email"
+                        className="dark:text-white text-black text-xl font-semibold mb-3"
+                      >
+                        Enter your email
+                      </Label>
+                      <Field
+                        as={Input}
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="example@yourmail.com"
+                        required
+                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                          touched.email && errors.email
+                            ? "border-red-500"
+                            : touched.email && !errors.email
+                            ? "border-green-500"
+                                   : "border-neutral-300 dark:border-neutral-800"
+                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                      />
+                      {touched.email && (
+                        <ErrorMessage
+                          name="email"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="username"
+                        className="dark:text-white text-black text-xl font-semibold mb-3"
+                      >
+                        Enter your username
+                      </Label>
+                      <Field
+                        as={Input}
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="Your username"
+                        required
+                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                          touched.username && errors.username
+                            ? "border-red-500"
+                            : touched.username && !errors.username
+                            ? "border-green-500"
+                                    : "border-neutral-300 dark:border-neutral-800"
+                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                      />
+                      {touched.username && (
+                        <ErrorMessage
+                          name="username"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      )}
+                      {values.username && (
+                        <p className="text-sm text-gray-400 mt-2">
+                          Your username will be:{" "}
+                          <span className="text-red-600 font-semibold">
+                            {values.username}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
+                {currentStep === "login" && (
                   <div>
-                    <Label htmlFor="username" className="text-xl font-semibold mb-3">
-                      Enter your username
-                    </Label>
-                    <Field
-                      as={Input}
-                      id="username"
-                      name="username"
-                      type="text"
-                      placeholder="Your username"
-                      required
-                      className={`bg-neutral-800 border ${
-                        touched.username && errors.username
-                          ? "border-red-500"
-                          : "border-neutral-700"
-                      } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600`}
-                    />
-                    {touched.username && <ErrorMessage name="username" component="div" className="text-red-500 text-sm" />}
-                  </div>
-                </>
-              )}
-              {currentStep === "login" && (
-                <div>
-                  <Label htmlFor="password" className="text-xl font-semibold mb-3">
-                    Enter your password
-                  </Label>
-                  <div className="relative">
-                    <Field
-                      as={Input}
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="example password"
-                      required
-                      className={`bg-neutral-800 border ${
-                        touched.password && errors.password
-                          ? "border-red-500"
-                          : "border-neutral-700"
-                      } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                    <Label
+                      htmlFor="password"
+                      className="dark:text-white text-black text-xl font-semibold mb-3"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                   
-                  </div>
-                    {touched.password && <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />}
-                </div>
-              )}
-              {currentStep === "signupPassword" && (
-                <>
-                  <div>
-                    <Label htmlFor="password" className="text-xl font-semibold mb-3">
-                      Create your password
+                      Enter your password
                     </Label>
                     <div className="relative">
                       <Field
@@ -319,179 +377,263 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Password"
+                        placeholder="example password"
                         required
-                        className={`bg-neutral-800 border ${
+                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
                           touched.password && errors.password
                             ? "border-red-500"
-                            : "border-neutral-700"
-                        } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600`}
+                            : touched.password && !errors.password
+                            ? "border-green-500"
+                               : "border-neutral-300 dark:border-neutral-800"
+                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2  outline-none focus:outline-none focus:ring-1 focus:ring-red-600`}
                       />
+                      
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
                         className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
-                    
                     </div>
-                      {touched.password && <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />}
+                    {touched.password && (
+                      <ErrorMessage
+                        name="password"
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    )}
                   </div>
-                  <div>
-                    <Label htmlFor="confirmPassword" className="text-xl font-semibold mb-3">
-                      Confirm password
-                    </Label>
-                    <div className="relative">
+                )}
+                {currentStep === "signupPassword" && (
+                  <>
+                    <div>
+                      <Label
+                        htmlFor="password"
+                        className="dark:text-white text-black text-xl font-semibold mb-3"
+                      >
+                        Create your password
+                      </Label>
+                      <div className="relative">
+                        <Field
+                          as={Input}
+                          id="password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          required
+                          className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                            touched.password && errors.password
+                              ? "border-red-500"
+                              : touched.password && !errors.password
+                              ? "border-green-500"
+                                      : "border-neutral-300 dark:border-neutral-800"
+                          } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                      {touched.password && (
+                        <ErrorMessage
+                          name="password"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="dark:text-white text-black text-xl font-semibold mb-3"
+                      >
+                        Confirm password
+                      </Label>
+                      <div className="relative">
+                        <Field
+                          as={Input}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm Password"
+                          required
+                          className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                            touched.confirmPassword && errors.confirmPassword
+                              ? "border-red-500"
+                              : touched.confirmPassword && !errors.confirmPassword
+                              ? "border-green-500"
+                                    : "border-neutral-300 dark:border-neutral-800"
+                          } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                      {touched.confirmPassword && (
+                        <ErrorMessage
+                          name="confirmPassword"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      )}
+                    </div>
+                  </>
+                )}
+                {currentStep === "forgotPassword" && (
+                  <>
+                    <p className="text-sm text-center text-gray-400 mt-2">
+                      Don't worry we got you covered. Please enter registered
+                      email below. We will send you a verification link.
+                    </p>
+                    <div>
+                      <Label
+                        htmlFor="forgotEmail"
+                        className="dark:text-white text-black text-xl font-semibold mb-3"
+                      >
+                        Enter your email
+                      </Label>
                       <Field
                         as={Input}
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm Password"
+                        id="forgotEmail"
+                        name="forgotEmail"
+                        type="email"
+                        placeholder="example@yourmail.com"
                         required
-                        className={`bg-neutral-800 border ${
-                          touched.confirmPassword && errors.confirmPassword
+                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                          touched.forgotEmail && errors.forgotEmail
                             ? "border-red-500"
-                            : "border-neutral-700"
-                        } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600`}
+                            : touched.forgotEmail && !errors.forgotEmail
+                            ? "border-green-500"
+                                   : "border-neutral-300 dark:border-neutral-800"
+                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                     
+                      {touched.forgotEmail && (
+                        <ErrorMessage
+                          name="forgotEmail"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      )}
                     </div>
-                     {touched.confirmPassword && <ErrorMessage name="confirmPassword" component="div" className="text-red-500 text-sm" />}
-                  </div>
-                </>
-              )}
-              {currentStep === "forgotPassword" && (
-                <>
+                  </>
+                )}
+                {currentStep === "checkEmail" && (
                   <p className="text-sm text-center text-gray-400 mt-2">
-                    Don't worry we got you covered. Please enter registered email
-                    below. We will send you a verification link.
+                    We have sent the password reset link to your email. Please
+                    check your inbox and follow the instructions to reset your
+                    password.
                   </p>
-                  <div>
-                    <Label htmlFor="forgotEmail" className="text-xl font-semibold mb-3">
-                      Enter your email
-                    </Label>
-                    <Field
-                      as={Input}
-                      id="forgotEmail"
-                      name="forgotEmail"
-                      type="email"
-                      placeholder="example@yourmail.com"
-                      required
-                      className={`bg-neutral-800 border ${
-                        touched.forgotEmail && errors.forgotEmail
-                          ? "border-red-500"
-                          : "border-neutral-700"
-                      } text-white placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600`}
-                    />
-                    {touched.forgotEmail && <ErrorMessage name="forgotEmail" component="div" className="text-red-500 text-sm" />}
+                )}
+                {currentStep === "login" && (
+                  <div className="flex justify-between items-center text-sm text-black dark:text-gray-400">
+                    <label className="flex items-center gap-2">
+                      <Checkbox id="remember" className="border-gray-600" />
+                      Remember me
+                    </label>
+                    <button
+                      type="button"
+                      className="hover:underline text-black dark:text-gray-300"
+                      onClick={() => switchTo("forgotPassword")}
+                    >
+                      Forgot password?
+                    </button>
                   </div>
-                </>
-              )}
-              {currentStep === "checkEmail" && (
-                <>
-                  <p className="text-sm text-center text-gray-400 mt-2">
-                    We have sent the password reset link to your email. Please check your inbox and follow the instructions to reset your password.
-                  </p>
-                </>
-              )}
-              {currentStep === "login" && (
-                <div className="flex justify-between items-center text-sm text-gray-400">
-                  <label className="flex items-center gap-2">
-                    <Checkbox id="remember" className="border-gray-600" />
-                    Remember me
-                  </label>
-                  <button
-                    type="button"
-                    className="hover:underline text-gray-300"
-                    onClick={() => switchTo("forgotPassword")}
+                )}
+                <div className="flex justify-center mt-4">
+                  <Button
+                    type="submit"
+                    className="bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isButtonDisabled()}
                   >
-                    Forgot password?
-                  </button>
+                    {currentStep === "login" && "Continue"}
+                    {currentStep === "signup" && "Continue"}
+                    {currentStep === "signupPassword" && "Create account"}
+                    {currentStep === "forgotPassword" && "Send Reset Link"}
+                    {currentStep === "checkEmail" && "Back to Login"}
+                  </Button>
                 </div>
-              )}
-              <div className="flex justify-center mt-4">
-                <Button
-                  type="submit"
-                  className="bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg"
-                  disabled={isSubmitting}
-                >
-                  {currentStep === "login" && "Continue"}
-                  {currentStep === "signup" && "Continue"}
-                  {currentStep === "signupPassword" && "Create account"}
-                  {currentStep === "forgotPassword" && "Send Reset Link"}
-                  {currentStep === "checkEmail" && "Back to Login"}
-                </Button>
-              </div>
-              {(currentStep === "login" || currentStep === "signup") && (
-                <>
-                  <div className="flex items-center my-4">
-                    <div className="flex-grow h-px bg-neutral-700" />
-                    <span className="px-2 text-gray-500 text-sm">or</span>
-                    <div className="flex-grow h-px bg-neutral-700" />
-                  </div>
-                  <div className="flex justify-center gap-4 mb-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                    >
-                      <FcGoogle className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                    >
-                      <FaApple className="h-5 w-5 text-white" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                    >
-                      <FaFacebook className="h-5 w-5 text-blue-500" />
-                    </Button>
-                  </div>
-                </>
-              )}
-              {currentStep === "login" && (
-                <button
-                  type="button"
-                  className="w-full text-center text-sm text-gray-400 mt-2"
-                  onClick={() => switchTo("signup")}
-                >
-                  Don’t have an account?{" "}
-                  <span className="text-red-600 hover:underline">Sign Up</span>
-                </button>
-              )}
-              {currentStep === "signup" && (
-                <>
+                {(currentStep === "login" || currentStep === "signup") && (
+                  <>
+                    <div className="flex items-center my-4">
+                      <div className="flex-grow h-px bg-neutral-700" />
+                      <span className="px-2 text-gray-500 text-sm">or</span>
+                      <div className="flex-grow h-px bg-neutral-700" />
+                    </div>
+                    <div className="flex justify-center gap-4 mb-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                      >
+                        <FcGoogle className="h-5 w-5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                      >
+                        <FaApple className="h-5 w-5 text-black dark:text-white" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
+                      >
+                        <FaFacebook className="h-5 w-5 text-blue-500" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+                {currentStep === "login" && (
                   <button
                     type="button"
                     className="w-full text-center text-sm text-gray-400 mt-2"
-                    onClick={() => switchTo("login")}
+                    onClick={() => switchTo("signup")}
                   >
-                    Already have an account?{" "}
-                    <span className="text-red-600 hover:underline">
-                      Sign in here
-                    </span>
+                    Don’t have an account?{" "}
+                    <span className="text-red-600 hover:underline">Sign Up</span>
                   </button>
-                  <p className="text-sm text-center text-gray-400 mt-2">
-                    By pressing continue I agree to Steria Terms and conditions
-                  </p>
-                </>
-              )}
-            </Form>
-          )}
+                )}
+                {currentStep === "signup" && (
+                  <>
+                    <button
+                      type="button"
+                      className="w-full text-center text-sm text-gray-400 mt-2"
+                      onClick={() => switchTo("login")}
+                    >
+                      Already have an account?{" "}
+                      <span className="text-red-600 hover:underline">
+                        Sign in here
+                      </span>
+                    </button>
+                    <p className="text-sm text-center text-gray-400 mt-2">
+                      By pressing continue I agree to Steria Terms and conditions
+                    </p>
+                  </>
+                )}
+              </Form>
+            );
+          }}
         </Formik>
       </DialogContent>
     </Dialog>
