@@ -6,8 +6,13 @@ import Footer from "./Footer"
 export default function MainLayout() {
   return (
     <>
-      <Header />
-      <main className="px-4 ">
+    <header className="fixed top-0 left-0 w-full h-16   z-50">     
+       <Header />
+    </header>
+
+
+  <main className="px-4 pt-20 ">
+ 
         <Outlet /> 
       </main>
       <Footer />

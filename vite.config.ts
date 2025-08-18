@@ -5,6 +5,7 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
+  assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf'],
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -13,6 +14,7 @@ export default defineConfig({
   },
    server: {
     port: 8080,     // Вказуємо потрібний порт
-    host: true      // Дозволяє доступ з інших пристроїв (приймає всі IP)
+    host: true   ,
+    allowedHosts: ["aernjdz.ddns.net"]   // Дозволяє доступ з інших пристроїв (приймає всі IP)
    }
 })

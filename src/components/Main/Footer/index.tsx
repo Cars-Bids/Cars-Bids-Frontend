@@ -5,7 +5,7 @@ import {
   FaFacebookF,
   FaXTwitter,
 } from "react-icons/fa6";
-
+import { Link } from "react-router-dom";
 const Footer = () => {
   const currentYear = new Date().getFullYear(); 
 
@@ -13,7 +13,7 @@ const Footer = () => {
     <footer className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white px-4 py-8 shadow-md">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-6">
         {/* Logo */}
-        <div className="md:col-span-1 flex items-start">
+        <Link to="/" className="md:col-span-1 flex items-start">
           <svg
             width="1510"
             height="258"
@@ -63,7 +63,7 @@ const Footer = () => {
               </clipPath>
             </defs>
           </svg>
-        </div>
+        </Link>
 
         {/* How It Works */}
         <div>
