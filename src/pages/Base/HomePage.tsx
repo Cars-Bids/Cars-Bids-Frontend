@@ -1,16 +1,19 @@
-import FeaturedCars from "@/components/Main/PhotoPrew/index";
+import Loader from "@/components/Main/Preloader";
+
 
 const HomePage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen  ">
+
+      <div className="flex flex-col items-center justify-center">
+        <Loader />
+        <h1 className="text-2xl font-bold mt-4 dark:text-white">Welcome to the <span className="text-red-500 dark:text-red-600">Home Page</span></h1>
+        <p className="text-gray-600 dark:text-gray-200">This is a placeholder for your content.</p>
+        </div>
+
     
-      {/* Два компоненти в одному рядку */}
-      <div className="flex flex-row gap-6 w-full max-w-7xl">
-        
-        <FeaturedCars  />
-          <FeaturedCars variant="right" />
-   
-      </div>
+  
+      
     </div>
   );
 };
