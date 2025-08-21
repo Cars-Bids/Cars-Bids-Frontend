@@ -16,7 +16,7 @@ const SellYourCar = () => {
     <div>
       <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto">
         {/* Ліва частина — текст */}
-        <div className="flex flex-col justify-start items-start gap-9 max-w-xl text-center lg:text-left max-w-[1440px]">
+        <div className="flex flex-col justify-start items-start gap-9 max-w-xl text-center lg:text-left">
           <div className="flex flex-col gap-3">
             <h2 className="text-black dark:text-white text-4xl md:text-5xl font-bold font-amulya leading-tight">
               Your Car Deserves the Spotlight.
@@ -102,12 +102,12 @@ const SellYourCar = () => {
           />
         </div>
       </section>
-      <section className="w-full px-6 py-16  py-12 lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
+      <section className="w-full px-6 py-16  lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
       <h2 className="w-[80vw] text-3xl sm:text-4xl font-bold text-black dark:text-white mb-6 text-center sm:text-right max-w-[1440px] mx-auto">
   Why choose Steria?
 </h2>
 
-        <div className=" w-[80vw]  flex flex-wrap justify-center  sm:gap-8 lg:gap-9  lg:px-4 p-6 sm:p-8 rounded-xl bg-black/5 dark:bg-neutral-900  gap-y-6  mx-6  items-center max-w-[1440px] mx-auto">
+        <div className=" w-[80vw]  flex flex-wrap justify-center  sm:gap-8 lg:gap-9  lg:px-4 p-6 sm:p-8 rounded-xl bg-black/5 dark:bg-neutral-900  gap-y-6   items-center max-w-[1440px] mx-auto">
           {/* Блок 1 */}
           <div className="flex flex-col items-center gap-4 w-full sm:w-64 md:w-72 p-4 rounded-xl border-2 border-red-500 bg-white dark:bg-neutral-900">
             <div className="p-5 bg-black/5 dark:bg-black rounded-[74px] flex justify-center items-center">
@@ -226,7 +226,7 @@ const SellYourCar = () => {
     </div>
   </div>
 </section>
- <section className="w-full px-6 py-16  py-12 lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
+ <section className="w-full px-6 py-16  lg:py-9  flex flex-col items-center justify-center  rounded-xl gap-12  mx-auto">
         <h2 className="w-[80vw] text-3xl sm:text-4xl font-bold text-black dark:text-white mb-6 text-center sm:text-right max-w-[1440px] mx-auto">
          Frequently asked questions
         </h2>
