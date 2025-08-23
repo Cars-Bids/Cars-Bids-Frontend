@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useResetPasswordMutation } from "@/features/api/endpoints/Profile";
+import { useResetPasswordMutation } from "@/features/api/endpoints/Account";
 import { setStep, setTokenError } from "@/features/api/Slices/authModalSlice";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/app/store";

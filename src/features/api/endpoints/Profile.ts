@@ -15,15 +15,9 @@ const ProfileEndpoints = apiSlice.injectEndpoints({
         body: profileData,
       }),
     }),
-    resetPassword: builder.mutation<void, { email: string; token: string; newPassword: string }>({
-      query: (data) => ({
-        url: 'Profile/reset-password',
-        method: 'POST',
-        body: data,
-      }),
-    }),
+
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation , useResetPasswordMutation } =
+export const { useGetProfileQuery, useUpdateProfileMutation  } =
   ProfileEndpoints;

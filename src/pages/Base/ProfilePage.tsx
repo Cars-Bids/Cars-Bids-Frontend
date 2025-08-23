@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { EditBioModal, CropPhotoModal } from "../../components/Main/Modal";
+import { EditBioModal, CropPhotoModal } from "@/components/Main/Modal";
 
 const carListings = [
     {
