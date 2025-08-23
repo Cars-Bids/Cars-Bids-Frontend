@@ -15,7 +15,8 @@ import {
   setStep,
     setResetTokeAndEmail
 } from "@/features/api/Slices/authModalSlice";
-
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -36,9 +37,20 @@ export default function Navbar() {
       : "light";
   });
 
+
+
+
+  const { data: profile } = useGetProfileQuery(undefined, {
+  skip: !isAuthenticated,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+});
+
+  console.log(profile)
   const handleLogout = () => {
     console.log('Logout clicked');
-  dispatch(logout());    
+  dispatch(logout());  
+    dispatch(apiSlice.util.resetApiState()); 
   clearTokens();        
   navigate('/');
 
@@ -260,14 +272,14 @@ useEffect(() => {
               </div>
               {isProfileOpen && (
                 <div ref={profileRef} className="profile-dropdown absolute top-16 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 inline-flex flex-col gap-4  shadow-extra-lg dark:shadow-non z-50">
-                  <div className="self-stretch inline-flex justify-between items-center">
-                    <div className="justify-start text-black dark:text-white font-medium text-base font-synonym">Profile</div>
+                  <Link to={"/profile"} className="self-stretch inline-flex justify-between items-center" onClick={()=>setIsProfileOpen(false)}>
+                    <div className="justify-start text-black dark:text-white font-medium text-base font-synonym hover:text-red-500">Profile</div>
                     <img
                       className="w-7 h-7 rounded-3xl relative"
-                      src="https://placehold.co/30x30"
+                      src={profile?.profilePictureUrl  || `https://ui-avatars.com/api/?name=${profile?.username}?background=random`}
                       alt="User Avatar"
                     />
-                  </div>
+                  </Link>
                
                   <div className="w-16 h-7 relative">
                     <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">Settings</div>

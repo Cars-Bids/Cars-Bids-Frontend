@@ -39,8 +39,9 @@ const baseQueryWithReauth = async (
     const refreshToken = getRefreshToken();
 
     if (!refreshToken) {
-      api.dispatch(logout());
       clearTokens();
+      api.dispatch(logout());
+      api.dispatch(apiSlice.util.resetApiState()); // очищаємо кеш після logout
       return result;
     }
 
@@ -58,34 +59,37 @@ const baseQueryWithReauth = async (
       const authData = refreshResult.data as AuthResponse;
       const rememberMe = getRememberMe();
 
+  
+      api.dispatch(apiSlice.util.resetApiState());
       api.dispatch(
         setCredentials({
           tokens: {
             accessToken: authData.accessToken,
             refreshToken: authData.refreshToken,
           },
-          rememberMe: rememberMe,
+          rememberMe,
         })
       );
-
       saveTokens(
         {
           accessToken: authData.accessToken,
           refreshToken: authData.refreshToken,
         },
-          rememberMe
+        rememberMe
       );
 
-    
+  
       result = await baseQuery(args, api, extraOptions);
     } else {
-      api.dispatch(logout());
       clearTokens();
+      api.dispatch(logout());
+      api.dispatch(apiSlice.util.resetApiState());
     }
   }
 
   return result;
 };
+
 
 export const apiSlice = createApi({
   reducerPath: "api",

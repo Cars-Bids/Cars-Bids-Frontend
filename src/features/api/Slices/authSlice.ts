@@ -3,6 +3,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { TokenResponse } from "@/features/api/Auth/authService";
 import { saveTokens, clearTokens } from "@/features/api/Auth/authService";
 
+
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
@@ -32,6 +33,7 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.isAuth = false;
       clearTokens();
+    
     },
   },
 });
