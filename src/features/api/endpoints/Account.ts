@@ -1,14 +1,14 @@
-import { apiSlice } from "../apiSlice";
-import type { AuthResponse, LoginRequest, RefreshTokenRequest } from "../types/Profile";
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import type { RegisterData, AuthResponse, LoginRequest, RefreshTokenRequest } from "@/features/types/Profile";
 
 
 const AccountEndopints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation<void, FormData>({
-      query: (formData) => ({
+    register: builder.mutation<void, RegisterData>({
+      query: (body) => ({
         url: "/Account/Register",
         method: "POST",
-        body: formData,
+        body: body,
       }),
     }),
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -18,6 +18,14 @@ const AccountEndopints = apiSlice.injectEndpoints({
     body: credentials,
   }),
   }),
+  sendPasswordResetEmail: builder.mutation<void, { mailTo: string }>({
+    query: (body) => ({
+      url: '/Account/SendPasswordResetEmail',
+      method: 'POST',
+      body,
+    }),
+  })
+  ,
   refreshToken: builder.mutation<AuthResponse, RefreshTokenRequest>({
       query: (token) => ({
         url: '/Account/LoginViaRefreshToken',
@@ -30,4 +38,4 @@ const AccountEndopints = apiSlice.injectEndpoints({
 });
 
 
-export const  {useRegisterMutation, useLoginMutation, useRefreshTokenMutation } = AccountEndopints;
+export const  {useRegisterMutation, useLoginMutation, useRefreshTokenMutation, useSendPasswordResetEmailMutation } = AccountEndopints;

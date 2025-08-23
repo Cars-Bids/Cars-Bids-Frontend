@@ -1,90 +1,52 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
+
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { X, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaFacebook } from "react-icons/fa";
+
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { Cropper, CircleStencil, ImageRestriction } from 'react-advanced-cropper';
-import type { CropperRef } from 'react-advanced-cropper';
-import 'react-advanced-cropper/dist/style.css';
 
-const loginSchema = Yup.object({
-  email: Yup.string()
-    .email("Must be a valid email")
-    .matches(/@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/, "Invalid domain")
-    .required("Required"),
-  password: Yup.string()
-    .min(8, "Min 8 chars")
-    .matches(/[0-9]/, "Must contain a number")
-    .matches(/[A-Z]/, "Must contain an uppercase letter")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Must contain a special character")
-    .required("Required"),
-});
+import { editBioSchema } from "@/components/Main/Modal/Validation";
 
-const signupSchema = Yup.object({
-  email: Yup.string()
-    .email("Must be a valid email")
-    .matches(/@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/, "Invalid domain")
-    .required("Required"),
-  username: Yup.string()
-    .min(3, "Min 3 chars")
-    .matches(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, - and _ allowed")
-    .required("Required"),
-});
+import { Cropper, CircleStencil, ImageRestriction } from "react-advanced-cropper";
+import type { CropperRef } from "react-advanced-cropper";
+import "react-advanced-cropper/dist/style.css";
 
-const signupPasswordSchema = Yup.object({
-  password: Yup.string()
-    .min(8, "Min 8 chars")
-    .matches(/[0-9]/, "Must contain a number")
-    .matches(/[A-Z]/, "Must contain an uppercase letter")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Must contain a special character")
-    .required("Required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), undefined], "Passwords must match")
-    .required("Required"),
-});
+import { X, ArrowLeft } from "lucide-react";
 
-const forgotPasswordSchema = Yup.object({
-  forgotEmail: Yup.string()
-    .email("Must be a valid email")
-    .matches(/@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/, "Invalid domain")
-    .required("Required"),
-});
+import { LoginForm } from "@/components/Main/Modal/Auth/Login";
+import { SignupForm, SignupPasswordForm } from "@/components/Main/Modal/Auth/Register";
+import { ForgotPasswordForm } from "@/components/Main/Modal/Auth/ForgotPassword";
+import { CheckEmailForm } from "@/components/Main/Modal/Auth/CheckEmail";
 
-const editBioSchema = Yup.object({
-  bio: Yup.string()
-    .max(180, "Bio must be 180 characters or less")
-    .required("Bio is required"),
-});
+import type {
+PopupProps,
+  CropPhotoModalProps,
+  EditBioModalProps,
+} from "@/features/types/types";
+import { type RootState } from "@/app/store";
+import type { AppDispatch } from "@/app/store";
 
-interface PopupProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { useDispatch, useSelector } from "react-redux";
 
-interface EditBioModalProps extends PopupProps {
-  initialValue?: string;
-  onSave?: (bio: string) => void;
-}
 
-interface CropPhotoModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialImage?: string;
-  onSave?: (data: { imageUrl: string; coordinates: { left: number; top: number; width: number; height: number } }) => void;
-}
-
+import {
+  setStep,
+  setSignupData,
+  selectCurrentStep,
+  selectSignupData,
+  selectTokenError,
+  selectResetData
+} from "@/features/api/Slices/authModalSlice";
+import { ConfirmResetEmailForm, ErrorForm, ResetMailForm } from "./Auth/ResetMail";
 export function AuthPopup({ isOpen, onClose }: PopupProps) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState<
-    "login" | "signup" | "signupPassword" | "forgotPassword" | "checkEmail"
-  >("login");
+
+  const dispatch = useDispatch<AppDispatch>();
+  const currentStep = useSelector((state: RootState) => selectCurrentStep(state));
+  const signupData = useSelector((state: RootState) => selectSignupData(state));
+  const TokenError = useSelector((state: RootState) => selectTokenError(state));
+  const data = useSelector((state: RootState) => selectResetData(state));
+
+  console.log(data)
 
   const switchTo = (
     step:
@@ -93,46 +55,20 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
       | "signupPassword"
       | "forgotPassword"
       | "checkEmail"
+      | "resetMail"
+      | "confirmResetEmail"
+      | "Error",
+    data?: { email?: string; username?: string }
   ) => {
-    setCurrentStep(step);
-  };
-
-  interface FormValues {
-    email: string;
-    username: string;
-    password: string;
-    confirmPassword: string;
-    forgotEmail: string;
-  }
-
-  const handleSubmit = async (
-    values: FormValues,
-    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
-  ) => {
-    setSubmitting(false);
-    if (currentStep === "login") {
-      console.log("Login attempt with:", {
-        email: values.email,
-        password: values.password,
-      });
-      onClose();
-    } else if (currentStep === "signup") {
-      setCurrentStep("signupPassword");
-    } else if (currentStep === "signupPassword") {
-      console.log("Sign up with:", {
-        email: values.email,
-        username: values.username,
-        password: values.password,
-        confirmPassword: values.confirmPassword,
-      });
-      onClose();
-    } else if (currentStep === "forgotPassword") {
-      console.log("Sending reset link to:", values.forgotEmail);
-      switchTo("checkEmail");
-    } else if (currentStep === "checkEmail") {
-      console.log("Check email step");
-      setCurrentStep("login");
+    if (step === "signupPassword" && data) {
+      dispatch(
+        setSignupData({
+          email: data.email ?? "",
+          username: data.username ?? "",
+        })
+      );
     }
+    dispatch(setStep(step));
   };
 
   return (
@@ -142,15 +78,25 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
         showCloseButton={false}
       >
         <div className="flex justify-between items-center mb-2">
-          {currentStep !== "login" && currentStep !== "signup" ? (
+          {currentStep !== "login" && currentStep !== "signup" && currentStep !== "resetMail" && currentStep !== "confirmResetEmail" && currentStep !== "Error"  ?  (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (currentStep === "signupPassword") switchTo("signup");
-                else if (currentStep === "forgotPassword") switchTo("login");
-                else if (currentStep === "checkEmail")
-                  switchTo("forgotPassword");
+                switch (currentStep) {
+                  case "signupPassword":
+                    switchTo("signup");
+                    break;
+                  case "forgotPassword":
+                    switchTo("login");
+                    break;
+                  case "checkEmail":
+                    switchTo("forgotPassword");
+                    break;
+                  default:
+                    switchTo("login");
+                    break;
+                }
               }}
               className="text-black hover:bg-black/5 dark:text-gray-400 hover:text-black dark:hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm dark:hover:bg-white/5"
               aria-label="Back"
@@ -171,7 +117,6 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
             </Button>
           </DialogClose>
         </div>
-
         <div className="flex justify-center mb-2 text-2xl font-bold">
           <svg
             width="58"
@@ -191,477 +136,47 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
             />
           </svg>
         </div>
-
         {currentStep === "login" && (
-          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
-            Welcome back
-          </h2>
+          <LoginForm switchTo={switchTo} onClose={onClose} />
         )}
         {currentStep === "signup" && (
-          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
-            Sign Up
-          </h2>
+          <SignupForm switchTo={switchTo} onClose={onClose} />
         )}
         {currentStep === "signupPassword" && (
-          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
-            Sign Up
-          </h2>
+          <SignupPasswordForm
+            switchTo={switchTo}
+            onClose={onClose}
+            initialEmail={signupData.email}
+            initialUsername={signupData.username}
+          />
+        )}
+        {currentStep === "resetMail" && (
+          <ResetMailForm switchTo={switchTo} onClose={onClose}  Email={data.email} resetToken={data.token} />
         )}
         {currentStep === "forgotPassword" && (
-          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
-            Forgot Password?
-          </h2>
+          <ForgotPasswordForm switchTo={switchTo} onClose={onClose} />
+        )}
+
+        {currentStep === "confirmResetEmail" && (
+            <ConfirmResetEmailForm switchTo={switchTo} onClose={onClose} />
         )}
         {currentStep === "checkEmail" && (
-          <h2 className="dark:text-white text-black text-xl font-semibold text-center mb-6">
-            Check your email
-          </h2>
+          <CheckEmailForm switchTo={switchTo} onClose={onClose}  />
         )}
-
-        <Formik
-          initialValues={{
-            email: "",
-            username: "",
-            password: "",
-            confirmPassword: "",
-            forgotEmail: "",
-          }}
-          validationSchema={
-            currentStep === "login"
-              ? loginSchema
-              : currentStep === "signup"
-              ? signupSchema
-              : currentStep === "signupPassword"
-              ? signupPasswordSchema
-              : currentStep === "forgotPassword"
-              ? forgotPasswordSchema
-              : undefined
-          }
-          validateOnChange={true}
-          validateOnBlur={false}
-          onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => {
-            // Determine if the submit button should be disabled based on the current step
-            const isButtonDisabled = () => {
-              if (isSubmitting) return true;
-              if (currentStep === "login") {
-                return (
-                  !values.email ||
-                  !values.password ||
-                  !!errors.email ||
-                  !!errors.password
-                );
-              }
-              if (currentStep === "signup") {
-                return (
-                  !values.email ||
-                  !values.username ||
-                  !!errors.email ||
-                  !!errors.username
-                );
-              }
-              if (currentStep === "signupPassword") {
-                return (
-                  !values.password ||
-                  !values.confirmPassword ||
-                  !!errors.password ||
-                  !!errors.confirmPassword
-                );
-              }
-              if (currentStep === "forgotPassword") {
-                return !values.forgotEmail || !!errors.forgotEmail;
-              }
-              return false; // Enable for checkEmail step
-            };
-
-            return (
-              <Form className="space-y-4">
-                {currentStep === "login" && (
-                  <div>
-                    <Label
-                      htmlFor="email"
-                      className="dark:text-white text-black text-xl font-semibold mb-3"
-                    >
-                      Enter your email
-                    </Label>
-                    <Field
-                      as={Input}
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={values.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="example@yourmail.com"
-                      required
-                      className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                        touched.email && errors.email
-                          ? "border-red-500"
-                          : touched.email && !errors.email
-                          ? "border-green-500"
-                         : "border-neutral-300 dark:border-neutral-800"
-                      } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                    />
-                    {touched.email && (
-                      <ErrorMessage
-                        name="email"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    )}
-                  </div>
-                )}
-                {currentStep === "signup" && (
-                  <>
-                    <div>
-                      <Label
-                        htmlFor="email"
-                        className="dark:text-white text-black text-xl font-semibold mb-3"
-                      >
-                        Enter your email
-                      </Label>
-                      <Field
-                        as={Input}
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="example@yourmail.com"
-                        required
-                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                          touched.email && errors.email
-                            ? "border-red-500"
-                            : touched.email && !errors.email
-                            ? "border-green-500"
-                                   : "border-neutral-300 dark:border-neutral-800"
-                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                      />
-                      {touched.email && (
-                        <ErrorMessage
-                          name="email"
-                          component="div"
-                          className="text-red-500 text-sm"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="username"
-                        className="dark:text-white text-black text-xl font-semibold mb-3"
-                      >
-                        Enter your username
-                      </Label>
-                      <Field
-                        as={Input}
-                        id="username"
-                        name="username"
-                        type="text"
-                        placeholder="Your username"
-                        required
-                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                          touched.username && errors.username
-                            ? "border-red-500"
-                            : touched.username && !errors.username
-                            ? "border-green-500"
-                                    : "border-neutral-300 dark:border-neutral-800"
-                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                      />
-                      {touched.username && (
-                        <ErrorMessage
-                          name="username"
-                          component="div"
-                          className="text-red-500 text-sm"
-                        />
-                      )}
-                      {values.username && (
-                        <p className="text-sm text-gray-400 mt-2">
-                          Your username will be:{" "}
-                          <span className="text-red-600 font-semibold">
-                            {values.username}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-                {currentStep === "login" && (
-                  <div>
-                    <Label
-                      htmlFor="password"
-                      className="dark:text-white text-black text-xl font-semibold mb-3"
-                    >
-                      Enter your password
-                    </Label>
-                    <div className="relative">
-                      <Field
-                        as={Input}
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="example password"
-                        required
-                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                          touched.password && errors.password
-                            ? "border-red-500"
-                            : touched.password && !errors.password
-                            ? "border-green-500"
-                               : "border-neutral-300 dark:border-neutral-800"
-                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2  outline-none focus:outline-none focus:ring-1 focus:ring-red-600`}
-                      />
-                      
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    {touched.password && (
-                      <ErrorMessage
-                        name="password"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    )}
-                  </div>
-                )}
-                {currentStep === "signupPassword" && (
-                  <>
-                    <div>
-                      <Label
-                        htmlFor="password"
-                        className="dark:text-white text-black text-xl font-semibold mb-3"
-                      >
-                        Create your password
-                      </Label>
-                      <div className="relative">
-                        <Field
-                          as={Input}
-                          id="password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Password"
-                          required
-                          className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                            touched.password && errors.password
-                              ? "border-red-500"
-                              : touched.password && !errors.password
-                              ? "border-green-500"
-                                      : "border-neutral-300 dark:border-neutral-800"
-                          } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      {touched.password && (
-                        <ErrorMessage
-                          name="password"
-                          component="div"
-                          className="text-red-500 text-sm"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="confirmPassword"
-                        className="dark:text-white text-black text-xl font-semibold mb-3"
-                      >
-                        Confirm password
-                      </Label>
-                      <div className="relative">
-                        <Field
-                          as={Input}
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Confirm Password"
-                          required
-                          className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                            touched.confirmPassword && errors.confirmPassword
-                              ? "border-red-500"
-                              : touched.confirmPassword && !errors.confirmPassword
-                              ? "border-green-500"
-                                    : "border-neutral-300 dark:border-neutral-800"
-                          } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
-                          className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      {touched.confirmPassword && (
-                        <ErrorMessage
-                          name="confirmPassword"
-                          component="div"
-                          className="text-red-500 text-sm"
-                        />
-                      )}
-                    </div>
-                  </>
-                )}
-                {currentStep === "forgotPassword" && (
-                  <>
-                    <p className="text-sm text-center text-gray-400 mt-2">
-                      Don't worry we got you covered. Please enter registered
-                      email below. We will send you a verification link.
-                    </p>
-                    <div>
-                      <Label
-                        htmlFor="forgotEmail"
-                        className="dark:text-white text-black text-xl font-semibold mb-3"
-                      >
-                        Enter your email
-                      </Label>
-                      <Field
-                        as={Input}
-                        id="forgotEmail"
-                        name="forgotEmail"
-                        type="email"
-                        placeholder="example@yourmail.com"
-                        required
-                        className={`bg-neutral-100 dark:bg-neutral-800 border ${
-                          touched.forgotEmail && errors.forgotEmail
-                            ? "border-red-500"
-                            : touched.forgotEmail && !errors.forgotEmail
-                            ? "border-green-500"
-                                   : "border-neutral-300 dark:border-neutral-800"
-                        } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
-                      />
-                      {touched.forgotEmail && (
-                        <ErrorMessage
-                          name="forgotEmail"
-                          component="div"
-                          className="text-red-500 text-sm"
-                        />
-                      )}
-                    </div>
-                  </>
-                )}
-                {currentStep === "checkEmail" && (
-                  <p className="text-sm text-center text-gray-400 mt-2">
-                    We have sent the password reset link to your email. Please
-                    check your inbox and follow the instructions to reset your
-                    password.
-                  </p>
-                )}
-                {currentStep === "login" && (
-                  <div className="flex justify-between items-center text-sm text-black dark:text-gray-400">
-                    <label className="flex items-center gap-2">
-                      <Checkbox id="remember" className="border-gray-600" />
-                      Remember me
-                    </label>
-                    <button
-                      type="button"
-                      className="hover:underline text-black dark:text-gray-300"
-                      onClick={() => switchTo("forgotPassword")}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                )}
-                <div className="flex justify-center mt-4">
-                  <Button
-                    type="submit"
-                    className="bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isButtonDisabled()}
-                  >
-                    {currentStep === "login" && "Continue"}
-                    {currentStep === "signup" && "Continue"}
-                    {currentStep === "signupPassword" && "Create account"}
-                    {currentStep === "forgotPassword" && "Send Reset Link"}
-                    {currentStep === "checkEmail" && "Back to Login"}
-                  </Button>
-                </div>
-                {(currentStep === "login" || currentStep === "signup") && (
-                  <>
-                    <div className="flex items-center my-4">
-                      <div className="flex-grow h-px bg-neutral-700" />
-                      <span className="px-2 text-gray-500 text-sm">or</span>
-                      <div className="flex-grow h-px bg-neutral-700" />
-                    </div>
-                    <div className="flex justify-center gap-4 mb-4">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                      >
-                        <FcGoogle className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                      >
-                        <FaApple className="h-5 w-5 text-black dark:text-white" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="border border-neutral-700 rounded-lg transition-all duration-200 hover:border-red-600 hover:bg-transparent"
-                      >
-                        <FaFacebook className="h-5 w-5 text-blue-500" />
-                      </Button>
-                    </div>
-                  </>
-                )}
-                {currentStep === "login" && (
-                  <button
-                    type="button"
-                    className="w-full text-center text-sm text-gray-400 mt-2"
-                    onClick={() => switchTo("signup")}
-                  >
-                    Don’t have an account?{" "}
-                    <span className="text-red-600 hover:underline">Sign Up</span>
-                  </button>
-                )}
-                {currentStep === "signup" && (
-                  <>
-                    <button
-                      type="button"
-                      className="w-full text-center text-sm text-gray-400 mt-2"
-                      onClick={() => switchTo("login")}
-                    >
-                      Already have an account?{" "}
-                      <span className="text-red-600 hover:underline">
-                        Sign in here
-                      </span>
-                    </button>
-                    <p className="text-sm text-center text-gray-400 mt-2">
-                      By pressing continue I agree to Steria Terms and conditions
-                    </p>
-                  </>
-                )}
-              </Form>
-            );
-          }}
-        </Formik>
+        {currentStep === "Error" && (
+          <ErrorForm switchTo={switchTo} onClose={onClose} tokenError={TokenError}/>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
 
-export function EditBioModal({ isOpen, onClose, initialValue = "", onSave }: EditBioModalProps) {
+export function EditBioModal({
+  isOpen,
+  onClose,
+  initialValue = "",
+  onSave,
+}: EditBioModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -725,12 +240,13 @@ export function EditBioModal({ isOpen, onClose, initialValue = "", onSave }: Edi
                   id="bio"
                   name="bio"
                   placeholder="Just anything"
-                  className={`bg-neutral-100 dark:bg-neutral-800 border ${touched.bio && errors.bio
+                  className={`bg-neutral-100 dark:bg-neutral-800 border ${
+                    touched.bio && errors.bio
                       ? "border-red-500"
                       : touched.bio && !errors.bio
-                        ? "border-green-500"
-                        : "border-neutral-300 dark:border-neutral-800"
-                    } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 resize-none min-h-[60px] max-h-[120px] focus:outline-none focus:ring-0 focus:ring-red-600 overflow-hidden scrollbar-hide pr-12`}
+                      ? "border-green-500"
+                      : "border-neutral-300 dark:border-neutral-800"
+                  } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 resize-none min-h-[60px] max-h-[120px] focus:outline-none focus:ring-0 focus:ring-red-600 overflow-hidden scrollbar-hide pr-12`}
                   maxLength={180}
                   rows={3}
                   onChange={handleChange}
@@ -751,10 +267,20 @@ export function EditBioModal({ isOpen, onClose, initialValue = "", onSave }: Edi
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <rect width="32" height="32" rx="16" fill="#212121" />
-                    <path d="M11 24H13C14.0609 24 15.0783 23.5786 15.8284 22.8284C16.5786 22.0783 17 21.0609 17 20V8"
-                      stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M12 13L17 8L22 13"
-                      stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M11 24H13C14.0609 24 15.0783 23.5786 15.8284 22.8284C16.5786 22.0783 17 21.0609 17 20V8"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 13L17 8L22 13"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </button>
               </div>
@@ -790,7 +316,9 @@ export function CropPhotoModal({
     if (cropperRef.current) {
       const coordinates = cropperRef.current.getCoordinates();
       const canvas = cropperRef.current.getCanvas();
-      const croppedImage = canvas ? canvas.toDataURL('image/jpeg') : initialImage;
+      const croppedImage = canvas
+        ? canvas.toDataURL("image/jpeg")
+        : initialImage;
       if (coordinates) {
         onSave?.({
           imageUrl: croppedImage,
@@ -810,7 +338,10 @@ export function CropPhotoModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
       <div className="relative w-full max-w-lg mx-auto">
         <div className="flex flex-col items-center gap-8 p-6 sm:p-10 bg-[#121212] border-2 border-[#EF2929] rounded-xl">
           <button
@@ -839,7 +370,9 @@ export function CropPhotoModal({
             </svg>
           </div>
           <div className="text-center">
-            <h2 className="text-white text-xl sm:text-2xl font-bold leading-normal">Crop your photo</h2>
+            <h2 className="text-white text-xl sm:text-2xl font-bold leading-normal">
+              Crop your photo
+            </h2>
           </div>
           <div className="relative">
             <div className="w-80 h-80 sm:w-[360px] sm:h-[360px] relative rounded-[15px] overflow-hidden">

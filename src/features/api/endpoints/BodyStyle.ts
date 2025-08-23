@@ -1,5 +1,5 @@
-import { apiSlice } from "../apiSlice";
-import type { Style } from "../types/Car";
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import type { Style } from "@/features/types/Car";
 
 
 const BodyStylesEndpoints = apiSlice.injectEndpoints({
