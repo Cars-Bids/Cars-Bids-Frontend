@@ -3,6 +3,7 @@ import MainLayout from '@/components/Main'
 import HomePage from '@/pages/Base/HomePage'
 import SellYourCar from '@/pages/Base/SellYourCar'
 import ProfilePage from "./pages/Base/ProfilePage";
+import AuctionPage from "@/pages/Base/AuctionPage.tsx";
 
 function App() {
   return (
@@ -16,6 +17,10 @@ function App() {
 
         <Route path="/sell-your-car" element={<MainLayout restoreScroll={true} />}>
           <Route index element={<SellYourCar />} />
+        </Route>
+
+        <Route path="/auction/:id" element={<MainLayout restoreScroll={true} />}>
+          <Route index element={<AuctionPage />} />
         </Route>
 
         <Route path="/profile" element={<MainLayout restoreScroll={true} />}>
