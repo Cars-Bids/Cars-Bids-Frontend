@@ -11,6 +11,7 @@ function App() {
         <Route path="/" element={<MainLayout restoreScroll={true} />}>
           <Route index element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
+           <Route path="/reset-password" element={<HomePage />} />
         </Route>
 
         <Route path="/sell-your-car" element={<MainLayout restoreScroll={true} />}>

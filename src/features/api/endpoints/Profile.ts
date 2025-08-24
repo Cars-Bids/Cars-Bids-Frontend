@@ -1,5 +1,5 @@
-import { apiSlice } from "../apiSlice";
-import type { Profile, ProfileUpdateRequest } from "../types/Profile";
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import type { Profile, ProfileUpdateRequest } from "@/features/types/Profile";
 
 
 const ProfileEndpoints = apiSlice.injectEndpoints({
@@ -15,8 +15,9 @@ const ProfileEndpoints = apiSlice.injectEndpoints({
         body: profileData,
       }),
     }),
+
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } =
+export const { useGetProfileQuery, useUpdateProfileMutation  } =
   ProfileEndpoints;

@@ -1,5 +1,5 @@
-import { apiSlice } from "../apiSlice";
-import type { Model, CreateModel } from "../types/Car";
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import type { Model, CreateModel } from "@/features/types/Car";
 
 
 const ModelsEndpoints = apiSlice.injectEndpoints({

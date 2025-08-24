@@ -6,18 +6,27 @@ import { Menu, Sun, Moon, User, Bell } from "lucide-react";
 import { AuthPopup } from "../Modal";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "@/app/store";
-import { setActiveItem } from "@/features/api/navSlice";
-
+import type { AppDispatch, RootState } from "@/app/store";
+import { setActiveItem } from "@/features/api/Slices/navSlice";
+import { useNavigate } from "react-router-dom";
+import { logout } from '@/features/api/Slices/authSlice';
+import { clearTokens } from '@/features/api/Auth/authService';
+import {
+  setStep,
+    setResetTokeAndEmail
+} from "@/features/api/Slices/authModalSlice";
+import { apiSlice } from "@/features/api/Slices/apiSlice";
+import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
   const location = useLocation();
-  const isAuthenticated = false;
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
+   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -27,6 +36,25 @@ export default function Navbar() {
       ? "dark"
       : "light";
   });
+
+
+
+
+  const { data: profile } = useGetProfileQuery(undefined, {
+  skip: !isAuthenticated,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+});
+
+  console.log(profile)
+  const handleLogout = () => {
+    console.log('Logout clicked');
+  dispatch(logout());  
+    dispatch(apiSlice.util.resetApiState()); 
+  clearTokens();        
+  navigate('/');
+
+};
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -49,6 +77,19 @@ export default function Navbar() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+
+    useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get("token");
+      const mail = params.get("mail");
+      
+      if (token && mail) {
+        console.log("URL params:", { token, mail });
+        dispatch(setResetTokeAndEmail({email: mail, token: token}))
+        dispatch(setStep("resetMail"));
+           setIsLoginOpen(true);
+      }
+    }, [location.search, dispatch]);
 
 const profileRef = useRef<HTMLDivElement>(null);
 const triggerRef = useRef<HTMLDivElement>(null);
@@ -218,13 +259,6 @@ useEffect(() => {
             )}
           </div>
           {isAuthenticated ? (
-            <Button
-              onClick={() => setIsLoginOpen(true)}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
-            >
-              SignUp
-            </Button>
-          ) : (
             <div className="inline-flex justify-start items-start gap-2 relative profile-trigger">
               <div className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200">
                 <Bell className="cursor-pointer" />
@@ -238,14 +272,14 @@ useEffect(() => {
               </div>
               {isProfileOpen && (
                 <div ref={profileRef} className="profile-dropdown absolute top-16 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 inline-flex flex-col gap-4  shadow-extra-lg dark:shadow-non z-50">
-                  <div className="self-stretch inline-flex justify-between items-center">
-                    <div className="justify-start text-black dark:text-white font-medium text-base font-synonym">Profile</div>
+                  <Link to={"/profile"} className="self-stretch inline-flex justify-between items-center" onClick={()=>setIsProfileOpen(false)}>
+                    <div className="justify-start text-black dark:text-white font-medium text-base font-synonym hover:text-red-500">Profile</div>
                     <img
                       className="w-7 h-7 rounded-3xl relative"
-                      src="https://placehold.co/30x30"
+                      src={profile?.profilePictureUrl  || `https://ui-avatars.com/api/?name=${profile?.username}?background=random`}
                       alt="User Avatar"
                     />
-                  </div>
+                  </Link>
                
                   <div className="w-16 h-7 relative">
                     <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">Settings</div>
@@ -256,13 +290,20 @@ useEffect(() => {
                   <div className="w-20 h-7 relative">
                     <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">Watchlist</div>
                   </div>
-                  <div className="w-16 h-7 relative">
-                    <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">Sign out</div>
+                  <div onClick={handleLogout} className="w-16 h-7 relative" >
+                    <div   className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">Sign out</div>
                   </div>
                 </div>
               )}
             </div>
-          )}
+          )  :(
+            <Button
+              onClick={() => setIsLoginOpen(true)}
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
+            >
+              Log In
+            </Button>
+          ) }
           <AuthPopup
             isOpen={isLoginOpen}
             onClose={() => setIsLoginOpen(false)}

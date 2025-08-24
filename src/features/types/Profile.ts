@@ -1,19 +1,17 @@
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
-  username: string;
   email: string;
+  username: string;
   password: string;
-  image: File | null; 
+
 }
 export interface LoginRequest {
-  username: string;
+email: string;
   password: string;
 }
 export interface AuthResponse {
-  AccessToken: string;
-  RefreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }
 export interface AuthState {
   accessToken: string | null;
@@ -27,8 +25,7 @@ export interface Profile {
   id: number;
   username?: string;
   email?: string;
-  firstName?: string;
-  lastName?: string;
+  bio?: string;
   profilePictureUrl?: string;
   createdAt: string; 
 }
