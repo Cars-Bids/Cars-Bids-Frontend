@@ -74,29 +74,29 @@ const SellYourCar = () => {
         <div className="relative w-full max-w-[880px] aspect-[16/9] flex-shrink-0 hidden sm:block">
           {/* SVG-шари */}
           <img
-            src="src/assets/svg/Vector1.svg"
+            src="/assets/svg/Vector1.svg"
             alt="bg-layer-1"
             className="absolute left-[5%] top-[5%] w-[90%] h-auto max-w-[880px] z-0"
           />
           <img
-            src="src/assets/svg/Vector2.svg"
+            src="/assets/svg/Vector2.svg"
             alt="bg-layer-2"
             className="absolute left-[8%] top-[10%] w-[85%] h-auto max-w-[820px] z-10"
           />
 
           {/* Машини */}
           <img
-            src="src/assets/imgs/Nissan.png"
+            src="/assets/imgs/Nissan.png"
             alt="car-1"
             className="absolute left-[22%] top-[10%] w-[25%] max-w-[200px] md:w-[28%] md:max-w-[300px] lg:w-[30%] lg:max-w-[350px] z-20"
           />
           <img
-            src="src/assets/imgs/Jaguar.png"
+            src="/assets/imgs/Jaguar.png"
             alt="car-2"
             className="absolute left-[55%] top-[10%] w-[50%] max-w-[280px] sm:w-[35%] sm:max-w-[450px] lg:left-[53%] lg:top-[12%] md:w-[40%] md:max-w-[350px] z-20"
           />
           <img
-            src="src/assets/imgs/porsche.png"
+            src="/assets/imgs/porsche.png"
             alt="car-3"
             className="absolute left-[10%] top-[32%] w-[50%] max-w-[270px] sm:w-[35%] sm:max-w-[450px] md:w-[80%] md:max-w-[450px] z-20"
           />
