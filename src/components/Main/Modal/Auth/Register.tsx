@@ -167,7 +167,7 @@ export const SignupPasswordForm  = ({ switchTo, onClose, initialEmail, initialUs
                     : touched.password && !errors.password
                     ? "border-green-500"
                     : "border-neutral-300 dark:border-neutral-800"
-                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none `}
               />
               <button
                 type="button"
@@ -197,7 +197,7 @@ export const SignupPasswordForm  = ({ switchTo, onClose, initialEmail, initialUs
                     : touched.confirmPassword && !errors.confirmPassword
                     ? "border-green-500"
                     : "border-neutral-300 dark:border-neutral-800"
-                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 pr-10 focus:outline-none `}
               />
               <button
                 type="button"

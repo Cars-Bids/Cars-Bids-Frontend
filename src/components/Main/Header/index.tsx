@@ -2,32 +2,34 @@ import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, Sun, Moon, User, Bell } from "lucide-react";
+import { Menu, User, Bell, Sun, Moon } from "lucide-react";
 import { AuthPopup } from "../Modal";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store";
 import { setActiveItem } from "@/features/api/Slices/navSlice";
 import { useNavigate } from "react-router-dom";
-import { logout } from '@/features/api/Slices/authSlice';
-import { clearTokens } from '@/features/api/Auth/authService';
+import { logout } from "@/features/api/Slices/authSlice";
+import { clearTokens } from "@/features/api/Auth/authService";
 import {
   setStep,
-    setResetTokeAndEmail
+  setResetTokeAndEmail,
 } from "@/features/api/Slices/authModalSlice";
+
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
+import LangMenu from "@/components/MenuLang";
+
+import { Links } from "@/components/Main/Links";
 export default function Navbar() {
+  {
+    /*UseState */
+  }
   const [search, setSearch] = useState("");
+
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch<AppDispatch>();
-  const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
-  const location = useLocation();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
-   const navigate = useNavigate();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLangOpen, setisLangOpen] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("theme");
@@ -37,25 +39,59 @@ export default function Navbar() {
       : "light";
   });
 
+  {
+    /*Ref`s*/
+  }
+  const profileRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+  const langTriggerRef = useRef<HTMLDivElement>(null);
 
+  {
+    /*Redux */
+  }
+  const dispatch = useDispatch<AppDispatch>();
+  const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
+ 
+  {
+    /*Routes */
+  }
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-
+  {
+    /*RTK Queue */
+  }
   const { data: profile } = useGetProfileQuery(undefined, {
-  skip: !isAuthenticated,
-  refetchOnFocus: true,
-  refetchOnReconnect: true,
-});
+    skip: !isAuthenticated,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
 
-  console.log(profile)
+  {
+    /*Handlers*/
+  }
   const handleLogout = () => {
-    console.log('Logout clicked');
-  dispatch(logout());  
-    dispatch(apiSlice.util.resetApiState()); 
-  clearTokens();        
-  navigate('/');
+    console.log("Logout clicked");
+    dispatch(logout());
+    dispatch(apiSlice.util.resetApiState());
+    clearTokens();
+    navigate("/");
+  };
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+  const handleLinkClick = (link: string) => {
+    dispatch(setActiveItem(link));
+    setIsSheetOpen(false);
+  };
 
-};
-
+  {
+    /*UseEffects */
+  }
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => {
@@ -77,63 +113,65 @@ export default function Navbar() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+    const mail = params.get("mail");
 
-    useEffect(() => {
-      const params = new URLSearchParams(location.search);
-      const token = params.get("token");
-      const mail = params.get("mail");
-      
-      if (token && mail) {
-        console.log("URL params:", { token, mail });
-        dispatch(setResetTokeAndEmail({email: mail, token: token}))
-        dispatch(setStep("resetMail"));
-           setIsLoginOpen(true);
-      }
-    }, [location.search, dispatch]);
-
-const profileRef = useRef<HTMLDivElement>(null);
-const triggerRef = useRef<HTMLDivElement>(null);
-
-useEffect(() => {
-  const handleOutsideClick = (event: MouseEvent) => {
-   
-    if (isSheetOpen && sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
-      setIsSheetOpen(false);
+    if (token && mail) {
+      dispatch(setResetTokeAndEmail({ email: mail, token: token }));
+      dispatch(setStep("resetMail"));
+      setIsLoginOpen(true);
     }
-  
-    const profileRefs = [profileRef, triggerRef];
-    if (isProfileOpen && !profileRefs.some(ref => ref.current?.contains(event.target as Node))) {
-      setIsProfileOpen(false);
-    }
-  };
-
-  document.addEventListener("mousedown", handleOutsideClick);
-  return () => {
-    document.removeEventListener("mousedown", handleOutsideClick);
-  };
-}, [isSheetOpen, isProfileOpen]);
-
+  }, [location.search, dispatch]);
 
   useEffect(() => {
-    const routeToItemMap: { [key: string]: string } = {
-      "/": "Auctions",
-      "/sell-your-car": "Sell your car",
-      "/whats-steria": "What’s Steria?",
-      "/leaderboard": "Leaderboard",
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        isSheetOpen &&
+        sheetRef.current &&
+        !sheetRef.current.contains(event.target as Node)
+      ) {
+        setIsSheetOpen(false);
+      }
+
+      const profileRefs = [profileRef, triggerRef];
+      if (
+        isProfileOpen &&
+        !profileRefs.some((ref) => ref.current?.contains(event.target as Node))
+      ) {
+        setIsProfileOpen(false);
+      }
+      const langRefs = [langMenuRef, langTriggerRef];
+      if (
+        isLangOpen &&
+        !langRefs.some((ref) => ref.current?.contains(event.target as Node))
+      ) {
+        setisLangOpen(false);
+      }
     };
-    const currentItem = routeToItemMap[location.pathname] || "Auctions";
-    dispatch(setActiveItem(currentItem));
-  }, [location.pathname, dispatch]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isSheetOpen, isProfileOpen, isLangOpen]);
+
+  useEffect(() => {
+  const routeToItemMap: { [key: string]: string } = {
+    "/": "Auctions",
+    "/sell-your-car": "Sell your car",
+    "/whats-steria": "What’s Steria?",
+    "/leaderboard": "Leaderboard",
   };
 
-  const handleLinkClick = (link: string) => {
-    dispatch(setActiveItem(link));
-    setIsSheetOpen(false);
-  };
+  const segments = location.pathname.split("/").slice(2); 
+  const pathWithoutLang = "/" + segments.join("/");
 
+  const currentItem = routeToItemMap[pathWithoutLang] || "Auctions";
+  console.log(currentItem);
+  dispatch(setActiveItem(currentItem));
+}, [location.pathname, dispatch]);
 
   const menuItems = [
     { name: "Auctions", path: "/" },
@@ -207,7 +245,7 @@ useEffect(() => {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
           {menuItems.map((item) => (
-            <Link
+            <Links
               key={item.name}
               to={item.path}
               onClick={() => handleLinkClick(item.name)}
@@ -218,12 +256,12 @@ useEffect(() => {
               }`}
             >
               {item.name}
-            </Link>
+            </Links>
           ))}
         </div>
 
         {/* Search & Sign Up & Theme Toggle */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-6">
           <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 px-3 py-2 rounded-lg shadow-sm">
             <span className="text-gray-400 dark:text-gray-300">
               <svg
@@ -263,47 +301,74 @@ useEffect(() => {
               <div className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200">
                 <Bell className="cursor-pointer" />
               </div>
-              <div className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200" ref={triggerRef}>
+              <div
+                className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200"
+                ref={triggerRef}
+              >
                 <User
-             
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                   className="cursor-pointer"
                 />
               </div>
-              {isProfileOpen && (
-                <div ref={profileRef} className="profile-dropdown absolute top-16 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 inline-flex flex-col gap-4  shadow-extra-lg dark:shadow-non z-50">
-                  <Link to={"/profile"} className="self-stretch inline-flex justify-between items-center" onClick={()=>setIsProfileOpen(false)}>
-                    <div className="justify-start text-black dark:text-white font-medium text-base font-synonym hover:text-red-500">Profile</div>
-                    <img
-                      className="w-7 h-7 rounded-3xl relative"
-                      src={profile?.profilePictureUrl  || `https://ui-avatars.com/api/?name=${profile?.username}?background=random`}
-                      alt="User Avatar"
-                    />
-                  </Link>
-               
-                  <div className="w-16 h-7 relative">
-                    <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">Settings</div>
+
+              <div
+                ref={profileRef}
+                className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 inline-flex flex-col gap-4  shadow-extra-lg dark:shadow-non z-50  transform transition-all duration-200     ${
+                  isProfileOpen
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-95 hidden"
+                } `}
+              >
+                <Links
+                  to={"/profile"}
+                  className="self-stretch inline-flex justify-between items-center"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                >
+                  <div className="justify-start text-black dark:text-white font-medium text-base font-synonym hover:text-red-500">
+                    Profile
                   </div>
-                  <div className="w-32 h-7 relative">
-                    <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">Seller dashboard</div>
-                  </div>
-                  <div className="w-20 h-7 relative">
-                    <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">Watchlist</div>
-                  </div>
-                  <div onClick={handleLogout} className="w-16 h-7 relative" >
-                    <div   className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">Sign out</div>
+                  <img
+                    className="w-7 h-7 rounded-3xl relative"
+                    src={
+                      profile?.profilePictureUrl ||
+                      `https://ui-avatars.com/api/?name=${profile?.username}?background=random`
+                    }
+                    alt="User Avatar"
+                  />
+                </Links>
+
+                <div className="w-16 h-7 relative">
+                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
+                    Settings
                   </div>
                 </div>
-              )}
+                <div className="w-32 h-7 relative">
+                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                    Seller dashboard
+                  </div>
+                </div>
+                <div className="w-20 h-7 relative">
+                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                    Watchlist
+                  </div>
+                </div>
+                <div onClick={handleLogout} className="w-16 h-7 relative">
+                  <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
+                    Sign out
+                  </div>
+                </div>
+              </div>
             </div>
-          )  :(
+          ) : (
             <Button
-              onClick={() => setIsLoginOpen(true)}
+              onClick={() => setIsLoginOpen((prev) => !prev)}
               className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
             >
               Log In
             </Button>
-          ) }
+          )}
+
+          <LangMenu />
           <AuthPopup
             isOpen={isLoginOpen}
             onClose={() => setIsLoginOpen(false)}
@@ -312,7 +377,7 @@ useEffect(() => {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-3">
-          <Button
+          {/* <Button
             onClick={toggleTheme}
             variant="ghost"
             size="icon"
@@ -324,7 +389,7 @@ useEffect(() => {
             ) : (
               <Sun className="h-5 w-5" />
             )}
-          </Button>
+          </Button> */}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
