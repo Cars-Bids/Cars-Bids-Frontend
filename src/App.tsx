@@ -3,6 +3,7 @@ import MainLayout from '@/components/Main'
 import HomePage from '@/pages/Base/HomePage'
 import SellYourCar from '@/pages/Base/SellYourCar'
 import ProfilePage from "./pages/Base/ProfilePage";
+import SellerDashboard from './pages/Base/SellerDashboard';
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
 
         <Route path="/profile" element={<MainLayout restoreScroll={true} />}>
           <Route index element={<ProfilePage />} />
+        </Route>
+
+        <Route path="/seller-dashboard" element={<MainLayout restoreScroll={true} />}>
+          <Route index element={<SellerDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

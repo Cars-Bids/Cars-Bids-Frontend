@@ -3,6 +3,8 @@ import { EditBioModal, CropPhotoModal } from "@/components/Main/Modal";
 import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store";
+import Sidebar from "@/components/Main/SidebarProfile";
+
 const carListings = [
   {
     id: 1,
@@ -191,42 +193,7 @@ export default function Profile() {
         {/* Left Sidebar and Main Content */}
         <div className="flex flex-col lg:flex-row">
           {/* Left Sidebar */}
-          <div className="flex-shrink-0 p-2 w-full lg:w-auto">
-            <div className="bg-[#212121] rounded-xl p-3 lg:max-w-[200px]">
-              <nav
-                className="
-                                    grid grid-cols-2 gap-2
-                                    sm:grid-cols-4
-                                    lg:flex lg:flex-col lg:space-y-2
-                                "
-              >
-                <a
-                  href="#"
-                  className="block text-center lg:text-start py-1 text-white bg-steria-dark-card rounded-lg"
-                >
-                  Profile
-                </a>
-                <a
-                  href="#"
-                  className="block text-center lg:text-start py-1 text-gray-300 hover:text-white hover:bg-steria-dark-card rounded-lg transition-colors"
-                >
-                  Seller dashboard
-                </a>
-                <a
-                  href="#"
-                  className="block text-center lg:text-start py-1 text-gray-300 hover:text-white hover:bg-steria-dark-card rounded-lg transition-colors"
-                >
-                  Watchlist
-                </a>
-                <a
-                  href="#"
-                  className="block text-center lg:text-start py-1 text-gray-300 hover:text-white hover:bg-steria-dark-card rounded-lg transition-colors"
-                >
-                  Settings
-                </a>
-              </nav>
-            </div>
-          </div>
+          <Sidebar />
 
           {/* Main Content Area */}
           <div className="flex-1 max-w-[1072px]">
