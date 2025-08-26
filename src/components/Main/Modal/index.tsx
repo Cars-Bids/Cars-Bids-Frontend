@@ -46,7 +46,7 @@ export function AuthPopup({ isOpen, onClose }: PopupProps) {
   const TokenError = useSelector((state: RootState) => selectTokenError(state));
   const data = useSelector((state: RootState) => selectResetData(state));
 
-  console.log(data)
+
 
   const switchTo = (
     step:

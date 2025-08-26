@@ -96,7 +96,7 @@ export const LoginForm = ({ switchTo, onClose }: FormProps) => {
                   : touched.email && !errors.email
                   ? "border-green-500"
                   : "border-neutral-300 dark:border-neutral-800"
-              } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
+              } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none `}
             />
             {touched.email && (
               <ErrorMessage
@@ -127,7 +127,7 @@ export const LoginForm = ({ switchTo, onClose }: FormProps) => {
                     : touched.password && !errors.password
                     ? "border-green-500"
                     : "border-neutral-300 dark:border-neutral-800"
-                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-600`}
+                } text-black dark:text-white placeholder-dark dark:placeholder-gray-500 w-full rounded-lg px-4 py-2 focus:outline-none `}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e);
                   setServerError("");
