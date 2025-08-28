@@ -1,124 +1,114 @@
-import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Car {
+interface CarCardProps {
   title: string;
+  description: string;
   subtitle: string;
+  lable: string;
+  image: string;
+  featured: string[];
   price: string;
   time: string;
-  images: string[];
+  variant?: "default" | "mirror";
 }
 
-const testCars: Car[] = [
-  {
-    title: "2013 Porsche Panamera S",
-    subtitle: "2 Owners, V8 Power, Yachting Blue Metallic",
-    price: "$135,000",
-    time: "03:48:12",
-    images: [
-      "https://picsum.photos/id/1011/800/500",
-      "https://picsum.photos/id/1012/400/250",
-      "https://picsum.photos/id/1013/400/250",
-    ],
-  },
-  {
-    title: "1964 Ford Galaxie 500 Convertible",
-    subtitle: "428ci V8, Blue Interior, Numbers-Matching",
-    price: "$65,000",
-    time: "06:48:12",
-    images: [
-      "https://picsum.photos/id/1015/800/500",
-      "https://picsum.photos/id/1016/400/250",
-      "https://picsum.photos/id/1018/400/250",
-    ],
-  },
-];
-
-interface FeaturedCarsProps {
-  variant?: "left" | "right";
-}
-
-export default function FeaturedCars({ variant = "left" }: FeaturedCarsProps) {
-  const [index, setIndex] = useState(0);
-
-  const prev = () => {
-    setIndex((prev) => (prev === 0 ? testCars.length - 1 : prev - 1));
-  };
-
-  const next = () => {
-    setIndex((prev) => (prev === testCars.length - 1 ? 0 : prev + 1));
-  };
-
-  const car = testCars[index];
-
-  const LargeImage = (
-    <div className="relative overflow-hidden h-full col-span-2">
-      <img
-        src={car.images[0]}
-        alt={car.title}
-        className="h-full w-full object-cover"
-      />
-      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
-        <h3 className="text-xl font-bold">{car.title}</h3>
-        <p className="text-sm pt-1">{car.subtitle}</p>
-        <div className="mt-2 flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <span className="bg-black/50 px-3 py-1 rounded">{car.time}</span>
-            <span className="bg-black/50 px-3 py-1 rounded">{car.price}</span>
-          </div>
-          <div className="flex items-center bg-black/50 rounded">
-            <button
-              onClick={prev}
-              className="hover:bg-neutral-700 p-2 rounded-l"
-            >
-              <ChevronLeft className="h-4 w-4 text-white" />
-            </button>
-            <button
-              onClick={next}
-              className="hover:bg-neutral-700 p-2 rounded-r"
-            >
-              <ChevronRight className="h-4 w-4 text-white" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const SmallImages = (
-    <div className="grid grid-rows-[auto,1fr,1fr] gap-1 h-full col-span-1">
-      <div className="bg-neutral-800 p-2">
-        <h2 className="text-base font-semibold text-white">
-          {variant === "left" ? "Newly added" : "Featured cars"}
-        </h2>
-      </div>
-      {car.images.slice(1).map((img, i) => (
-        <div key={i} className="relative overflow-hidden">
-          <img
-            src={img}
-            alt={`${car.title} view ${i + 1}`}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      ))}
-    </div>
-  );
-
+export const CarCard = ({
+  title,
+  description,
+  subtitle,
+  image,
+  featured,
+  price,
+  time,
+  lable,
+  variant = "default",
+}: CarCardProps) => {
   return (
-    <div className="rounded-2xl bg-neutral-900 p-2 w-full border">
-      <div className="grid grid-cols-3 gap-1 h-full items-stretch">
-        {variant === "left" ? (
-          <>
-            {LargeImage}
-            {SmallImages}
-          </>
-        ) : (
-          <>
-            {SmallImages}
-            {LargeImage}
-          </>
-        )}
+    <div
+      className={`w-full h-75 max-w-3xl bg-white dark:bg-neutral-900 text-white rounded-lg outline outline-1 outline-gray-400 dark:outline-white overflow-hidden grid  ${
+        variant === "mirror"
+          ? "grid-cols-[1.2fr_2fr_2fr]"
+          : "grid-cols-[2fr_2fr_1.2fr]"
+      }`}
+    >
+      {/* Main car block */}
+      <div
+        className={`col-span-2 relative ${
+          variant == "mirror" ? "order-1" : "order-0"
+        }`}
+      >
+        <img src={image} alt={title} className="h-full  object-cover" />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/10 p-4 flex flex-col justify-between">
+          {/* Top info */}
+
+          <div className={`${variant== "mirror" ? "text-right" : "text-left"} `}>
+            <h2 className="text-lg font-bold font-amulya">{title} </h2>
+            <p className="text-xs  font-synonym">{subtitle}</p>
+            <p className="text-xs  font-synonym">{description}</p>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="flex items-center justify-between w-full">
+            {variant == "mirror" ? (
+              <>
+                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white ">
+                  <button className="px-1 py-1 hover:bg-black/80 transition border-r border-white">
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button className="px-1 py-1 hover:bg-black/80 transition">
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white">
+                  <div className="px-2 py-1">{time}</div>
+                  <div className="px-2 py-1 border-l border-white">{price}</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white">
+                  <div className="px-2 py-1">{time}</div>
+                  <div className="px-2 py-1 border-l border-white">{price}</div>
+                </div>
+
+                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white ">
+                  <button className="px-1 py-1 hover:bg-black/80 transition border-r border-white">
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button className="px-1 py-1 hover:bg-black/80 transition">
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+   
+      <div className="flex flex-col ">
+        <div className={`self-stretch self-stretch p-4 inline-flex flex-col justify-center items-center border-white border ${variant=="mirror" ? " border-r-2" : "border-l-2"}`}>
+          <div className="justify-start text-black dark:text-white text-lg font-bold font-amulya leading-tight ">
+            {lable}
+          </div>
+        </div>
+
+        {featured.map((f, i) => (
+          <div
+            key={i}
+            className={`${variant=="mirror" ? " border-r-2" : "border-l-2"}  border border-white overflow-hidden relative`}
+          >
+            <img
+              src={f}
+              alt="featured"
+              className="w-[210px] h-31 object-cover "
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
+
+export default CarCard;

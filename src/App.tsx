@@ -6,6 +6,7 @@ import ProfilePage from "@/pages/Base/ProfilePage";
 import { useLangFromURL } from './hooks/Lang';
 import { useSelector  } from 'react-redux';
 import { type RootState } from './app/store';
+import NotFound404 from './pages/Errors/404';
 
 function LangWrapper() {
  useLangFromURL(); 
@@ -27,9 +28,10 @@ function LangWrapper() {
         <Route path="reset-password" element={<HomePage />} />
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="profile" element={<ProfilePage />} />
+          <Route path="*" element={<NotFound404/>} />
       </Route>
 
-      <Route path="*" element={<div>404 Not Found</div>} />
+    
     </Routes>
   );
 }

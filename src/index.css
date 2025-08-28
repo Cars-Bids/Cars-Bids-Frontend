@@ -51,27 +51,32 @@ body{
 }
 /* Глобальні стилі скролу */
 @layer utilities {
-  /* Chrome, Safari, Edge */
+  /* Chrome, Safari, Edge, Opera */
   *::-webkit-scrollbar {
-    width: 8px; /* товщина скролу */
+    width: 8px;
   }
 
   *::-webkit-scrollbar-track {
-    background: transparent; /* трек невидимий */
+    background: transparent;
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: #ef4444; /* червоний повзунок (red-500) */
-    border-radius: 4px; /* округлення */
+    background-color: #ef4444;
+    border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: #d82323; /* червоний темніший при ховері (red-700) */
+    background-color: #d82323;
   }
 
   /* Firefox */
   * {
     scrollbar-width: thin;
     scrollbar-color: #ff3c3c transparent;
+  }
+
+  /* Старий Edge / IE */
+  * {
+    -ms-overflow-style: auto; /* auto або none */
   }
 }

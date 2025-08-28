@@ -176,8 +176,8 @@ export default function Navbar() {
   const menuItems = [
     { name: "Auctions", path: "/" },
     { name: "Sell your car", path: "/sell-your-car" },
-    { name: "What’s Steria?", path: "#" },
-    { name: "Leaderboard", path: "#" },
+    { name: "What’s Steria?", path: "/whats-steria" },
+    { name: "Leaderboard", path: "/leaderboard" },
   ];
 
   return (
@@ -245,18 +245,17 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
           {menuItems.map((item) => (
-            <Links
-              key={item.name}
-              to={item.path}
-              onClick={() => handleLinkClick(item.name)}
-              className={`hover:text-red-400 font-medium text-scaling dark:text-white text-black ${
-                activeItem === item.name
-                  ? "border-b-2 border-red-400 dark:border-red-400"
-                  : ""
-              }`}
-            >
-              {item.name}
-            </Links>
+           <Links
+  key={item.name}
+  to={item.path}
+  onClick={() => handleLinkClick(item.name)}
+  className={`hover:text-red-400 font-medium dark:text-white text-black
+    text-sm sm:text-base md:text-lg lg:text-base
+    ${activeItem === item.name ? "border-b-2 border-red-400 dark:border-red-400" : ""}`}
+>
+  {item.name}
+</Links>
+
           ))}
         </div>
 
@@ -279,7 +278,7 @@ export default function Navbar() {
               </svg>
             </span>
             <Input
-              className="border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
+              className="border-none  bg-neutral-200 dark:bg-neutral-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200  placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
               placeholder="Search for car or model"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -312,13 +311,11 @@ export default function Navbar() {
               </div>
 
               <div
-                ref={profileRef}
-                className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 inline-flex flex-col gap-4  shadow-extra-lg dark:shadow-non z-50  transform transition-all duration-200     ${
-                  isProfileOpen
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-95 hidden"
-                } `}
-              >
+  ref={profileRef}
+  className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 flex flex-col gap-4 shadow-extra-lg dark:shadow-none z-50 transform transition-all duration-200
+    ${isProfileOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"}
+  `}
+>
                 <Links
                   to={"/profile"}
                   className="self-stretch inline-flex justify-between items-center"
@@ -362,7 +359,7 @@ export default function Navbar() {
           ) : (
             <Button
               onClick={() => setIsLoginOpen((prev) => !prev)}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
+              className=" font-amulya bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
             >
               Log In
             </Button>
@@ -377,7 +374,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-3">
-          {/* <Button
+          <Button
             onClick={toggleTheme}
             variant="ghost"
             size="icon"
@@ -389,7 +386,7 @@ export default function Navbar() {
             ) : (
               <Sun className="h-5 w-5" />
             )}
-          </Button> */}
+          </Button>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button

@@ -1,0 +1,134 @@
+@layer utilities {
+  .line {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6px;
+  }
+
+  .back-wheel {
+    transform-origin: 18px 56px;
+    animation: wheel-roll 15ms forwards;
+  }
+
+  .front-wheel {
+    transform-origin: 59px 56px;
+    animation: wheel-roll 15ms linear infinite;
+  }
+
+  .animate-car {
+    transform-origin: center center;
+  }
+
+  .animate-line-floor {
+    stroke-dasharray: 60% 10%;
+    stroke-dashoffset: 55;
+    animation: line-2 1.5s forwards;
+  }
+  .animate-cloud {
+    opacity: 0.6;
+
+  animation-name: cloud;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  }
+
+  @keyframes cloud {
+    from {
+      transform: translateX(130%);
+    }
+    to {
+      transform: translateX(-130%);
+    }
+  }
+}
+
+@keyframes crash {
+  0% {
+    transform: translateX(-90px) rotate(0deg);
+  }
+  60% {
+    transform: translateX(-10px) rotate(5deg);
+  }
+  80% {
+    transform: translateX(0px) rotate(-5deg);
+  }
+  100% {
+    transform: translateX(0px) rotate(6deg);
+  }
+}
+
+.animate-crash {
+  animation: crash 1.5s forwards; /* forwards тримає кінцевий стан */
+}
+
+@keyframes wheel-roll {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(120px) rotate(360deg);
+  }
+}
+
+
+  @keyframes wheel {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes crashWithWheel {
+  0%   { transform: translateX(-90px)  rotate(0deg); }
+  60%  { transform: translateX(-10px) rotate(180deg); }
+  80%  { transform: translateX(0px) rotate(270deg); }
+  100% { transform: translateX(0px) rotate(360deg); }
+
+}
+
+
+.fly-wheel-2 {
+  animation:  crashWithWheel 1.5s forwards, wheel-roll 1.5s forwards 1.5s;
+}
+
+.fly-wheel{
+   animation:  crashWithWheel 1.5s forwards;
+}
+
+@keyframes lamp-pattern {
+  0%   { opacity: 1; }
+  4%   { opacity: 0; }
+  8%   { opacity: 1; }
+  12%  { opacity: 0; }
+  16%  { opacity: 1; }
+  20%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-lamp {
+  animation: lamp-pattern 6.5s infinite 1.5s;
+  /* додатково можна зробити плавніше через ease-in-out */
+
+}
+
+@keyframes line-2 {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -56;
+  }
+}
+
+.car-hood {
+  animation: show-hood 0.1s forwards;
+  animation-delay: 1.5s; /* після завершення crash */
+}
+
+@keyframes show-hood {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
