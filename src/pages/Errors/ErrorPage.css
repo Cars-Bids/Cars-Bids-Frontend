@@ -5,15 +5,6 @@
     stroke-width: 1.6px;
   }
 
-  .back-wheel {
-    transform-origin: 18px 56px;
-    animation: wheel-roll 15ms forwards;
-  }
-
-  .front-wheel {
-    transform-origin: 59px 56px;
-    animation: wheel-roll 15ms linear infinite;
-  }
 
   .animate-car {
     transform-origin: center center;

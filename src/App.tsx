@@ -29,6 +29,7 @@ function LangWrapper() {
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFound404/>} />
+          
       </Route>
 
     

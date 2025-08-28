@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./CarLoader.css";
+import "./ErrorPage.css";
 
 import { Link } from "react-router-dom";
 interface CarLoaderProps {
