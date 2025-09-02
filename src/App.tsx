@@ -17,23 +17,26 @@ function LangWrapper() {
   if (!currentLang) return null; // або можна показати лоадер
 
   return (
-    <Routes>
-      {/* Редірект з кореня на мову з Redux */}
-      <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
+   <Routes>
 
-      {/* Сторінки з мовним префіксом */}
-      <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
-        <Route index element={<HomePage />} />
-        <Route path="home" element={<HomePage />} />
-        <Route path="reset-password" element={<HomePage />} />
-        <Route path="sell-your-car" element={<SellYourCar />} />
-        <Route path="profile" element={<ProfilePage />} />
-          <Route path="*" element={<NotFound404/>} />
-          
-      </Route>
+  <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
 
-    
-    </Routes>
+  {/* Редірект для непідтримуваних шляхів без мови */}
+  <Route path="sell-your-car" element={<Navigate to={`/${currentLang.toLowerCase()}/sell-your-car`} replace />} />
+  <Route path="profile" element={<Navigate to={`/${currentLang.toLowerCase()}/profile`} replace />} />
+  <Route path="reset-password" element={<Navigate to={`/${currentLang.toLowerCase()}/reset-password`} replace />} />
+
+  <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
+    <Route index element={<HomePage />} />
+    <Route path="home" element={<HomePage />} />
+    <Route path="sell-your-car" element={<SellYourCar />} />
+    <Route path="profile" element={<ProfilePage />} />
+    <Route path="reset-password" element={<HomePage />} />
+    <Route path="*" element={<NotFound404 />} />
+  </Route>
+  <Route path="*" element={<NotFound404 />} />
+</Routes>
+
   );
 }
 

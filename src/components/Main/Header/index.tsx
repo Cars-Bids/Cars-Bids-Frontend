@@ -463,7 +463,7 @@ export default function Navbar() {
                   </svg>
                 </Link>
                 {menuItems.map((item) => (
-                  <Link
+                  <Links
                     key={item.name}
                     to={item.path}
                     onClick={() => handleLinkClick(item.name)}
@@ -474,7 +474,7 @@ export default function Navbar() {
                     }`}
                   >
                     {item.name}
-                  </Link>
+                  </Links>
                 ))}
                 <div className="mt-6">
                   <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 px-3 py-2 rounded-lg">
