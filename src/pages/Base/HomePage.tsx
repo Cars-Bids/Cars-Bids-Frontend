@@ -4,7 +4,14 @@ import CarCard from "@/components/Main/PhotoPrew";
 import { AuctionCards } from "@/components/Main/Auction/Cards";
 import { SettingsMenu } from "@/components/Main/Auction/Menu";
 
+import { useGetAuctionsQuery } from "@/features/api/endpoints/Auction";
+
+
+
 const HomePage = () => {
+     const { data: body, isLoading } = useGetAuctionsQuery({ pageNumber: 1, pageSize: 10 },  { refetchOnFocus: true,
+         refetchOnReconnect: true, });
+        console.log(body);
   return (
     <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto">
       <div className="flex flex-col items-center justify-center  ">
@@ -37,7 +44,7 @@ const HomePage = () => {
             variant="mirror"
           />
         </div>
-        <div className="w-full grid grid-cols-3 items-center gap-5">
+        <div className="w-full  px-6 grid grid-cols-3 items-center gap-5">
           {/* Title */}
           <div className="text-black dark:text-white text-2xl font-bold font-amulya">
             Auctions
@@ -54,35 +61,17 @@ const HomePage = () => {
             <div className="text-black dark:text-white text-base font-normal font-synonym">
               Inspected
             </div>
-            <div className="text-black dark:text-white text-base font-normal font-synonym">
-              No reserve
-            </div>
+           
           </div>
 
           <SettingsMenu />
         </div>
         <div className="flex justify-center items-center grid  grid-cols-2 gap-5 m-4 ">
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
-          <AuctionCards />
+         {body?.items?.map((auction) => (
+          <AuctionCards key={auction.id} data={auction} />
+        ))}
         </div>
-        <div className="flex flex-col items-center justify-center">
-          <Loader />
-          <h1 className="text-2xl font-bold mt-4 dark:text-white">
-            Welcome to the{" "}
-            <span className="text-red-500 dark:text-red-600">Home Page</span>
-          </h1>
-          <p className="text-gray-600 dark:text-gray-200">
-            This is a placeholder for your content.
-          </p>
-        </div>
+        {isLoading && <Loader />}
       </div>
     </section>
   );

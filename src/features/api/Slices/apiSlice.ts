@@ -31,6 +31,7 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (
   args: string | FetchArgs,
   api: BaseQueryApi,
+
   extraOptions: object = {}
 ) => {
   let result = await baseQuery(args, api, extraOptions);
@@ -94,6 +95,8 @@ const baseQueryWithReauth = async (
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: [],
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+refetchOnMountOrArgChange: 30 ,
   endpoints: () => ({}),
 });
