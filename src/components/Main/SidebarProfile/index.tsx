@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+import { Links } from "@/components/Main/Links";
 
 interface SidebarLink {
   label: string;
@@ -28,9 +29,9 @@ export default function Sidebar() {
           {sidebarLinks.map((link) => {
             const isActive = location.pathname === link.href;
             return (
-              <a
+              <Links
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className={`
                   block text-center lg:text-start py-1 rounded-lg transition-colors
                   ${isActive ? "text-white bg-steria-dark-card" : "text-gray-300 hover:text-white hover:bg-steria-dark-card"}
@@ -39,7 +40,7 @@ export default function Sidebar() {
                 <div className="flex items-center justify-center lg:justify-start gap-2">
                   <span>{link.label}</span>
                 </div>
-              </a>
+              </Links>
             );
           })}
         </nav>

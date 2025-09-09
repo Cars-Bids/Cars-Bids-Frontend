@@ -1,3 +1,5 @@
+import type { AuctionDto } from "./Auction";
+
 export interface Style {
     id: number;
     styleName: string;
@@ -45,4 +47,56 @@ export interface Car{
   BodyStyleId: number;
   ModelId: number;
   Images: CarIMage[];
+}
+
+
+
+export interface CarDto {
+  id: number;
+  name: string;
+  year: number;
+  mileage: number;
+  make: string;
+  model: string;
+  bodyStyle?: string | null;
+  drivetrain: number;
+  transmissionType: number;
+  exteriorColor: string;
+  interiorColor: string;
+  engine: string;
+  status: number;
+  mainImage: string;
+}
+
+export interface ProfileInReviewCarDto {
+  id: number;
+  year: number;
+  vin: string;
+  exteriorColor: string | null;
+  interiorColor: string | null;
+  mileage: number;
+  location: string | null;
+  drivetrain: number;
+  engine: string | null;
+  transmissionType: number;
+  speeds: number;
+  status: number;
+  createdAt: string;
+  managerId: number | null;
+  ownerId: number;
+  bodyStyle: string | null;
+  model: string;
+  make: string;
+  otherImage: string;
+  auction: AuctionDto | null;
+}
+
+
+export interface CarImageDto {
+  id: number;
+  carId: number;
+  imageUrl: string;
+  imageCategory: string;
+  orderNumber: number;
+  uploadedAt: string;
 }

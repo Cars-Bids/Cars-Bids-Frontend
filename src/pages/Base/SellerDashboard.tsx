@@ -1,185 +1,232 @@
 import { useState } from "react";
-import { Wrench, Car, MessageCircle, Clock, ChevronRight, Clock as ClockIcon, CircleDollarSign } from "lucide-react";
+import { ChevronRight, Clock as ClockIcon, CircleDollarSign, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import Sidebar from "@/components/Main/SidebarProfile";
+import {
+    useGetInReviewCarsQuery,
+    useGetAuctionCommentsQuery,
+    useGetEndedAuctionsQuery,
+    useGetActiveAuctionsQuery,
+} from "@/features/api/endpoints/Profile";
+import type { UserCommentDto } from "@/features/types/Profile";
+import type { ProfileInReviewCarDto } from "@/features/types/Car";
+import type { AuctionDto } from "@/features/types/Auction";
+import { AuctionStatus, DrivetrainType, TransmissionType } from "@/features/types/enums";
 
-const carListingsInProgress = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2022",
-        make: "Porsche",
-        model: "911 Turbo S Coupe",
-        description: "580-hp Twin-Turbo Flat-6, Bordeaux White Interior, Unmodified",
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        mileage: "30 000 km",
-        status: "Will be published on ...",
-        statusColor: "text-white",
-        statusMessage: "Additional information is still needed.",
-        tags: ["Inspected", "No Reserve"],
-        tagColors: ["bg-white text-[#121212]", "bg-[#5CA1FF] text-white"],
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "1999",
-        make: "BMW",
-        model: "Z3 M Roadster",
-        description: "23,700 Miles, 5-Speed Manual, Evergreen, Unmodified",
-        fuelType: "Gasoline",
-        transmission: "Manual",
-        mileage: "23 700 km",
-        status: "Will be published on 16.08",
-        statusColor: "text-white",
-        statusMessage: "No additional information needed",
-        messageColor: "text-[#C3F73A]",
-        tags: ["Inspected"],
-        tagColors: ["bg-white text-[#121212]"],
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2009",
-        make: "Mini",
-        model: "Cooper S",
-        description: "6-Speed Manual, Turbo 4-Cylinder, Florida-Owned, Mostly Unmodified",
-        fuelType: "Gasoline",
-        transmission: "Manual",
-        mileage: "94 500 km",
-        status: "Will be published on 16.08",
-        statusColor: "text-white",
-        statusMessage: "No additional information needed",
-        messageColor: "text-[#C3F73A]",
-        tags: ["Inspected"],
-        tagColors: ["bg-white text-[#121212]"],
-    },
-];
+type TabType = "in-progress" | "live-auctions" | "comments" | "past-listings";
 
-const liveAuctions = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2022",
-        make: "Rivian",
-        model: "R1T Launch Edition",
-        description: "Quad-Motor AWD, Large Battery Pack, Off-Road Upgrade",
-        fuelType: "Electro",
-        transmission: "Automatic",
-        mileage: "30 000 km",
-        timeLeft: "168:00:00",
-        currentBid: "$557,000",
-        tags: ["Inspected", "No Reserve"],
-        tagColors: ["bg-white text-[#121212]", "bg-[#5CA1FF] text-white"],
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2008",
-        make: "Cadillac",
-        model: "Escalade EXT",
-        description: "6.2-Liter V8, AWD, Recent Service, California-Owned",
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        mileage: "158 700 km",
-        timeLeft: "32:16:43",
-        currentBid: "$2,200",
-        tags: ["No Reserve"],
-        tagColors: ["bg-[#5CA1FF] text-white"],
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2021",
-        make: "Porsche",
-        model: "718 Boxster",
-        description: "6,400 Miles, 6-Speed Manual, 300-hp Turbo Flat-4, Unmodified",
-        fuelType: "Gasoline",
-        transmission: "Manual",
-        mileage: "6 400 km",
-        timeLeft: "29:03:48",
-        currentBid: "$28,000",
-        tags: [],
-        tagColors: [],
-    },
-];
-
-const comments = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2022",
-        make: "Rivian",
-        model: "R1T Launch Edition",
-        username: "Teledatageek",
-        comment: "I mean almost $55K with buyers premium. Given the mileage and year - seems like that would have been a fair price given listings that are out there right now on various sites. I paid a premium for Compass Yellow (but unusual color...) and would have paid a premium for Launch Green (and the green interior).",
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2022",
-        make: "Rivian",
-        model: "R1T Launch Edition",
-        username: "supermoo",
-        comment: "Wow, $52k and not met. Seller needs to look at the market.",
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2022",
-        make: "Rivian",
-        model: "R1T Launch Edition",
-        username: "rayid",
-        comment: "Coming up to the last hour of the bidding! Just to reiterate, this will be an amazing value for whoever that ends up owning it as the Gen 2 Quad is priced at over 120K with minor improvements! These are hella fun to drive! And just so happens, Rivian just released a new software update which will utilize Google Maps as the navigation system for all R1 models, so they continue getting better with time!",
-    },
-];
-
-const pastListings = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "1977",
-        make: "Nissan",
-        model: "Fairlady Z",
-        description: "Japanese-Market Z, 2.8-Liter L28 6-Cylinder Swap, 5-Speed Manual, U.S. Title",
-        fuelType: "Gasoline",
-        transmission: "Manual",
-        mileage: "62 000 km",
-        soldFor: "$8,370",
-        tags: ["Inspected"],
-        tagColors: ["bg-white text-[#121212]"],
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2006",
-        make: "Audi",
-        model: "S4 Avant",
-        description: "6-Speed Manual, 340-hp V8, AWD, Mostly Unmodified",
-        fuelType: "Diesel",
-        transmission: "Manual",
-        mileage: "30 000 km",
-        soldFor: "$60,370",
-        tags: ["No Reserve"],
-        tagColors: ["bg-[#5CA1FF] text-white"],
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
-        year: "2020",
-        make: "Porsche",
-        model: "Macan S",
-        description: "348-hp Turbo V6, Premium Package Plus, California-Owned",
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        mileage: "45 500 km",
-        soldFor: "$21,750",
-        tags: ["Inspected", "No Reserve"],
-        tagColors: ["bg-white text-[#121212]", "bg-[#5CA1FF] text-white"],
-    },
-];
 
 export default function SellerDashboard() {
     const [activeTab, setActiveTab] = useState("in-progress");
+    // Локальний стан для пагінації кожної вкладки
+    const [pagination, setPagination] = useState({
+        "in-progress": 1,
+        "live-auctions": 1,
+        "comments": 1,
+        "past-listings": 1,
+    });
+
+    const pageSize = 3; // Кількість елементів на сторінці
+
+    const {
+        data: inReviewCarsData,
+        isLoading: isInReviewLoading,
+        error: inReviewError,
+    } = useGetInReviewCarsQuery({ pageNumber: pagination["in-progress"], pageSize });
+
+    const {
+        data: commentsData,
+        isLoading: isCommentsLoading,
+        error: commentsError,
+    } = useGetAuctionCommentsQuery({ pageNumber: pagination["comments"], pageSize });
+
+    const {
+        data: endedAuctionsData,
+        isLoading: isEndedAuctionsLoading,
+        error: endedAuctionsError,
+    } = useGetEndedAuctionsQuery({ pageNumber: pagination["past-listings"], pageSize });
+
+    const {
+        data: activeAuctionsData,
+        isLoading: isActiveAuctionsLoading,
+        error: activeAuctionsError,
+    } = useGetActiveAuctionsQuery({ pageNumber: pagination["live-auctions"], pageSize });
+
+    // Функція для зміни сторінки
+    const handlePageChange = (tab: string, page: number) => {
+        setPagination((prev) => ({
+            ...prev,
+            [tab]: page,
+        }));
+    };
+
+    // Компонент пагінації
+    const Pagination = ({ tab, totalItems }: { tab: TabType; totalItems: number }) => {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        const currentPage = pagination[tab];
+
+        return (
+            <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                    onClick={() => handlePageChange(tab, currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 bg-[#2C2C2C] rounded-lg disabled:opacity-50"
+                >
+                    <ChevronLeft className="w-5 h-5 text-white" />
+                </button>
+                <span className="text-white">
+                    Page {currentPage} of {totalPages}
+                </span>
+                <button
+                    onClick={() => handlePageChange(tab, currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 bg-[#2C2C2C] rounded-lg disabled:opacity-50"
+                >
+                    <ChevronRightIcon className="w-5 h-5 text-white" />
+                </button>
+            </div>
+        );
+    };
+
+    const mapActiveAuctionToListing = (auction: AuctionDto) => {
+        const drivetrain =
+            auction.car.drivetrain === DrivetrainType.FWD
+                ? "FWD"
+                : auction.car.drivetrain === DrivetrainType.RWD
+                    ? "RWD"
+                    : "AWD";
+
+        const transmission =
+            auction.car.transmissionType === TransmissionType.Automatic
+                ? "Automatic"
+                : "Manual";
+
+        // Calculate time left
+        const endTime = new Date(auction.endTime);
+        const now = new Date();
+        const timeDiff = endTime.getTime() - now.getTime();
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+        const timeLeft = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+        const tags = auction.status === AuctionStatus.Active
+            ? ["Active"]
+            : [];
+        const tagColors = auction.status === AuctionStatus.Active
+            ? ["bg-blue-500 text-white"]
+            : [];
+
+        return {
+            id: auction.id,
+            image:
+                auction.car.mainImage ||
+                "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
+            year: auction.car.year.toString(),
+            make: auction.car.make,
+            model: auction.car.model,
+            description: `${auction.car.engine ?? "Unknown"}, ${drivetrain}, ${transmission}`,
+            fuelType: auction.car.engine?.includes("Electric") ? "Electro" : "Gasoline",
+            transmission,
+            mileage: `${auction.car.mileage} km`,
+            timeLeft,
+            currentBid: auction.currentPrice ? `$${auction.currentPrice.toLocaleString()}` : "No Bids",
+            tags,
+            tagColors,
+        };
+    };
+
+    // Функція мапінгу для In Progress
+    const mapCarToListing = (car: ProfileInReviewCarDto) => {
+        const statusMap: Record<number, { label: string; color: string }> = {
+            0: { label: "In Pending", color: "bg-yellow-500 text-black" },
+            1: { label: "Canceled", color: "bg-red-500 text-white" },
+            2: { label: "In Review", color: "bg-blue-500 text-white" },
+            3: { label: "Approved", color: "bg-green-500 text-white" },
+        };
+
+        const status = statusMap[car.status] || { label: "Unknown", color: "bg-gray-500 text-white" };
+
+        return {
+            id: car.id,
+            image:
+                car.otherImage ||
+                "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
+            year: car.year.toString(),
+            make: car.make,
+            model: car.model,
+            transmission:
+                car.transmissionType === TransmissionType.Automatic
+                    ? "Automatic"
+                    : "Manual",
+            mileage: `${car.mileage} km`,
+            status: car.status === 0 ? "Will be published on ..." : status.label,
+            statusColor: car.status === 0 ? "" : status.color,
+            statusMessage: "Additional information is still needed.",
+            tags: [status.label],
+            tagColors: [status.color],
+            drivetrain:
+                car.drivetrain === DrivetrainType.FWD
+                    ? "FWD"
+                    : car.drivetrain === DrivetrainType.RWD
+                        ? "RWD"
+                        : "AWD",
+        };
+    };
+
+    // Функція мапінгу для Comments
+    const mapCommentToUI = (comment: UserCommentDto) => ({
+        id: comment.id,
+        carId: comment.carId,
+        auctionId: comment.auctionId,
+        image: comment.mainImage || "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
+        year: comment.year ? comment.year.toString() : "N/A",
+        make: comment.make,
+        model: comment.model,
+        username: comment.userName,
+        comment: comment.text,
+    });
+
+    // Функція мапінгу для Past Listings
+    const mapAuctionToListing = (auction: AuctionDto) => {
+        const drivetrain =
+            auction.car.drivetrain === DrivetrainType.FWD
+                ? "FWD"
+                : auction.car.drivetrain === DrivetrainType.RWD
+                    ? "RWD"
+                    : "AWD";
+
+        const transmission =
+            auction.car.transmissionType === TransmissionType.Automatic
+                ? "Automatic"
+                : "Manual";
+
+        const status =
+            auction.status === AuctionStatus.Sold
+                ? { tags: ["Sold"], tagColors: ["bg-green-500 text-white"] }
+                : auction.status === AuctionStatus.NotSold
+                    ? { tags: ["Not Sold"], tagColors: ["bg-red-500 text-white"] }
+                    : auction.status === AuctionStatus.Cancelled
+                        ? { tags: ["Cancelled"], tagColors: ["bg-yellow-500 text-black"] }
+                        : { tags: ["Active"], tagColors: ["bg-blue-500 text-white"] };
+
+        return {
+            id: auction.id,
+            image:
+                auction.car.mainImage ||
+                "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
+            year: auction.car.year.toString(),
+            make: auction.car.make.toString(),
+            model: auction.car.model.toString(),
+            description: `${auction.car.engine ?? "Unknown"}, ${drivetrain}, ${transmission}`,
+            fuelType: auction.car.engine?.includes("Electric") ? "Electro" : "Gasoline",
+            transmission,
+            mileage: `${auction.car.mileage} km`,
+            soldFor: auction.currentPrice
+                ? `$${auction.currentPrice.toLocaleString()}`
+                : "Not Sold",
+            ...status,
+        };
+    };
 
     return (
         <div className="min-h-screen bg-steria-dark text-white">
@@ -205,9 +252,9 @@ export default function SellerDashboard() {
                                 >
                                     <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M34.8332 31.1667H38.4998C39.5998 31.1667 40.3332 30.4333 40.3332 29.3333V23.8333C40.3332 22.1833 39.0498 20.7167 37.5832 20.35C34.2832 19.4333 29.3332 18.3333 29.3332 18.3333C29.3332 18.3333 26.9498 15.7667 25.2998 14.1167C24.3832 13.3833 23.2832 12.8333 21.9998 12.8333H9.1665C8.0665 12.8333 7.14984 13.5667 6.59984 14.4833L4.03317 19.8C3.7904 20.5081 3.6665 21.2515 3.6665 22V29.3333C3.6665 30.4333 4.39984 31.1667 5.49984 31.1667H9.1665" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M12.8332 34.8333C14.8582 34.8333 16.4998 33.1917 16.4998 31.1667C16.4998 29.1416 14.8582 27.5 12.8332 27.5C10.8081 27.5 9.1665 29.1416 9.1665 31.1667C9.1665 33.1917 10.8081 34.8333 12.8332 34.8333Z" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M16.5 31.1667H27.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M31.1667 34.8333C33.1917 34.8333 34.8333 33.1917 34.8333 31.1667C34.8333 29.1416 33.1917 27.5 31.1667 27.5C29.1416 27.5 27.5 29.1416 27.5 31.1667C27.5 33.1917 29.1416 34.8333 31.1667 34.8333Z" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12.8332 34.8333C14.8582 34.8333 16.4998 33.1917 16.4998 31.1667C16.4998 29.1416 14.8582 27.5 12.8332 27.5C10.8081 27.5 9.1665 29.1416 9.1665 31.1667C9.1665 33.1917 10.8081 34.8333 12.8332 34.8333Z" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M16.5 31.1667H27.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M31.1667 34.8333C33.1917 34.8333 34.8333 33.1917 34.8333 31.1667C34.8333 29.1416 33.1917 27.5 31.1667 27.5C29.1416 27.5 27.5 29.1416 27.5 31.1667C27.5 33.1917 29.1416 34.8333 31.1667 34.8333Z" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                     <span className="text-white text-sm">Live Auctions</span>
                                 </div>
@@ -235,243 +282,285 @@ export default function SellerDashboard() {
                         <div className="bg-steria-dark-card rounded-xl mx-3 p-3 bg-[#212121]">
                             {activeTab === "in-progress" && (
                                 <div className="space-y-3">
-                                    {carListingsInProgress.map((car, index) => (
-                                        <div key={car.id}>
-                                            <div className="flex flex-col lg:flex-row gap-6 p-2">
-                                                <img
-                                                    src={car.image}
-                                                    alt={`${car.year} ${car.make} ${car.model}`}
-                                                    className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
-                                                />
-                                                <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
-                                                    <div className="py-2 lg:basis-[37.63%] lg:max-w-[37.63%] flex-shrink-0 flex-grow-0">
-                                                        <h3 className="text-lg font-bold text-white mb-3">
-                                                            {car.year} {car.make} {car.model}
-                                                        </h3>
-                                                        <p className="text-sm text-white mb-3 line-clamp-2 max-w-full">
-                                                            {car.description}
-                                                        </p>
-                                                    </div>
-                                                    <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
-                                                        <div className="flex flex-wrap gap-2 mb-3">
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.fuelType}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.transmission}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.mileage}
-                                                            </span>
+                                    {isInReviewLoading ? (
+                                        <p className="text-white">Loading...</p>
+                                    ) : inReviewError ? (
+                                        <p className="text-red-400">Error loading vehicles during inspection</p>
+                                    ) : (
+                                        <>
+                                            {inReviewCarsData?.items.map((car, index) => {
+                                                const mappedCar = mapCarToListing(car);
+                                                return (
+                                                    <div key={car.id}>
+                                                        <div className="flex flex-col lg:flex-row gap-6 p-2">
+                                                            <img
+                                                                src={mappedCar.image}
+                                                                alt={`${mappedCar.year} ${mappedCar.make} ${mappedCar.model}`}
+                                                                className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
+                                                            />
+                                                            <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
+                                                                <div className="py-2 lg:basis-[37.63%] lg:max-w-[37.63%] flex-shrink-0 flex-grow-0">
+                                                                    <h3 className="text-lg font-bold text-white mb-3">
+                                                                        {mappedCar.year} {mappedCar.make} {mappedCar.model}
+                                                                    </h3>
+                                                                </div>
+                                                                <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
+                                                                    <div className="flex flex-wrap gap-2 mb-3">
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedCar.transmission}
+                                                                        </span>
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedCar.mileage}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-2 flex-shrink-0 flex-grow-0">
+                                                                        {mappedCar.tags.map((tag, tagIndex) => (
+                                                                            <span
+                                                                                key={tagIndex}
+                                                                                className={`px-2 py-1 rounded-lg text-xs font-bold ${mappedCar.tagColors[tagIndex]}`}
+                                                                            >
+                                                                                {tag}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
+                                                                    <h4 className={`text-lg font-bold mb-3 ${mappedCar.statusColor}`}>
+                                                                        {mappedCar.status}
+                                                                    </h4>
+                                                                    <p className={`text-sm mb-6 text-red-400`}>
+                                                                        {mappedCar.statusMessage}
+                                                                    </p>
+                                                                    <div className="flex items-center gap-1 lg:justify-end">
+                                                                        <span className="text-white">See details</span>
+                                                                        <ChevronRight className="w-4 h-4 text-white" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex flex-wrap gap-2 flex-shrink-0 flex-grow-0">
-                                                            {car.tags.map((tag, tagIndex) => (
-                                                                <span
-                                                                    key={tagIndex}
-                                                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${car.tagColors[tagIndex]}`}
-                                                                >
-                                                                    {tag}
-                                                                </span>
-                                                            ))}
-                                                        </div>
+                                                        {index < (inReviewCarsData?.items.length ?? 0) - 1 && (
+                                                            <div className="w-full h-px bg-white my-3"></div>
+                                                        )}
                                                     </div>
-                                                    <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
-                                                        <h4 className={`text-lg font-bold mb-3 ${car.statusColor}`}>
-                                                            {car.status}
-                                                        </h4>
-                                                        <p className={`text-sm mb-6 ${car.messageColor || "text-red-400"}`}>
-                                                            {car.statusMessage}
-                                                        </p>
-                                                        <div className="flex items-center gap-1 lg:justify-end">
-                                                            <span className="text-white">See details</span>
-                                                            <ChevronRight className="w-4 h-4 text-white" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {index < carListingsInProgress.length - 1 && (
-                                                <div className="w-full h-px bg-white my-3"></div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                );
+                                            })}
+                                            <Pagination tab="in-progress" totalItems={inReviewCarsData?.totalCount || 0} />
+                                        </>
+                                    )}
                                 </div>
                             )}
 
                             {activeTab === "live-auctions" && (
                                 <div className="space-y-3">
-                                    {liveAuctions.map((car, index) => (
-                                        <div key={car.id}>
-                                            <div className="flex flex-col lg:flex-row gap-6 p-2">
-                                                <img
-                                                    src={car.image}
-                                                    alt={`${car.year} ${car.make} ${car.model}`}
-                                                    className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
-                                                />
-                                                <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
-                                                    <div className="py-2 lg:basis-[37.63%] flex-shrink-0 flex-grow-0 lg:max-w-[37.63%]">
-                                                        <h3 className="text-lg font-bold text-white mb-3">
-                                                            {car.year} {car.make} ${car.model}
-                                                        </h3>
-                                                        <p className="text-sm text-white mb-3 line-clamp-2 max-w-full">
-                                                            {car.description}
-                                                        </p>
-                                                    </div>
-                                                    <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
-                                                        <div className="flex flex-wrap gap-2 mb-3">
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.fuelType}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.transmission}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.mileage}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {car.tags.map((tag, tagIndex) => (
-                                                                <span
-                                                                    key={tagIndex}
-                                                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${car.tagColors[tagIndex]}`}
-                                                                >
-                                                                    {tag}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
-                                                        <div className="space-y-6">
-                                                            <div className="flex flex-row justify-between items-center">
-                                                                <span className="text-white font-bold">Time left</span>
-                                                                <div className="flex items-center justify-end min-[1300px]:justify-between w-[40%]">
-                                                                    <ClockIcon className="hidden min-[1300px]:block w-5 h-5 text-[#EF2929]" />
-                                                                    <span className="text-white font-bold text-right">{car.timeLeft}</span>
+                                    {isActiveAuctionsLoading ? (
+                                        <p className="text-white">Loading...</p>
+                                    ) : activeAuctionsError ? (
+                                        <p className="text-red-400">Error loading active auctions</p>
+                                    ) : (
+                                        <>
+                                            {activeAuctionsData?.items.map((auction, index) => {
+                                                const mappedAuction = mapActiveAuctionToListing(auction);
+                                                return (
+                                                    <div key={auction.id}>
+                                                        <div className="flex flex-col lg:flex-row gap-6 p-2">
+                                                            <img
+                                                                src={mappedAuction.image}
+                                                                alt={`${mappedAuction.year} ${mappedAuction.make} ${mappedAuction.model}`}
+                                                                className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
+                                                            />
+                                                            <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
+                                                                <div className="py-2 lg:basis-[37.63%] flex-shrink-0 flex-grow-0 lg:max-w-[37.63%]">
+                                                                    <h3 className="text-lg font-bold text-white mb-3">
+                                                                        {mappedAuction.year} {mappedAuction.make} {mappedAuction.model}
+                                                                    </h3>
+                                                                    <p className="text-sm text-white mb-3 line-clamp-2 max-w-full">
+                                                                        {mappedAuction.description}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
+                                                                    <div className="flex flex-wrap gap-2 mb-3">
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.fuelType}
+                                                                        </span>
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.transmission}
+                                                                        </span>
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.mileage}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {mappedAuction.tags.map((tag, tagIndex) => (
+                                                                            <span
+                                                                                key={tagIndex}
+                                                                                className={`px-2 py-1 rounded-lg text-xs font-bold ${mappedAuction.tagColors[tagIndex]}`}
+                                                                            >
+                                                                                {tag}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
+                                                                    <div className="space-y-6">
+                                                                        <div className="flex flex-row justify-between items-center">
+                                                                            <span className="text-white font-bold">Time left</span>
+                                                                            <div className="flex items-center justify-end min-[1300px]:justify-between w-[40%]">
+                                                                                <ClockIcon className="hidden min-[1300px]:block w-5 h-5 text-[#EF2929]" />
+                                                                                <span className="text-white font-bold text-right">{mappedAuction.timeLeft}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex flex-row justify-between items-center">
+                                                                            <span className="text-white font-bold">Current bid</span>
+                                                                            <div className="flex items-center justify-end min-[1300px]:justify-between w-[40%]">
+                                                                                <CircleDollarSign className="hidden min-[1300px]:block w-5 h-5 text-[#C3F73A]" />
+                                                                                <span className="text-white font-bold">{mappedAuction.currentBid}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-1 lg:justify-end">
+                                                                            <span className="text-white">See details</span>
+                                                                            <ChevronRight className="w-4 h-4 text-white" />
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex flex-row justify-between items-center">
-                                                                <span className="text-white font-bold">Current bid</span>
-                                                                <div className="flex items-center justify-end min-[1300px]:justify-between w-[40%]">
-                                                                    <CircleDollarSign className="hidden min-[1300px]:block w-5 h-5 text-[#C3F73A]" />
-                                                                    <span className="text-white font-bold">{car.currentBid}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-1 lg:justify-end">
-                                                                <span className="text-white">See details</span>
-                                                                <ChevronRight className="w-4 h-4 text-white" />
-                                                            </div>
                                                         </div>
+                                                        {index < (activeAuctionsData?.items.length ?? 0) - 1 && (
+                                                            <div className="w-full h-px bg-white my-3"></div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            </div>
-                                            {index < liveAuctions.length - 1 && (
-                                                <div className="w-full h-px bg-white my-3"></div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                );
+                                            })}
+                                            <Pagination tab="live-auctions" totalItems={activeAuctionsData?.totalCount || 0} />
+                                        </>
+                                    )}
                                 </div>
                             )}
 
                             {activeTab === "comments" && (
                                 <div className="space-y-3">
-                                    {comments.map((comment, index) => (
-                                        <div key={comment.id}>
-                                            <div className="flex flex-col lg:flex-row gap-6 p-2">
-                                                <img
-                                                    src={comment.image}
-                                                    alt={`${comment.year} ${comment.make} ${comment.model}`}
-                                                    className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
-                                                />
-                                                <div className="flex-1 flex flex-col lg:flex-row justify-between">
-                                                    <div className="py-2 lg:basis-[80%] lg:max-w-[80%] flex-shrink-0 flex-grow-0">
-                                                        <h3 className="text-lg text-white mb-3 w-full flex items-center gap-2">
-                                                            <div className="font-bold">{comment.year} {comment.make} {comment.model}</div> <div className="w-[1.5px] h-[22px] bg-white"></div> {comment.username}
-                                                        </h3>
-                                                        <p className="text-sm text-white mb-3 line-clamp-4 max-w-full">
-                                                            {comment.comment}
-                                                        </p>
-                                                    </div>
-                                                    <div className="py-2 basis-[20%] flex-shrink-0 flex-grow-0 lg:text-right flex items-center">
-                                                        <div className="flex items-center gap-1 lg:justify-end w-full">
-                                                            <span className="text-white">See comment</span>
-                                                            <ChevronRight className="w-4 h-4 text-white" />
+                                    {isCommentsLoading ? (
+                                        <p className="text-white">Loading...</p>
+                                    ) : commentsError ? (
+                                        <p className="text-red-400">Error loading comments</p>
+                                    ) : (
+                                        <>
+                                            {commentsData?.items.map((comment, index) => {
+                                                const mappedComment = mapCommentToUI(comment);
+                                                return (
+                                                    <div key={comment.id}>
+                                                        <div className="flex flex-col lg:flex-row gap-6 p-2">
+                                                            <img
+                                                                src={mappedComment.image}
+                                                                alt={`${mappedComment.year} ${mappedComment.make} ${mappedComment.model}`}
+                                                                className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
+                                                            />
+                                                            <div className="flex-1 flex flex-col lg:flex-row justify-between">
+                                                                <div className="py-2 lg:basis-[80%] lg:max-w-[80%] flex-shrink-0 flex-grow-0">
+                                                                    <h3 className="text-lg text-white mb-3 w-full flex items-center gap-2">
+                                                                        <div className="font-bold">
+                                                                            {mappedComment.year} {mappedComment.make} {mappedComment.model}
+                                                                        </div>{" "}
+                                                                        <div className="w-[1.5px] h-[22px] bg-white"></div> {mappedComment.username}
+                                                                    </h3>
+                                                                    <p className="text-sm text-white mb-3 line-clamp-4 max-w-full">
+                                                                        {mappedComment.comment}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="py-2 basis-[20%] flex-shrink-0 flex-grow-0 lg:text-right flex items-center">
+                                                                    <div className="flex items-center gap-1 lg:justify-end w-full">
+                                                                        <span className="text-white">See comment</span>
+                                                                        <ChevronRight className="w-4 h-4 text-white" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
+                                                        {index < (commentsData?.items.length ?? 0) - 1 && (
+                                                            <div className="w-full h-px bg-white my-3"></div>
+                                                        )}
                                                     </div>
-
-                                                </div>
-                                            </div>
-                                            {index < comments.length - 1 && (
-                                                <div className="w-full h-px bg-white my-3"></div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                );
+                                            })}
+                                            <Pagination tab="comments" totalItems={commentsData?.totalCount || 0} />
+                                        </>
+                                    )}
                                 </div>
                             )}
 
                             {activeTab === "past-listings" && (
                                 <div className="space-y-3">
-                                    {pastListings.map((car, index) => (
-                                        <div key={car.id}>
-                                            <div className="flex flex-col lg:flex-row gap-6 p-2">
-                                                <img
-                                                    src={car.image}
-                                                    alt={`${car.year} ${car.make} ${car.model}`}
-                                                    className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
-                                                />
-                                                <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
-                                                    <div className="py-2 lg:basis-[37.63%] lg:max-w-[37.63%] flex-shrink-0 flex-grow-0">
-                                                        <h3 className="text-lg font-bold text-white mb-3">
-                                                            {car.year} {car.make} {car.model}
-                                                        </h3>
-                                                        <p className="text-sm text-white mb-3 line-clamp-2 max-w-full">
-                                                            {car.description}
-                                                        </p>
-                                                    </div>
-                                                    <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
-                                                        <div className="flex flex-wrap gap-2 mb-3">
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.fuelType}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.transmission}
-                                                            </span>
-                                                            <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
-                                                                {car.mileage}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {car.tags.map((tag, tagIndex) => (
-                                                                <span
-                                                                    key={tagIndex}
-                                                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${car.tagColors[tagIndex]}`}
-                                                                >
-                                                                    {tag}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right flex flex-col h-full">
-                                                        <div className="space-y-6 flex flex-col flex-grow">
-                                                            <div className="flex flex-row justify-between items-center">
-                                                                <span className="text-white font-bold">Sold for</span>
-                                                                <div className="flex items-center justify-end w-[40%]">
-                                                                    <span className="text-white font-bold text-right">{car.soldFor}</span>
+                                    {isEndedAuctionsLoading ? (
+                                        <p className="text-white">Loading...</p>
+                                    ) : endedAuctionsError ? (
+                                        <p className="text-red-400">Error loading completed auctions</p>
+                                    ) : (
+                                        <>
+                                            {endedAuctionsData?.items.map((auction, index) => {
+                                                const mappedAuction = mapAuctionToListing(auction);
+                                                return (
+                                                    <div key={auction.id}>
+                                                        <div className="flex flex-col lg:flex-row gap-6 p-2">
+                                                            <img
+                                                                src={mappedAuction.image}
+                                                                alt={`${mappedAuction.year} ${mappedAuction.make} ${mappedAuction.model}`}
+                                                                className="w-full lg:w-[190px] h-32 object-cover rounded-md flex-shrink-0"
+                                                            />
+                                                            <div className="flex-1 flex flex-col lg:flex-row justify-between gap-[4.92%]">
+                                                                <div className="py-2 lg:basis-[37.63%] lg:max-w-[37.63%] flex-shrink-0 flex-grow-0">
+                                                                    <h3 className="text-lg font-bold text-white mb-3">
+                                                                        {mappedAuction.year} {mappedAuction.make} {mappedAuction.model}
+                                                                    </h3>
+                                                                    <p className="text-sm text-white mb-3 line-clamp-2 max-w-full">
+                                                                        {mappedAuction.description}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
+                                                                    <div className="flex flex-wrap gap-2 mb-3">
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.fuelType}
+                                                                        </span>
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.transmission}
+                                                                        </span>
+                                                                        <span className="px-3 py-2 bg-[#2C2C2C] border border-[#D0D0D0] rounded-lg text-xs text-white">
+                                                                            {mappedAuction.mileage}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {mappedAuction.tags.map((tag, tagIndex) => (
+                                                                            <span
+                                                                                key={tagIndex}
+                                                                                className={`px-2 py-1 rounded-lg text-xs font-bold ${mappedAuction.tagColors[tagIndex]}`}
+                                                                            >
+                                                                                {tag}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right flex flex-col h-full">
+                                                                    <div className="space-y-6 flex flex-col flex-grow">
+                                                                        <div className="flex flex-row justify-between items-center">
+                                                                            <span className="text-white font-bold">Sold for</span>
+                                                                            <div className="flex items-center justify-end w-[40%]">
+                                                                                <span className="text-white font-bold text-right">{mappedAuction.soldFor}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-1 lg:justify-end mt-auto">
+                                                                            <span className="text-white">See details</span>
+                                                                            <ChevronRight className="w-4 h-4 text-white" />
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-
-                                                            <div className="flex items-center gap-1 lg:justify-end mt-auto">
-                                                                <span className="text-white">See details</span>
-                                                                <ChevronRight className="w-4 h-4 text-white" />
-                                                            </div>
                                                         </div>
+                                                        {index < (endedAuctionsData?.items.length ?? 0) - 1 && (
+                                                            <div className="w-full h-px bg-white my-3"></div>
+                                                        )}
                                                     </div>
-
-                                                </div>
-                                            </div>
-                                            {index < pastListings.length - 1 && (
-                                                <div className="w-full h-px bg-white my-3"></div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                );
+                                            })}
+                                            <Pagination tab="past-listings" totalItems={endedAuctionsData?.totalCount || 0} />
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>
