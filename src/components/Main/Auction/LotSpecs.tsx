@@ -1,9 +1,27 @@
 import React from "react";
+import type {CarData} from "@/features/types/AuctionDetailed.ts";
 
 export type Spec = { label: string; value: string };
 
-export default function LotSpecs({ specs }: { specs: Spec[] }) {
+export default function LotSpecs({ car }: { car: CarData }) {
     // Розділяємо масив навпіл
+    const specs: Spec[] = [
+        { label: 'Brand', value: car.brand },
+        { label: 'Model', value: car.model },
+        { label: 'Mileage', value: car.mileage.toString() },
+        { label: 'VIN', value: car.vin },
+        { label: 'Title Status', value: car.titleStatus ?? "" },
+        { label: 'Location', value: car.location ?? "" },
+        { label: 'Seller', value: car.seller ?? "" },
+        { label: 'Engine', value: car.engine ?? "" },
+        { label: 'Drivetrain', value: car.drivetrain ?? "" },
+        { label: 'Transmission', value: car.transmissionType },
+        { label: 'Body Style', value: car.bodyStyle ?? "" },
+        { label: 'Exterior Color', value: car.exteriorColor?? "" },
+        { label: 'Interior Color', value: car.interiorColor ?? "" },
+        { label: 'Seller Type', value: car.sellerType ?? "" }
+    ];
+
     const mid = Math.ceil(specs.length / 2);
     const left = specs.slice(0, mid);
     const right = specs.slice(mid);
