@@ -1,23 +1,17 @@
 import { useState } from "react";
-import { MessageCircle, Flag, Send } from "lucide-react";
+import {MessageCircle, Flag, Send, User} from "lucide-react";
 import {timeAgo} from "@/lib/utils.ts";
-
-export type Comment = {
-    id: string;
-    author: string;
-    text: string;
-    time: Date;
-};
+import type {CommentData} from "@/features/types/AuctionDetailed.ts";
 
 const MAX_LENGTH = 200;
 
-export default function LotComments({ comments }: { comments: Comment[] }) {
+export default function LotComments({ comments }: { comments: CommentData[] }) {
     const [inputText, setInputText] = useState("");
 
-    const handleReply = (id: string) => {
+    const handleReply = (id: number) => {
         alert(`Reply clicked for comment ${id}`);
     };
-    const handleReport = (id: string) => {
+    const handleReport = (id: number) => {
         alert(`Report clicked for comment ${id}`);
     };
     const handlePost = () => {
@@ -55,9 +49,14 @@ export default function LotComments({ comments }: { comments: Comment[] }) {
                     {comments.map((c) => (
                         <li key={c.id} className="p-3">
                             <div className="mb-1 text-xs text-black dark:text-gray-200">
-                                <b>{c.author}</b> • {timeAgo(c.time)}
+                                {c.authorPhoto
+                                    ? <img src={c.authorPhoto} alt={c.author} className="h-6 inline rounded-full" />
+                                    : <User className="h-6 w-4 inline" />}
+                                <b> {c.author}</b> • {timeAgo(new Date(c.createdAt))}
                             </div>
-                            <p className="text-sm leading-relaxed mb-2 text-black dark:text-gray-200">{c.text}</p>
+                            <p className="text-sm leading-relaxed mb-2 text-black dark:text-gray-200">
+                                <b>{c.replyTo ? `Re: ${c.replyTo} ` : ""}</b>{c.text}
+                            </p>
                             <div className="flex gap-4 text-xs text-black dark:text-gray-200">
                                 <button
                                     className="flex items-center gap-1 hover:underline"
