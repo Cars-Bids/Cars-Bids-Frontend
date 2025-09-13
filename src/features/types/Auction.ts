@@ -1,3 +1,4 @@
+import { type CarDto } from "@/features/types/Car";
 
 export interface Auction{
   id: number;
@@ -15,4 +16,16 @@ export interface Auction{
   userId: number;
 }
 
-
+export interface AuctionDto {
+  id: number;
+  car: CarDto
+  sellerId: number;
+  startPrice: number;
+  currentPrice: number;
+  currentBidder?: string;
+  startTime: string;
+  endTime: string;
+  createdAt: string;
+  approvedAt?: string;
+  status: number;
+}
