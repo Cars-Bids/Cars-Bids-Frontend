@@ -13,8 +13,8 @@ export default defineConfig({
     },
   },
    server: {
-    port: 8080,     // Вказуємо потрібний порт
+    port: 8080,     
     host: true   ,
-    allowedHosts: ["aernjdz.ddns.net"]   // Дозволяє доступ з інших пристроїв (приймає всі IP)
+    allowedHosts: ["aernjdz.ddns.net"] 
    }
 })

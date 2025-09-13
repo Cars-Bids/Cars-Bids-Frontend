@@ -176,8 +176,8 @@ export default function Navbar() {
   const menuItems = [
     { name: "Auctions", path: "/" },
     { name: "Sell your car", path: "/sell-your-car" },
-    { name: "What’s Steria?", path: "#" },
-    { name: "Leaderboard", path: "#" },
+    { name: "What’s Steria?", path: "/whats-steria" },
+    { name: "Leaderboard", path: "/leaderboard" },
   ];
 
   return (
@@ -278,7 +278,7 @@ export default function Navbar() {
               </svg>
             </span>
             <Input
-              className="border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
+              className="border-none  bg-neutral-200 dark:bg-neutral-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200  placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
               placeholder="Search for car or model"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -359,7 +359,7 @@ export default function Navbar() {
           ) : (
             <Button
               onClick={() => setIsLoginOpen((prev) => !prev)}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
+              className=" font-amulya bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 text-white dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
             >
               Log In
             </Button>
@@ -374,7 +374,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-3">
-          {/* <Button
+          <Button
             onClick={toggleTheme}
             variant="ghost"
             size="icon"
@@ -386,7 +386,7 @@ export default function Navbar() {
             ) : (
               <Sun className="h-5 w-5" />
             )}
-          </Button> */}
+          </Button>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
