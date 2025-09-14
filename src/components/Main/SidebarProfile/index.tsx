@@ -18,7 +18,7 @@ export default function Sidebar() {
 
   return (
     <div className="flex-shrink-0 p-2 w-full lg:w-auto">
-      <div className="bg-[#212121] rounded-xl p-3 lg:max-w-[200px]">
+      <div className="bg-[#DEDEDE] dark:bg-[#212121] rounded-xl p-3 lg:max-w-[200px]">
         <nav
           className="
             grid grid-cols-2 gap-2
@@ -34,7 +34,7 @@ export default function Sidebar() {
                 to={link.href}
                 className={`
                   block text-center lg:text-start py-1 rounded-lg transition-colors
-                  ${isActive ? "text-white bg-steria-dark-card" : "text-gray-300 hover:text-white hover:bg-steria-dark-card"}
+                  ${isActive ? "text-black dark:text-white bg-steria-dark-card" : "text-[#2E2A23] dark:text-gray-300 dark:hover:text-white hover:text-black hover:bg-steria-dark-card"}
                 `}
               >
                 <div className="flex items-center justify-center lg:justify-start gap-2">
