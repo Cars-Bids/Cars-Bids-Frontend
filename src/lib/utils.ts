@@ -22,3 +22,14 @@ export const timeAgo = (date: Date) => {
   const diffYears = Math.floor(diffMonths / 12);
   return `${diffYears}y ago`;
 };
+
+export const getTimeRemaining = (startDate: Date) => {
+  const total = +new Date(startDate) - +new Date();
+  if (total <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+
+  const hours = Math.floor(total / (1000 * 60 * 60));
+  const minutes = Math.floor((total / (1000 * 60)) % 60);
+  const seconds = Math.floor((total / 1000) % 60);
+
+  return { hours, minutes, seconds };
+};

@@ -51,3 +51,10 @@ export interface ApiError {
   status: number;
   message: string;
 }
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+}

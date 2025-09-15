@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -79,7 +79,7 @@ export const LoginForm = ({ switchTo, onClose }: FormProps) => {
               Enter your email
             </Label>
             <Field
-              as={Input}
+              as={LoginInput}
               id="email"
               name="email"
               type="email"
@@ -115,7 +115,7 @@ export const LoginForm = ({ switchTo, onClose }: FormProps) => {
             </Label>
             <div className="relative">
               <Field
-                as={Input}
+                as={LoginInput}
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
@@ -179,7 +179,7 @@ export const LoginForm = ({ switchTo, onClose }: FormProps) => {
           <div className="flex justify-center mt-4">
             <Button
               type="submit"
-              className="bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all duration-200 font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-red-600 hover:bg-transparent hover:text-red-500 hover:border hover:border-red-500 transition-all border border-transparent duration-200 font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={
                 isSubmitting ||
                 !values.email ||

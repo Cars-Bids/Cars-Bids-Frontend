@@ -19,7 +19,7 @@ export type Lot = {
   sections: LotSection[];
   qa: QA[];
   comments: Comment[];
-  otherAuctions: Array<{ id: string; title: string; subtitle?: string; price: number; thumb: string; meta?: string }>;
+  otherAuctions: Array<{ id: string; title: string; subtitle?: string; price: number; thumb: string; start: Date; location: string; }>;
 };
 
 export const lots: Lot[] = [
@@ -74,9 +74,9 @@ export const lots: Lot[] = [
     { id: "c2", author: "WildSti", text: "Do you have the original cats?", time: new Date(Date.now() - 2 * 60 * 60 * 1000) },
   ],
   otherAuctions: [
-    { id: "a1", title: "1986 Volkswagen Type 3", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 3100, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", meta: "Ends in 3d • 24 bids" },
-    { id: "a2", title: "1977 Datsun Fairlady Z", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 12600, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", meta: "Ends in 1d • 12 bids" },
-    { id: "a3", title: "2009 Mini Cooper S", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 6900, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", meta: "Ends in 5h • 8 bids" },
+    { id: "1", title: "1986 Volkswagen Type 3", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 3100, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", start: new Date(Date.now() + 2 * 60 * 60 * 1000), location: "Fort Collins, CO 80524" },
+    { id: "2", title: "1977 Datsun Fairlady Z", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 12600, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", start: new Date(Date.now() + 3 * 60 * 60 * 1000), location: "Fort Collins, CO 80524" },
+    { id: "3", title: "2009 Mini Cooper S", subtitle: "Supercharged V8, 45,800 miles, 6-speed manual", price: 6900, thumb: "https://cdn1.riastatic.com/photosnew/auto/photo/bmw_m6__602359456hd.webp", start: new Date(Date.now() + 4 * 60 * 60 * 1000), location: "Fort Collins, CO 80524" },
   ],
 }
 ];

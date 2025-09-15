@@ -1,47 +1,30 @@
-export const TransmissionType = {
-  Manual: 0,
-  Automatic: 1,
-} as const;
 
-export type TransmissionType = (typeof TransmissionType)[keyof typeof TransmissionType];
-
-export const AuctionStatus = {
-  Pending: "Pending",
-  Active: "Active",
-  Finished: "Finished",
-} as const;
-
-export type AuctionStatus = (typeof AuctionStatus)[keyof typeof AuctionStatus];
-
-export interface CarPreviewDto {
-  description?: string;
-  location?: string;
-  transmissionType: TransmissionType;
-  mileage: number;
+export interface Auction{
+  id: number;
+  make: string;
+  model: string;
   year: number;
-  model?: string | null;
-  make?: string | null;
-  mainImageUrl?: string | null;
+  description: string;
+  startingPrice: number;
+  currentBid: number;
+  endTime: Date; // або Date, string
+  mileage: number;
+  status: string;
+  vin: string;
+  location: string;
+  userId: number;
 }
 
 export interface AuctionDto {
   id: number;
-  carId: number;
+  car: CarDto
   sellerId: number;
-  isInspected: boolean;
   startPrice: number;
   currentPrice: number;
-  currentBidder?: string | null;
+  currentBidder?: string;
   startTime: string;
   endTime: string;
-  status: AuctionStatus;
-  car: CarPreviewDto;
-}
-
-export interface PaginatedAuctions {
-  items: AuctionDto[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
+  createdAt: string;
+  approvedAt?: string;
+  status: number;
 }

@@ -31,7 +31,6 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (
   args: string | FetchArgs,
   api: BaseQueryApi,
-
   extraOptions: object = {}
 ) => {
   let result = await baseQuery(args, api, extraOptions);
@@ -98,5 +97,6 @@ export const apiSlice = createApi({
     refetchOnFocus: true,
     refetchOnReconnect: true,
 refetchOnMountOrArgChange: 30 ,
+  tagTypes: ['Profile', 'EndedAuctions', 'ActiveAuctions', 'NotificationSettings', "AuctionDetailed"],
   endpoints: () => ({}),
 });

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Menu, User, Bell, Sun, Moon } from "lucide-react";
 import { AuthPopup } from "../Modal";
 import { Link, useLocation } from "react-router-dom";
@@ -54,7 +54,7 @@ export default function Navbar() {
   const dispatch = useDispatch<AppDispatch>();
   const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
- 
+
   {
     /*Routes */
   }
@@ -156,20 +156,20 @@ console.log(profile);
   }, [isSheetOpen, isProfileOpen, isLangOpen]);
 
   useEffect(() => {
-  const routeToItemMap: { [key: string]: string } = {
-    "/": "Auctions",
-    "/sell-your-car": "Sell your car",
-    "/whats-steria": "What’s Steria?",
-    "/leaderboard": "Leaderboard",
-  };
+    const routeToItemMap: { [key: string]: string } = {
+      "/": "Auctions",
+      "/sell-your-car": "Sell your car",
+      "/whats-steria": "What’s Steria?",
+      "/leaderboard": "Leaderboard",
+    };
 
-  const segments = location.pathname.split("/").slice(2); 
-  const pathWithoutLang = "/" + segments.join("/");
+    const segments = location.pathname.split("/").slice(2);
+    const pathWithoutLang = "/" + segments.join("/");
 
-  const currentItem = routeToItemMap[pathWithoutLang] || "Auctions";
-  console.log(currentItem);
-  dispatch(setActiveItem(currentItem));
-}, [location.pathname, dispatch]);
+    const currentItem = routeToItemMap[pathWithoutLang] || "Auctions";
+    console.log(currentItem);
+    dispatch(setActiveItem(currentItem));
+  }, [location.pathname, dispatch]);
 
   const menuItems = [
     { name: "Auctions", path: "/" },
@@ -243,17 +243,17 @@ console.log(profile);
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
           {menuItems.map((item) => (
-           <Links
-  key={item.name}
-  to={item.path}
-  onClick={() => handleLinkClick(item.name)}
-  className={`hover:text-red-400 font-medium dark:text-white text-black
-    text-sm sm:text-base md:text-lg lg:text-base
-    ${activeItem === item.name ? "border-b-2 border-red-400 dark:border-red-400" : ""}`}
->
-  {item.name}
-</Links>
-
+            <Links
+              key={item.name}
+              to={item.path}
+              onClick={() => handleLinkClick(item.name)}
+              className={`hover:text-red-400 font-medium text-scaling dark:text-white text-black ${activeItem === item.name
+                ? "border-b-2 border-red-400 dark:border-red-400"
+                : ""
+                }`}
+            >
+              {item.name}
+            </Links>
           ))}
         </div>
 
@@ -275,7 +275,7 @@ console.log(profile);
                 />
               </svg>
             </span>
-            <Input
+            <LoginInput
               className="border-none  bg-neutral-200 dark:bg-neutral-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200  placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
               placeholder="Search for car or model"
               value={search}
@@ -309,11 +309,11 @@ console.log(profile);
               </div>
 
               <div
-  ref={profileRef}
-  className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 flex flex-col gap-4 shadow-extra-lg dark:shadow-none z-50 transform transition-all duration-200
-    ${isProfileOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"}
-  `}
->
+                ref={profileRef}
+                className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 flex flex-col gap-4 shadow-extra-lg dark:shadow-none z-50 transform transition-all duration-200
+                  ${isProfileOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"}
+                `}
+              >
                 <Links
                   to={"/profile"}
                   className="self-stretch inline-flex justify-between items-center"
@@ -465,11 +465,10 @@ console.log(profile);
                     key={item.name}
                     to={item.path}
                     onClick={() => handleLinkClick(item.name)}
-                    className={`hover:text-red-400 font-medium py-2 border-b border-neutral-700 text-center sm:text-left text-black dark:text-white text-scaling ${
-                      activeItem === item.name
-                        ? "border-b-2 border-red-400 dark:border-red-400"
-                        : ""
-                    }`}
+                    className={`hover:text-red-400 font-medium py-2 border-b border-neutral-700 text-center sm:text-left text-black dark:text-white text-scaling ${activeItem === item.name
+                      ? "border-b-2 border-red-400 dark:border-red-400"
+                      : ""
+                      }`}
                   >
                     {item.name}
                   </Links>
@@ -491,7 +490,7 @@ console.log(profile);
                         />
                       </svg>
                     </span>
-                    <Input
+                    <LoginInput
                       className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
                       placeholder="Search for car or model"
                       value={search}
