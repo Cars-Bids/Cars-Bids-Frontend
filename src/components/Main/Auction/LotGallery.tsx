@@ -1,22 +1,28 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { Image as ImgIcon, Play } from "lucide-react";
+import type {CarImageData} from "@/features/types/AuctionDetailed.ts";
 
-export type Photo = { id: string; src: string; alt?: string };
 
 export default function LotGallery({ photos, title }: {
-    photos: Photo[];
+    photos: CarImageData[];
     title: string;
 }) {
     // Активне фото, за замовчуванням — перше
-    const [activePhoto, setActivePhoto] = useState<Photo>(photos[0]);
+    const [activePhoto, setActivePhoto] = useState<CarImageData>(photos[0]);
+
+    useEffect(() => {
+        if (photos.length > 0) {
+            setActivePhoto(photos[0]);
+        }
+    }, [photos]);
 
     return (
         <section>
             {/* Головне фото */}
             <div className="aspect-[16/9] w-full overflow-hidden rounded-md">
                 <img
-                    src={activePhoto.src}
-                    alt={activePhoto.alt || title}
+                    src={activePhoto.imageUrl}
+                    alt={activePhoto.imageCategory || title}
                     className="h-full w-full object-cover transition-all duration-300"
                 />
             </div>
@@ -34,18 +40,19 @@ export default function LotGallery({ photos, title }: {
                         }`}
                     >
                         <img
-                            src={p.src}
-                            alt={p.alt || "thumbnail"}
+                            src={p.imageUrl}
+                            alt={p.imageCategory || "thumbnail"}
                             className="h-full w-full object-cover"
                         />
                     </button>
                 ))}
 
                 {/* Кнопка "All Photos" */}
+                {photos.length > 2 &&
                 <button
                     className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
                     style={{
-                        backgroundImage: `url(${photos[photos.length - 2].src})`,
+                        backgroundImage: `url(${photos[photos.length - 2].imageUrl})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                     }}
@@ -53,13 +60,14 @@ export default function LotGallery({ photos, title }: {
                     <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
                     <ImgIcon className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">All Photos</span>
-                </button>
+                </button>}
 
                 {/* Кнопка "Videos" */}
+                {photos.length > 2 &&
                 <button
                     className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
                     style={{
-                        backgroundImage: `url(${photos[photos.length - 1].src})`,
+                        backgroundImage: `url(${photos[photos.length - 1].imageUrl})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                     }}
@@ -67,8 +75,7 @@ export default function LotGallery({ photos, title }: {
                     <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
                     <Play className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">Videos</span>
-                </button>
-
+                </button>}
             </div>
         </section>
     );

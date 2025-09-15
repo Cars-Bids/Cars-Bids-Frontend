@@ -1,7 +1,8 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import type {CarData} from "@/features/types/AuctionDetailed.ts";
 
-export type LotSection = { title: string; bullets?: string[]; body?: string };
+export type LotSection = { title: string; bullets?: string[]; };
 
 function Accordion({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   return (
@@ -15,17 +16,29 @@ function Accordion({ title, children, defaultOpen = false }: { title: string; ch
   );
 }
 
-export default function LotAccordions({ sections }: { sections: LotSection[] }) {
+export default function LotAccordions({ car }: { car: CarData }) {
+   const sections: LotSection[] = [
+       { title: "Highlights", bullets: car.highlights },
+       { title: "Recent Service History", bullets: car.serviceHistory },
+       { title: "Equipment", bullets: car.equipment },
+       { title: "Known Flaws", bullets: car.flaws },
+       { title: "Modifications", bullets: car.modifications },
+       { title: "Other Items Included In Sale", bullets: car.otherItems },
+       { title: "Ownership History", bullets: car.ownershipHistory },
+       { title: "Seller Notes", bullets: car.sellerNotes }
+   ];
+
   return (
     <div className="space-y-3">
       {sections.map((s) => (
         <Accordion key={s.title} title={s.title} defaultOpen={s.title === "Highlights"}>
           {s.bullets && (
-            <ul className="list-outside list-disc space-y-2 pl-5">
-              {s.bullets.map((b, i) => (<li key={i} className="leading-relaxed">{b}</li>))}
+            <ul className="list-inside list-disc space-y-2">
+              {s.bullets.map((b, i) => b.startsWith("- ")
+                  ? <li key={i} className="leading-relaxed pl-5">{b.replace("- ", "")}</li>
+                  : !b.startsWith("# ") && <p key={i} className="leading-relaxed">{b}</p>)}
             </ul>
           )}
-          {s.body && <p className="leading-relaxed">{s.body}</p>}
         </Accordion>
       ))}
     </div>

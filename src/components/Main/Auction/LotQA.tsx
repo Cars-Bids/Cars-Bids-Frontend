@@ -1,14 +1,6 @@
 import React from "react";
-import {ChevronRight, Forward} from "lucide-react";
-import {timeAgo} from "@/lib/utils.ts";
-
-export type QA = {
-    id: string;
-    author: string;
-    question: string;
-    time: Date;
-    answer: string;
-};
+import {ChevronRight, Forward, User} from "lucide-react";
+import type {QAData} from "@/features/types/AuctionDetailed.ts";
 
 function Accordion({ title, children, actionLink, defaultOpen = false }: { title: string; children: React.ReactNode; actionLink?: React.ReactNode; defaultOpen?: boolean }) {
     return (
@@ -22,16 +14,19 @@ function Accordion({ title, children, actionLink, defaultOpen = false }: { title
     );
 }
 
-export default function LotQAAccordions({ qa }: { qa: QA[] }) {
+export default function LotQAAccordions({ qa }: { qa: QAData[] }) {
     const mid = Math.ceil(qa.length / 2);
     const left = qa.slice(0, mid);
     const right = qa.slice(mid);
 
-    const renderColumn = (column: QA[]) =>
+    const renderColumn = (column: QAData[]) =>
         column.map((q) => (
             <div key={q.id} className="mb-4 p-3">
                 <div className="text-xs text-black dark:text-gray-200 mb-1">
-                    <b>{q.author}</b> • {timeAgo(q.time)}
+                    {q.authorPhoto
+                        ? <img src={q.authorPhoto} alt={q.author} className="h-6 inline rounded-full" />
+                        : <User className="h-6 w-4 inline" />}
+                    <b> {q.author}</b>
                 </div>
                 <div className="mb-2"><b>Q: </b>{q.question}</div>
                 {q.answer && (
