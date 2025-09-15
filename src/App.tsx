@@ -9,6 +9,7 @@ import { type RootState } from './app/store';
 import NotFound404 from './pages/Errors/404';
 import SellCarPage from "@/pages/Base/SellCarPage.tsx";
 import AuctionPage from "@/pages/Base/AuctionPage.tsx";
+import ChatPage from "@/pages/Base/ChatPage.tsx";
 
 function LangWrapper() {
  useLangFromURL(); 
@@ -32,6 +33,7 @@ function LangWrapper() {
           <Route path="auction/:id" element={<AuctionPage />} />
           <Route path="sell-car" element={<SellCarPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="chat" element={<ChatPage />}/>
           <Route path="*" element={<NotFound404/>} />
       </Route>
     

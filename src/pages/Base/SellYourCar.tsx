@@ -10,6 +10,7 @@ import {
   Handshake,
  
 } from "lucide-react";
+import {Links} from "@/components/Main/Links";
 
 const SellYourCar = () => {
   return (
@@ -63,9 +64,12 @@ const SellYourCar = () => {
 
           {/* Кнопка */}
        <div className="flex justify-center md:justify-start w-full">
-  <button className="px-7 py-4 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
-    Sell now — it’s free
-  </button>
+         <Links
+         key="Sell Car"
+         to="/sell-car"
+         className="px-7 py-4 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
+           Sell now — it’s free
+         </Links>
 </div>
 
         </div>

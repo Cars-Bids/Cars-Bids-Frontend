@@ -7,6 +7,9 @@ const ModelsEndpoints = apiSlice.injectEndpoints({
     getModels: builder.query<Model[], void>({
       query: () => "/Model",
     }),
+    getModelsByMake: builder.query<Model[], number>({
+      query: (makeId) => `/Model/makeId=${makeId}`,
+    }),
     getModelById: builder.query<Model, number>({
       query: (id) => `/Model/${id}`,
     }),
@@ -35,6 +38,7 @@ const ModelsEndpoints = apiSlice.injectEndpoints({
 
 export const {
   useGetModelsQuery,
+  useGetModelsByMakeQuery,
   useGetModelByIdQuery,
   useAddModelMutation,
   useUpdateModelMutation,

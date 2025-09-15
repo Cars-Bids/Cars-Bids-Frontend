@@ -61,3 +61,56 @@ export const resetPasswordSchema = Yup.object({
     .oneOf([Yup.ref("newpasswordEmail"), undefined], "Passwords must match")
     .required("Required"),
 });
+
+export const sellCarSchema = Yup.object({
+  fullName: Yup.string()
+      .min(2, "Min 2 chars")
+      .max(60, "Max 60 chars")
+      .required("Required"),
+
+  phone: Yup.string()
+      .matches(/^\+380\d{9}$/, "Phone must be in format +380XXXXXXXXX")
+      .required("Required"),
+
+  vin: Yup.string()
+      .length(17, "VIN must be exactly 17 characters")
+      .matches(/^[A-HJ-NPR-Z0-9]+$/, "VIN must contain only valid characters")
+      .required("Required"),
+
+  brandId: Yup.number()
+      .min(0, "Incorrect brand")
+      .required("Required"),
+
+  modelId: Yup.number()
+      .min(0, "Incorrect brand")
+      .required("Required"),
+
+  transmissionId: Yup.number().required("Transmission is required"),
+
+  year: Yup.number()
+      .typeError("Enter a valid year")
+      .min(1950, "Year too low")
+      .max(new Date().getFullYear(), "Year cannot be in the future")
+      .required("Required"),
+
+  description: Yup.string()
+      .max(180, "Maximum 180 characters allowed"),
+
+  mileage: Yup.number()
+      .typeError("Enter a valid mileage")
+      .min(0, "Mileage cannot be negative")
+      .max(1_000_000, "Mileage too high")
+      .required("Required"),
+
+  isOnSalleElsewhere: Yup.boolean()
+      .required("Please select an option"),
+
+  isModified: Yup.boolean()
+      .required("Please select an option"),
+
+  photos: Yup.array()
+      .min(3, "At least 3 photos required")
+      .max(4, "Maximum 4 photos allowed")
+      .required("Photos are required")
+
+});

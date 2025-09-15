@@ -2,7 +2,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { resetPasswordSchema } from "@/components/Main/Modal/Validation";
 import  { type FormProps } from "@/features/types/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -63,7 +63,7 @@ export const ResetMailForm  = ({ switchTo , resetToken, Email } : FormProps) => 
             
             <div className="relative">
               <Field
-                as={Input}
+                as={LoginInput}
                 id="newpasswordEmail"
                 name="newpasswordEmail"
                 type={showPassword ? "text" : "password"}
@@ -93,7 +93,7 @@ export const ResetMailForm  = ({ switchTo , resetToken, Email } : FormProps) => 
             </Label>
             <div className="relative">
               <Field
-                as={Input}
+                as={LoginInput}
                 id="confirmNewPasswordEmail"
                 name="confirmNewPasswordEmail"
                 type={showConfirmPassword ? "text" : "password"}

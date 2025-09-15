@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Label } from "@/components/ui/label";
 import {  Eye, EyeOff } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -37,7 +37,7 @@ export const SignupForm = ({ switchTo } : FormProps) => {
               Enter your email
             </Label>
             <Field
-              as={Input}
+              as={LoginInput}
               id="email"
               name="email"
               type="email"
@@ -58,7 +58,7 @@ export const SignupForm = ({ switchTo } : FormProps) => {
               Enter your username
             </Label>
             <Field
-              as={Input}
+              as={LoginInput}
               id="username"
               name="username"
               type="text"
@@ -155,7 +155,7 @@ export const SignupPasswordForm  = ({ switchTo, onClose, initialEmail, initialUs
             </Label>
             <div className="relative">
               <Field
-                as={Input}
+                as={LoginInput}
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
@@ -185,7 +185,7 @@ export const SignupPasswordForm  = ({ switchTo, onClose, initialEmail, initialUs
             </Label>
             <div className="relative">
               <Field
-                as={Input}
+                as={LoginInput}
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}

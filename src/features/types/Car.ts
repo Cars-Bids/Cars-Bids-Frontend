@@ -46,3 +46,19 @@ export interface Car{
   ModelId: number;
   Images: CarIMage[];
 }
+
+export interface RequestNewCarCommand {
+  userId?: number;
+  fullName: string;
+  phone: string;
+  vin: string;
+  brandId: string;
+  modelId: string;
+  transmissionId: string;
+  year: string;
+  mileage: string;
+  description: string;
+  isOnSaleElsewhere: boolean;
+  isModified: boolean;
+  photos: File[];
+}

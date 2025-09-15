@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Menu, User, Bell, Sun, Moon } from "lucide-react";
 import { AuthPopup } from "../Modal";
 import { Link, useLocation } from "react-router-dom";
@@ -277,7 +277,7 @@ export default function Navbar() {
                 />
               </svg>
             </span>
-            <Input
+            <LoginInput
               className="border-none  bg-neutral-200 dark:bg-neutral-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black dark:text-gray-200  placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
               placeholder="Search for car or model"
               value={search}
@@ -493,7 +493,7 @@ export default function Navbar() {
                         />
                       </svg>
                     </span>
-                    <Input
+                    <LoginInput
                       className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-300 text-scaling"
                       placeholder="Search for car or model"
                       value={search}
