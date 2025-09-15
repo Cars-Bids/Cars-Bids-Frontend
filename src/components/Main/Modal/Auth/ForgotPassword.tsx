@@ -2,7 +2,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { forgotPasswordSchema } from "@/components/Main/Modal/Validation";
 import  { type FormProps } from "@/features/types/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoginInput } from "@/components/ui/loginInput.tsx";
 import { Label } from "@/components/ui/label";
 import { useSendPasswordResetEmailMutation } from "@/features/api/endpoints/Account";
 
@@ -42,7 +42,7 @@ export const ForgotPasswordForm  = ({ switchTo } : FormProps) => {
               Enter your email
             </Label>
             <Field
-              as={Input}
+              as={LoginInput}
               id="forgotEmail"
               name="forgotEmail"
               type="email"

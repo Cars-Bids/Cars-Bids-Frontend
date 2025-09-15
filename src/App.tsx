@@ -10,7 +10,9 @@ import { useLangFromURL } from './hooks/Lang';
 import { useSelector  } from 'react-redux';
 import { type RootState } from './app/store';
 import NotFound404 from './pages/Errors/404';
+import SellCarPage from "@/pages/Base/SellCarPage.tsx";
 import AuctionPage from "@/pages/Base/AuctionPage.tsx";
+import ChatPage from "@/pages/Base/ChatPage.tsx";
 
 function LangWrapper() {
  useLangFromURL(); 
@@ -32,6 +34,8 @@ function LangWrapper() {
         <Route path="reset-password" element={<HomePage />} />
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="auction/:id" element={<AuctionPage />} />
+        <Route path="sell-car" element={<SellCarPage />} />
+        <Route path="chat" element={<ChatPage />}/>
         <Route path="profile" element={<ProfilePage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
