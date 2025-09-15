@@ -9,6 +9,7 @@ import LotOtherAuctions from "@/components/Main/Auction/LotOtherAuctions.tsx";
 import {useParams} from "react-router-dom";
 import {useState} from "react";
 import {useGetAuctionDetailedByIdQuery} from "@/features/api/endpoints/Auction.ts";
+import {AuctionSignalRProvider} from "@/features/signalr/AuctionSignalRProvider.tsx";
 
 export default function AuctionPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,7 @@ export default function AuctionPage() {
   };
 
   return (data &&
+    <AuctionSignalRProvider auctionId={Number(id)}>
     <div className="min-h-dvh">
       <LotHeader title={data.car.title} subtitle={data.car.subtitle} isWatched={watched} onToggleWatch={onToggleWatch} />
       <main className="mx-auto max-w-7xl gap-3 px-4 py-5 lg:grid lg:grid-cols-12">
@@ -47,12 +49,15 @@ export default function AuctionPage() {
         </div>
 
         <div className="mt-6 lg:col-span-5 lg:mt-0 xl:col-span-4">
-          <LotBidPanel auction={data.auction} title={data.car.title} about={data.car.subtitle} />
+          <LotBidPanel auction={data.auction} title={data.car.title} about={data.car.subtitle}
+                       mainPhoto={data.images ? data.images[0].imageUrl : ""}
+          />
           <div className="mt-6 hidden lg:block">
             <LotOtherAuctions items={data.auctions} />
           </div>
         </div>
       </main>
     </div>
+    </AuctionSignalRProvider>
   );
 }

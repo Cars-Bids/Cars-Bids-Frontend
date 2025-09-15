@@ -38,7 +38,7 @@ function AuctionItem({ item, getTimeRemaining }: {
             setTimeLeft(getTimeRemaining(item.endTime));
         }, 1000);
         return () => clearInterval(timer);
-    }, [item.startTime]);
+    }, [item.endTime]);
 
     const format = (num: number) => String(num).padStart(2, "0");
     const currentLang = useSelector((state: RootState) => state.lang.current);
@@ -62,8 +62,10 @@ function AuctionItem({ item, getTimeRemaining }: {
                 <h4 className="text-s font-bold">{item.title}</h4>
                 <p className="text-xs">{item.subtitle}</p>
                 <div className="text-xs font-bold">
-                    <span className="px-2 mx-1 text-zinc-900 bg-zinc-300 dark:bg-zinc-100 rounded-md">Inspected</span>
-                    <span className="px-2 mx-1 text-zinc-200 bg-blue-500 rounded-md">No Reserve</span>
+                    { item.isInspected
+                        ? <span className="px-2 mx-1 text-zinc-900 bg-zinc-300 dark:bg-zinc-100 rounded-md">Inspected</span>
+                        : <span className="px-2 mx-1 text-zinc-200 bg-blue-500 rounded-md">No Reserve</span>
+                    }
                 </div>
                 <p className="text-xs">{item.location}</p>
             </div>

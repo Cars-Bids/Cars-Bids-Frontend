@@ -2,8 +2,7 @@ import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
 import type {AuctionDetailed} from "@/features/types/AuctionDetailed.ts";
 
-
-const AuctionsEndpoints = apiSlice.injectEndpoints({
+export const AuctionsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAuctions: builder.query<Auction[], void>({
       query: () => '/auctions',
@@ -15,6 +14,7 @@ const AuctionsEndpoints = apiSlice.injectEndpoints({
 
     getAuctionDetailedById: builder.query<AuctionDetailed, number>({
       query: (id) => `/auctions/detailed/${id}`,
+      providesTags: (_result, _error, id) => [{ type: "AuctionDetailed", id }],
     }),
   }),
 });
