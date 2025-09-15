@@ -11,6 +11,7 @@ export interface AuctionData {
     id: number;
     carId: number;
     seller?: string;
+    status: string;
     sellerPhoto?: string;
     currentPrice: number;
     currentBidder?: string;
@@ -20,6 +21,8 @@ export interface AuctionData {
     viewsCount: number;
     watchersCount: number;
     isWatched: boolean;
+    IsSeller: boolean;
+    isInspected: boolean;
 }
 
 export interface OtherAuction {
@@ -29,6 +32,7 @@ export interface OtherAuction {
     startTime: Date;
     endTime: Date;
     isWatched: boolean;
+    isInspected: boolean;
     location?: string;
     title: string;
     subtitle: string;
