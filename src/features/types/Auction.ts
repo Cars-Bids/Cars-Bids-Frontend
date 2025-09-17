@@ -1,4 +1,3 @@
-import { type CarDto } from "@/features/types/Car";
 
 export interface Auction{
   id: number;

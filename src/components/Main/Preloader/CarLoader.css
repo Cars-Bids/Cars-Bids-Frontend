@@ -13,7 +13,7 @@
   .front-wheel {
     transform-origin: 59px 56px;
     animation: wheel 300ms linear infinite;
-    animation-delay: 200ms;
+
   }
 
   .animate-car {

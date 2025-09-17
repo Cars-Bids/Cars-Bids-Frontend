@@ -94,6 +94,9 @@ const baseQueryWithReauth = async (
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+refetchOnMountOrArgChange: 30 ,
   tagTypes: ['Profile', 'EndedAuctions', 'ActiveAuctions', 'NotificationSettings', "AuctionDetailed"],
   endpoints: () => ({}),
 });
