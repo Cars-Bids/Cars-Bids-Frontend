@@ -63,6 +63,7 @@ export interface RequestNewCarCommand {
   isOnSaleElsewhere: boolean;
   isModified: boolean;
   photos: File[];
+}
 
 export interface CarDto {
   id: number;
