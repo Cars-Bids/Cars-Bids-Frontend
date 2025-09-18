@@ -89,7 +89,7 @@ export default function CarLoader({ isLoading = true }: CarLoaderProps) {
             d="M18.05,51.11a4.39,4.39,0,0,1,2,.26l.47.21.45.25.41.31.39.34a4.92,4.92,0,0,1,1.1,1.71,4.42,4.42,0,0,1,.27,2,.15.15,0,0,1-.16.13.16.16,0,0,1-.13-.13h0a5.73,5.73,0,0,0-.49-1.79,5.05,5.05,0,0,0-1-1.48,5.33,5.33,0,0,0-1.49-1,5.86,5.86,0,0,0-1.78-.48h0a.15.15,0,0,1-.13-.16A.14.14,0,0,1,18.05,51.11Z"
           />
         </g>
-        <g className="wheel front-wheel animate-wheel animate-delay-200">
+        <g className="wheel front-wheel animate-wheel ">
           <circle className="fill-red-600 dark:fill-red-500" cx="59" cy="56" r="6.75" />
           <circle className="wheel-details fill-white dark:fill-[#2c2c2c]" cx="59" cy="56" r="3.12" />
           <circle className="fill-red-600 dark:fill-red-500" cx="59" cy="56" r="1.85" />

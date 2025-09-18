@@ -92,3 +92,9 @@ export interface CommentData {
     author?: string;
     authorPhoto?: string;
 }
+
+export interface AddCommentRequest {
+    auctionId: number;
+    replyId: number | null;
+    text: string;
+}

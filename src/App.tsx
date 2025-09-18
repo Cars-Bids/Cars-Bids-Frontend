@@ -12,7 +12,9 @@ import { type RootState } from './app/store';
 import NotFound404 from './pages/Errors/404';
 import SellCarPage from "@/pages/Base/SellCarPage.tsx";
 import AuctionPage from "@/pages/Base/AuctionPage.tsx";
+import {AboutPage} from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
+import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 
 function LangWrapper() {
  useLangFromURL(); 
@@ -21,7 +23,6 @@ function LangWrapper() {
  const currentLang = useSelector((state: RootState) => state.lang.current);
 
   if (!currentLang) return null; // або можна показати лоадер
-
   return (
     <Routes>
       {/* Редірект з кореня на мову з Redux */}
@@ -37,12 +38,14 @@ function LangWrapper() {
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
+          <Route path="whats-steria" element={<AboutPage/>}/>
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound404/>} />
+          <Route path={"dashboard"} element={<ManagerDashboard/>} />
       </Route>
-    
+
     </Routes>
   );
 }

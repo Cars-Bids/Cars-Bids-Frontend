@@ -50,19 +50,19 @@ export interface Car{
 }
 
 export interface RequestNewCarCommand {
-  userId?: number;
-  fullName: string;
-  phone: string;
-  vin: string;
-  brandId: string;
-  modelId: string;
-  transmissionId: string;
-  year: string;
-  mileage: string;
-  description: string;
-  isOnSaleElsewhere: boolean;
-  isModified: boolean;
-  photos: File[];
+    userId?: number;
+    fullName: string;
+    phone: string;
+    vin: string;
+    brandId: string;
+    modelId: string;
+    transmissionId: string;
+    year: string;
+    mileage: string;
+    description: string;
+    isOnSaleElsewhere: boolean;
+    isModified: boolean;
+    photos: File[];
 }
 
 export interface CarDto {
@@ -72,6 +72,8 @@ export interface CarDto {
   mileage: number;
   make: string;
   model: string;
+  description: string;
+  location: string;
   bodyStyle?: string | null;
   drivetrain: number;
   transmissionType: number;
@@ -79,7 +81,7 @@ export interface CarDto {
   interiorColor: string;
   engine: string;
   status: number;
-  mainImage: string;
+  mainImageUrl: string;
 }
 
 export interface ProfileInReviewCarDto {

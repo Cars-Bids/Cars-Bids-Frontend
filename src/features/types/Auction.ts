@@ -1,5 +1,4 @@
-import { type CarDto } from "@/features/types/Car";
-
+import type {CarDto} from "@/features/types/Car.ts";
 export interface Auction{
   id: number;
   make: string;
@@ -16,6 +15,7 @@ export interface Auction{
   userId: number;
 }
 
+
 export interface AuctionDto {
   id: number;
   car: CarDto
@@ -26,6 +26,8 @@ export interface AuctionDto {
   startTime: string;
   endTime: string;
   createdAt: string;
+  isInspected: boolean;
   approvedAt?: string;
   status: number;
+ 
 }

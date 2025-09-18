@@ -29,7 +29,7 @@ export default function Navbar() {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isLangOpen, setisLangOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("theme");
@@ -66,11 +66,9 @@ export default function Navbar() {
     /*RTK Queue */
   }
   const { data: profile } = useGetProfileQuery(undefined, {
-    skip: !isAuthenticated,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
+    skip: !isAuthenticated
   });
-
+console.log(profile);
   {
     /*Handlers*/
   }
@@ -147,7 +145,7 @@ export default function Navbar() {
         isLangOpen &&
         !langRefs.some((ref) => ref.current?.contains(event.target as Node))
       ) {
-        setisLangOpen(false);
+        setIsLangOpen(false);
       }
     };
 
@@ -181,8 +179,8 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-white to-white dark:from-neutral-900 dark:to-neutral-800 text-white dark:text-gray-200 px-4 py-3 shadow-md backdrop-blur-md">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-white to-white dark:from-neutral-900 dark:to-neutral-800 gap-7 text-white dark:text-gray-200  py-3 shadow-md backdrop-blur-md">
+      <div className="max-w-[80vw] mx-auto flex items-center justify-between ">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <svg
@@ -335,19 +333,19 @@ export default function Navbar() {
                 </Links>
 
                 <div className="w-16 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
+                  <Links to={"/settings"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
                     Settings
-                  </div>
+                  </Links>
                 </div>
                 <div className="w-32 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                  <Links to={"/seller-dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
                     Seller dashboard
-                  </div>
+                  </Links>
                 </div>
                 <div className="w-20 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                  <Links to={"/watchlist"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
                     Watchlist
-                  </div>
+                  </Links>
                 </div>
                 <div onClick={handleLogout} className="w-16 h-7 relative">
                   <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
@@ -463,7 +461,7 @@ export default function Navbar() {
                   </svg>
                 </Link>
                 {menuItems.map((item) => (
-                  <Link
+                  <Links
                     key={item.name}
                     to={item.path}
                     onClick={() => handleLinkClick(item.name)}
@@ -473,7 +471,7 @@ export default function Navbar() {
                       }`}
                   >
                     {item.name}
-                  </Link>
+                  </Links>
                 ))}
                 <div className="mt-6">
                   <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 px-3 py-2 rounded-lg">
