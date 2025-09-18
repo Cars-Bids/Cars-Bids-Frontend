@@ -95,8 +95,13 @@ const ProfileEndpoints = apiSlice.injectEndpoints({
     getActiveAuctions: builder.query<PagedResult<AuctionDto>, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 10 }) =>
         `/Profile/active-auctions?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-      providesTags: ['ActiveAuctions']
+      providesTags: ['ActiveAuctions'],
+
     }),
+    getInpendingCars: builder.query<PagedResult<AuctionDto>,{ pageNumber?: number; pageSize?: number } >({
+      query: ({ pageNumber = 1, pageSize = 10 }) =>
+        `/Profile/in-pending-cars?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    })
   }),
 });
 
@@ -114,4 +119,5 @@ export const {
   useChangePasswordMutation,
   useGetEndedAuctionsQuery,
   useGetActiveAuctionsQuery,
+  useGetInpendingCarsQuery
 } = ProfileEndpoints;
