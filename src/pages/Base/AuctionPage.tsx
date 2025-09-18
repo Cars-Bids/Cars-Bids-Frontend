@@ -44,7 +44,7 @@ export default function AuctionPage() {
           </div>
 
           <div className="mt-8">
-            <LotComments comments={data.comments} />
+            <LotComments comments={data.comments} auctionId={data.auction.id} />
           </div>
         </div>
 
