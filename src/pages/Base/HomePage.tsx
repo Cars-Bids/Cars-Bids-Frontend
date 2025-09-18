@@ -12,7 +12,7 @@ const HomePage = () => {
      const { data: body, isLoading } = useGetAuctionsQuery({ PageNumber: 1, PageSize: 10 },  { refetchOnFocus: true,
          refetchOnReconnect: true, });
 
-     const {data: img} = useGetActionActiveQuery({ count: 10 },  { refetchOnFocus: true})
+     const {data: img} = useGetActionActiveQuery({ count: 3 },  { refetchOnFocus: true})
 console.log(img)  ;
 
 
@@ -22,35 +22,15 @@ console.log(img)  ;
       <div className="flex flex-col items-center justify-center  ">
         <div className="self-stretch inline-flex justify-center items-start gap-5 pb-10">
             {
-                img?.map((img) =>(
-                   <CarCard key={img.id} title={`${img?.car?.year} `} lable="Newly added"
-                            subtitle={`${img?.car?.engine}, ${img?.car?.interiorColor}`}
-                            description={`${img?.car?.exteriorColor}, ${img?.car?.location}`}
-                            image={`${img?.car?.mainImage}`}
-                            featured={[
-                                `${img?.car?.exteriorImage1}`,
-                                `${img?.car?.exteriorImage2}`,
-                            ]}
-                            price={`$ ${img?.currentPrice}`}
-                            time="03:48:12"
-                             />
-                ))
-            }
 
-          <CarCard
-            title="2013 Porsche Panamera S"
-            lable="Newly added"
-            subtitle="2 Owners, V8 Power, Yachting Blue"
-            description="Metallic, California-Owned"
-            image="https://placehold.co/680x350"
-            featured={[
-              "https://placehold.co/210x140",
-              "https://placehold.co/210x140",
-            ]}
-            price="$135,000"
-            time="03:48:12"
-            variant="mirror"
-          />
+                img?.map((img) =>(
+                    <>
+                   <CarCard key={img.id} data={img}/>
+                    <CarCard key={img.id} data={img} variant={"mirror"}/>
+                    </>
+                    ))
+
+          }
         </div>
         <div className="w-full  px-6 grid grid-cols-3 items-center gap-5">
           {/* Title */}

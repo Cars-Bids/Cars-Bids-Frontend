@@ -14,6 +14,7 @@ import SellCarPage from "@/pages/Base/SellCarPage.tsx";
 import AuctionPage from "@/pages/Base/AuctionPage.tsx";
 import {AboutPage} from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
+import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 
 function LangWrapper() {
  useLangFromURL(); 
@@ -42,6 +43,7 @@ function LangWrapper() {
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound404/>} />
+          <Route path={"dashboard"} element={<ManagerDashboard/>} />
       </Route>
 
     </Routes>

@@ -338,14 +338,14 @@ console.log(profile);
                   </Links>
                 </div>
                 <div className="w-32 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                  <Links to={"/seller-dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
                     Seller dashboard
-                  </div>
+                  </Links>
                 </div>
                 <div className="w-20 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                  <Links to={"/watchlist"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
                     Watchlist
-                  </div>
+                  </Links>
                 </div>
                 <div onClick={handleLogout} className="w-16 h-7 relative">
                   <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">

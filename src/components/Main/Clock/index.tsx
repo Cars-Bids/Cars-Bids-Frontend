@@ -4,9 +4,10 @@ import { Clock } from "lucide-react";
 interface AuctionTimerProps {
   startTime: string;
   endTime: string;
+  className?: string;
 }
 
-const AuctionTimer = ({ startTime, endTime }: AuctionTimerProps) => {
+const AuctionTimer = ({ startTime, endTime, className }: AuctionTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [status, setStatus] = useState<"starts" | "ends" | "ended">("starts");
 
@@ -33,19 +34,21 @@ const AuctionTimer = ({ startTime, endTime }: AuctionTimerProps) => {
     return () => clearInterval(interval);
   }, [startTime, endTime]);
 
-  const formatTime = (ms: number) => {
-    if (ms <= 0) return "00:00:00";
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
-  };
+    const formatTime = (ms: number) => {
+        if (ms <= 0) return "00d 00h 00m 00s";
 
-  return (
-    <div className="flex items-center gap-2 bg-neutral-800 border border-red-600 px-3 py-1.5 rounded-lg text-xs font-medium font-synonym">
+        const totalSeconds = Math.floor(ms / 1000);
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    };
+
+
+    return (
+    <div className={`flex items-center gap-2 bg-neutral-800 border border-red-600 px-3 py-1.5 rounded-lg text-xs font-medium font-synonym ${className} `}>
       <Clock className="w-4 h-4 text-red-600" />
       {status === "starts" && <>Starts in {formatTime(timeLeft)}</>}
       {status === "ends" && <>Ends in {formatTime(timeLeft)}</>}

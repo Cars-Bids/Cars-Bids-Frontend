@@ -1,28 +1,15 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {ChevronLeft, ChevronRight, DollarSign} from "lucide-react";
+import AuctionTimer from "@/components/Main/Clock";
+
 interface CarCardProps {
-  title: string;
-  description: string;
-  subtitle: string;
-  lable: string;
-  image: string;
-  featured: string[];
-  price: string;
-  startTime: string;
-  endTime: string;
-  variant?: "default" | "mirror";
+    data: any;
+    variant?: "default" | "mirror";
 }
 
-export const CarCard = ({
-  title,
-  description,
-  subtitle,
-  image,
-  featured,
-  price,
-  lable,
-  variant = "default",
-}: CarCardProps) => {
-  return (
+export const CarCard = ({ data, variant = "default" }: CarCardProps) => {
+
+
+    return (
     <div
       className={`w-full h-75 max-w-3xl bg-white dark:bg-neutral-900 text-white rounded-lg outline outline-1 outline-gray-400 dark:outline-white overflow-hidden grid  ${
         variant === "mirror"
@@ -36,16 +23,16 @@ export const CarCard = ({
           variant == "mirror" ? "order-1" : "order-0"
         }`}
       >
-        <img src={image} alt={title} className="h-full  object-cover" />
+        <img src={data?.car?.mainImage} alt="img" className="h-[300px] w-full object-cover" />
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/10 p-4 flex flex-col justify-between">
           {/* Top info */}
 
           <div className={`${variant== "mirror" ? "text-right" : "text-left"} `}>
-            <h2 className="text-lg font-bold font-amulya">{title} </h2>
-            <p className="text-xs  font-synonym">{subtitle}</p>
-            <p className="text-xs  font-synonym">{description}</p>
+            <h2 className="text-lg font-bold font-amulya">{data?.car?.year} {data?.car?.makeName} {data?.car?.modelName} </h2>
+            <p className="text-xs  font-synonym">{data?.car?.exteriorColor}, {data?.car?.engine}</p>
+            <p className="text-xs  font-synonym">{data?.car?.interiorColor}, {data?.car?.location}</p>
           </div>
 
           {/* Bottom bar */}
@@ -60,16 +47,23 @@ export const CarCard = ({
                     <ChevronRight size={20} />
                   </button>
                 </div>
-                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white">
-                  <div className="px-2 py-1">{time}</div>
-                  <div className="px-2 py-1 border-l border-white">{price}</div>
+                <div className=" flex text-[14px] rounded-md overflow-hidden font-synonym  gap-4">
+                    <div className="flex items-center gap-2 bg-neutral-800 border border-[#8ebf0b] px-3 py-1.5 rounded-lg text-xs font-medium font-synonym">
+                        <DollarSign className="w-4 h-4 text-[#8ebf0b]" />
+                        {data?.currentPrice}
+                    </div>
+                    <AuctionTimer startTime={data?.startTime} endTime={data?.endTime} className='rounded-lg'/>
                 </div>
               </>
             ) : (
               <>
-                <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white">
-                  <div className="px-2 py-1">{time}</div>
-                  <div className="px-2 py-1 border-l border-white">{price}</div>
+                <div className=" flex text-[14px] rounded-md overflow-hidden font-synonym  gap-4">
+                    <AuctionTimer startTime={data?.startTime} endTime={data?.endTime} className='rounded-lg'/>
+                    <div className="flex items-center gap-2 bg-neutral-800 border border-[#8ebf0b] px-3 py-1.5 rounded-lg text-xs font-medium font-synonym">
+                        <DollarSign className="w-4 h-4 text-[#8ebf0b]" />
+                        {data?.currentPrice}
+                    </div>
+
                 </div>
 
                 <div className="bg-neutral-800 flex text-[14px] rounded-md overflow-hidden font-synonym outline outline-1 outline-white ">
@@ -90,22 +84,30 @@ export const CarCard = ({
       <div className="flex flex-col ">
         <div className={`self-stretch self-stretch p-4 inline-flex flex-col justify-center items-center border-white border ${variant=="mirror" ? " border-r-2" : "border-l-2"}`}>
           <div className="justify-start text-black dark:text-white text-lg font-bold font-amulya leading-tight ">
-            {lable}
+              Newly Added
           </div>
         </div>
 
-        {featured.map((f, i) => (
+
           <div
-            key={i}
             className={`${variant=="mirror" ? " border-r-2" : "border-l-2"}  border border-white overflow-hidden relative`}
           >
             <img
-              src={f}
+              src={data?.car?.exteriorImage2}
               alt="featured"
               className="w-[210px] h-31 object-cover "
             />
           </div>
-        ))}
+          <div
+              className={`${variant=="mirror" ? " border-r-2" : "border-l-2"}  border border-white overflow-hidden relative`}
+          >
+              <img
+                  src={data?.car?.exteriorImage1}
+                  alt="featured"
+                  className="w-[210px] h-31 object-cover "
+              />
+          </div>
+
       </div>
     </div>
   );
