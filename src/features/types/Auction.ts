@@ -1,4 +1,4 @@
-
+import type {CarDto} from "@/features/types/Car.ts";
 export interface Auction{
   id: number;
   make: string;
@@ -14,6 +14,7 @@ export interface Auction{
   location: string;
   userId: number;
 }
+
 
 export interface AuctionDto {
   id: number;

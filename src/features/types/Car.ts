@@ -50,20 +50,20 @@ export interface Car{
 }
 
 export interface RequestNewCarCommand {
-  userId?: number;
-  fullName: string;
-  phone: string;
-  vin: string;
-  brandId: string;
-  modelId: string;
-  transmissionId: string;
-  year: string;
-  mileage: string;
-  description: string;
-  isOnSaleElsewhere: boolean;
-  isModified: boolean;
-  photos: File[];
-
+    userId?: number;
+    fullName: string;
+    phone: string;
+    vin: string;
+    brandId: string;
+    modelId: string;
+    transmissionId: string;
+    year: string;
+    mileage: string;
+    description: string;
+    isOnSaleElsewhere: boolean;
+    isModified: boolean;
+    photos: File[];
+}
 export interface CarDto {
   id: number;
   name: string;

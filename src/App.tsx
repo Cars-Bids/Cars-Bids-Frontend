@@ -22,31 +22,6 @@ function LangWrapper() {
  const currentLang = useSelector((state: RootState) => state.lang.current);
 
   if (!currentLang) return null; // або можна показати лоадер
-
-    return (
-        <Routes>
-            {/* Редіректи від кореня без мови */}
-            <Route path="/" element={<Navigate to={`/${lang}/home`} replace />} />
-            <Route path="sell-your-car" element={<Navigate to={`/${lang}/sell-your-car`} replace />} />
-            <Route path="profile" element={<Navigate to={`/${lang}/profile`} replace />} />
-            <Route path="reset-password" element={<Navigate to={`/${lang}/reset-password`} replace />} />
-            <Route path="whats-steria" element={<Navigate to={`/${lang}/whats-steria`} replace />} />
-            {/* Основні сторінки всередині мови */}
-            <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
-                <Route index element={<HomePage />} />
-                <Route path="home" element={<HomePage />} />
-                <Route path="sell-your-car" element={<SellYourCar />} />
-                <Route path="whats-steria" element={<AboutPage/>}/>
-                <Route path="auction/:id" element={<AuctionPage />} />
-                <Route path="profile" element={<ProfilePage />} />
-                <Route path="reset-password" element={<HomePage />} />
-                <Route path="*" element={<NotFound404 />} />
-            </Route>
-
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound404 />} />
-        </Routes>
-    );
   return (
     <Routes>
       {/* Редірект з кореня на мову з Redux */}
@@ -62,6 +37,7 @@ function LangWrapper() {
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat" element={<ChatPage />}/>
         <Route path="profile" element={<ProfilePage />} />
+          <Route path="whats-steria" element={<AboutPage/>}/>
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />

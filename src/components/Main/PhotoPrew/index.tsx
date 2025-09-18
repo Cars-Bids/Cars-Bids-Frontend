@@ -7,7 +7,8 @@ interface CarCardProps {
   image: string;
   featured: string[];
   price: string;
-  time: string;
+  startTime: string;
+  endTime: string;
   variant?: "default" | "mirror";
 }
 
@@ -18,7 +19,6 @@ export const CarCard = ({
   image,
   featured,
   price,
-  time,
   lable,
   variant = "default",
 }: CarCardProps) => {

@@ -4,31 +4,39 @@ import CarCard from "@/components/Main/PhotoPrew";
 import { AuctionCards } from "@/components/Main/Auction/Cards";
 import { SettingsMenu } from "@/components/Main/Auction/Menu";
 
-import { useGetAuctionsQuery } from "@/features/api/endpoints/Auction";
+import { useGetAuctionsQuery, useGetActionActiveQuery } from "@/features/api/endpoints/Auction";
 
 
 
 const HomePage = () => {
-     const { data: body, isLoading } = useGetAuctionsQuery({ pageNumber: 1, pageSize: 10 },  { refetchOnFocus: true,
+     const { data: body, isLoading } = useGetAuctionsQuery({ PageNumber: 1, PageSize: 10 },  { refetchOnFocus: true,
          refetchOnReconnect: true, });
-        console.log(body);
+
+     const {data: img} = useGetActionActiveQuery({ count: 10 },  { refetchOnFocus: true})
+console.log(img)  ;
+
+
+
   return (
     <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto">
       <div className="flex flex-col items-center justify-center  ">
         <div className="self-stretch inline-flex justify-center items-start gap-5 pb-10">
-          <CarCard
-            title="2013 Porsche Panamera S"
-            lable="Featured cars"
-            subtitle="2 Owners, V8 Power, Yachting Blue"
-            description="Metallic, California-Owned"
-            image="https://placehold.co/680x350"
-            featured={[
-              "https://placehold.co/210x140",
-              "https://placehold.co/210x140",
-            ]}
-            price="$135,000"
-            time="03:48:12"
-          />
+            {
+                img?.map((img) =>(
+                   <CarCard key={img.id} title={`${img?.car?.year} `} lable="Newly added"
+                            subtitle={`${img?.car?.engine}, ${img?.car?.interiorColor}`}
+                            description={`${img?.car?.exteriorColor}, ${img?.car?.location}`}
+                            image={`${img?.car?.mainImage}`}
+                            featured={[
+                                `${img?.car?.exteriorImage1}`,
+                                `${img?.car?.exteriorImage2}`,
+                            ]}
+                            price={`$ ${img?.currentPrice}`}
+                            time="03:48:12"
+                             />
+                ))
+            }
+
           <CarCard
             title="2013 Porsche Panamera S"
             lable="Newly added"
@@ -61,7 +69,7 @@ const HomePage = () => {
             <div className="text-black dark:text-white text-base font-normal font-synonym">
               Inspected
             </div>
-           
+
           </div>
 
           <SettingsMenu />

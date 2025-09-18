@@ -26,13 +26,7 @@ export const AuctionCards = ( { data } :AuctionCardsProps ) =>{
         </div> */}
 
         {/* Нижній блок (таймер + ціна) */}
-        <div className="absolute bottom-3 left-0 w-full px-3 flex justify-between">
-        <AuctionTimer startTime={data?.startTime} endTime={data?.endTime} />
-          <div className="flex items-center gap-2 bg-neutral-800 border border-[#8ebf0b] px-3 py-1.5 rounded-lg text-xs font-medium font-synonym">
-            <DollarSign className="w-4 h-4 text-[#8ebf0b]" />
-            {data?.currentPrice.toLocaleString()} 
-          </div>
-        </div>
+
         </div>
       </div>
 

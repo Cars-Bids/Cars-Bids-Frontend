@@ -333,9 +333,9 @@ console.log(profile);
                 </Links>
 
                 <div className="w-16 h-7 relative">
-                  <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
+                  <Links to={"/settings"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
                     Settings
-                  </div>
+                  </Links>
                 </div>
                 <div className="w-32 h-7 relative">
                   <div className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
