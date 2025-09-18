@@ -1,22 +1,62 @@
-import { useState } from "react";
+import React, {useRef, useState} from "react";
 import {MessageCircle, Flag, Send, User} from "lucide-react";
 import {timeAgo} from "@/lib/utils.ts";
 import type {CommentData} from "@/features/types/AuctionDetailed.ts";
+import {message} from "antd";
+import {useAddAuctionCommentMutation} from "@/features/api/endpoints/Auction.ts";
 
 const MAX_LENGTH = 200;
 
-export default function LotComments({ comments }: { comments: CommentData[] }) {
+export default function LotComments({ comments, auctionId }: { comments: CommentData[], auctionId: number }) {
     const [inputText, setInputText] = useState("");
+    const [replyToId, setReplyToId] = useState<number | null>(null);
+    const [replyTo, setReplyTo] = useState<string>("");
+    const [addComment, { isLoading }] = useAddAuctionCommentMutation();
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleReply = (id: number) => {
-        alert(`Reply clicked for comment ${id}`);
+    const handleReport = (commentId: number) => {
+        message.info(`Report was sent for comment ${commentId}`);
     };
-    const handleReport = (id: number) => {
-        alert(`Report clicked for comment ${id}`);
+    const handleReply = (commentId: number, author?: string) => {
+        const prefix = `Re: ${author}:`;
+        setReplyToId(commentId);
+        setReplyTo(prefix);
+        setInputText(prefix + " ");
+
+        setTimeout(() => {
+            if (inputRef.current) {
+                inputRef.current.focus();
+                // ставимо курсор в кінець префікса
+                inputRef.current.setSelectionRange(prefix.length + 1, prefix.length + 1);
+            }
+        }, 5);
     };
-    const handlePost = () => {
-        alert(`Post comment clicked: ${inputText}`);
-        setInputText(""); // очищаємо інпут після "посту"
+    const handlePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        let text = inputText;
+        let replyIdToSend = replyToId;
+
+        if (replyTo && inputText.startsWith(replyTo)) {
+            text = text.substring(replyTo.length);
+        }
+        else {
+            replyIdToSend = null;
+        }
+        try {
+            await addComment({
+                auctionId: auctionId,
+                replyId: replyIdToSend,
+                text: text.trim()
+            }).unwrap();
+
+            setInputText("");
+            setReplyToId(null);
+            setReplyTo("");
+            message.success("Comment added successfully!");
+        } catch (err) {
+            console.error("Error adding message", err);
+            message.error("Error adding message");
+        }
     };
 
     return (
@@ -26,6 +66,7 @@ export default function LotComments({ comments }: { comments: CommentData[] }) {
                 {/* Інпут з іконкою всередині */}
                 <div className="mb-1 relative">
                     <input
+                        ref={inputRef}
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         maxLength={MAX_LENGTH}
@@ -34,6 +75,7 @@ export default function LotComments({ comments }: { comments: CommentData[] }) {
                     />
                     <button
                         onClick={handlePost}
+                        disabled={isLoading || !inputText.trim()}
                         className="absolute right-1 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-white hover:bg-zinc-950"
                     >
                         <Send className="h-4 w-4" />
@@ -60,7 +102,7 @@ export default function LotComments({ comments }: { comments: CommentData[] }) {
                             <div className="flex gap-4 text-xs text-black dark:text-gray-200">
                                 <button
                                     className="flex items-center gap-1 hover:underline"
-                                    onClick={() => handleReply(c.id)}
+                                    onClick={() => handleReply(c.id, c.author)}
                                 >
                                     <MessageCircle className="h-3 w-3" /> Reply
                                 </button>
