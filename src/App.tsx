@@ -7,28 +7,27 @@ import SellerDashboard from '@/pages/Base/SellerDashboard';
 import Settings from "@/pages/Base/Settings";
 import WatchList from './pages/Base/WatchList';
 import { useLangFromURL } from './hooks/Lang';
-import { useSelector  } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { type RootState } from './app/store';
 import NotFound404 from './pages/Errors/404';
 import SellCarPage from "@/pages/Base/SellCarPage.tsx";
 import AuctionPage from "@/pages/Base/AuctionPage.tsx";
-import {AboutPage} from "@/pages/Base/AboutPage.tsx";
+import { AboutPage } from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
 import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
+import CreateAuctionPage from './pages/Base/AuctionCreatePage';
 
 function LangWrapper() {
- useLangFromURL(); 
-  
+  useLangFromURL();
 
- const currentLang = useSelector((state: RootState) => state.lang.current);
 
-  if (!currentLang) return null; // або можна показати лоадер
+  const currentLang = useSelector((state: RootState) => state.lang.current);
+
+  if (!currentLang) return null;
   return (
     <Routes>
-      {/* Редірект з кореня на мову з Redux */}
       <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
 
-      {/* Сторінки з мовним префіксом */}
       <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
         <Route index element={<HomePage />} />
         <Route path="home" element={<HomePage />} />
@@ -38,12 +37,14 @@ function LangWrapper() {
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
-          <Route path="whats-steria" element={<AboutPage/>}/>
+        <Route path="create-auction" element={<CreateAuctionPage />} />
+        <Route path="whats-steria" element={<AboutPage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="*" element={<NotFound404/>} />
-          <Route path={"dashboard"} element={<ManagerDashboard/>} />
+        <Route path="*" element={<NotFound404 />} />
+        <Route path={"dashboard"} element={<ManagerDashboard />} />
+        
       </Route>
 
     </Routes>
@@ -54,7 +55,7 @@ function App() {
 
   return (
     <BrowserRouter>
-       <LangWrapper />
+      <LangWrapper />
     </BrowserRouter>
   );
 }

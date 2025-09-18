@@ -97,6 +97,6 @@ export const apiSlice = createApi({
     refetchOnFocus: true,
     refetchOnReconnect: true,
 refetchOnMountOrArgChange: 30 ,
-  tagTypes: ['Profile', 'EndedAuctions', 'ActiveAuctions', 'NotificationSettings', "AuctionDetailed, "ChatMessages", "ChatRequirements"],
+  tagTypes: ['Profile', 'EndedAuctions', 'ActiveAuctions', 'NotificationSettings', "AuctionDetailed", "ChatMessages", "ChatRequirements"],
   endpoints: () => ({}),
 });
