@@ -36,7 +36,7 @@ function LangWrapper() {
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="auction/:id" element={<AuctionPage />} />
         <Route path="sell-car" element={<SellCarPage />} />
-        <Route path="chat" element={<ChatPage />}/>
+        <Route path="chat/:id" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
           <Route path="whats-steria" element={<AboutPage/>}/>
         <Route path="seller-dashboard" element={<SellerDashboard />} />

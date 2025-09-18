@@ -5,6 +5,7 @@
     message?: string;
     sentAt: Date;
     attachment?: string[];
+    reactionSummaryDtos?: string[];
     seenBy?: SeenInfoDto[];
 };
 
