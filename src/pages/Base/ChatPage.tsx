@@ -221,8 +221,8 @@ function ChatPage({ chatId }: { chatId: number }) {
                         chatData.messages
                             .slice()
                             .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
-                            .map((msg, index) => {
-                            const prev = chatData.messages[index - 1];
+                            .map((msg, index, sortedArray) => {
+                            const prev = sortedArray[index - 1];
                             const currDate = new Date(msg.sentAt);
                             const prevDate = prev ? new Date(prev.sentAt) : null;
 
