@@ -26,6 +26,8 @@ export interface AuctionDto {
   startTime: string;
   endTime: string;
   createdAt: string;
+  isInspected: boolean;
   approvedAt?: string;
   status: number;
+ 
 }

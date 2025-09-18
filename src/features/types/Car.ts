@@ -71,6 +71,8 @@ export interface CarDto {
   mileage: number;
   make: string;
   model: string;
+  description: string;
+  location: string;
   bodyStyle?: string | null;
   drivetrain: number;
   transmissionType: number;
@@ -78,7 +80,7 @@ export interface CarDto {
   interiorColor: string;
   engine: string;
   status: number;
-  mainImage: string;
+  mainImageUrl: string;
 }
 
 export interface ProfileInReviewCarDto {
