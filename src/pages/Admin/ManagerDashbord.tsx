@@ -131,7 +131,7 @@ export default function ManagerDashbord() {
                           </div>
                         </div>
                         <div className="w-40 self-stretch py-2 inline-flex flex-col justify-center items-start gap-3">
-                          <div className="self-stretch inline-flex justify-start items-start gap-2 flex-wrap content-start overflow-hidden">
+                          <div className="self-stretch inline-flex justify-start items-start gap-2 flex-wrap content-start overflow-hidden p-[2px]">
                             <div className="px-3 py-2 bg-graphite- rounded-lg outline outline-1 outline-offset-[-1px] outline-Gray flex justify-center items-center gap-3 overflow-hidden">
                               <div className="h-4 inline-flex flex-col justify-center items-center gap-2.5">
                                 <div className="justify-start text-White text-xs font-medium font-synonym leading-none">
