@@ -16,6 +16,7 @@ import { AboutPage } from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
 import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import CreateAuctionPage from './pages/Base/AuctionCreatePage';
+import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 
 function LangWrapper() {
   useLangFromURL();
@@ -34,6 +35,7 @@ function LangWrapper() {
         <Route path="reset-password" element={<HomePage />} />
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="auction/:id" element={<AuctionPage />} />
+        <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
