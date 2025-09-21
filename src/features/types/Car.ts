@@ -105,6 +105,7 @@ export interface ProfileInReviewCarDto {
   make: string;
   otherImage: string;
   auction: AuctionDto | null;
+  chatId?: number | null;
 }
 
 
