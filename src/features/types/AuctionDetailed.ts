@@ -98,3 +98,8 @@ export interface AddCommentRequest {
     replyId: number | null;
     text: string;
 }
+
+export interface UpdateAuctionStatusRequest {
+    id: number;
+    status: string;
+}

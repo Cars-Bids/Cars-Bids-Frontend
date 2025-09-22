@@ -1,6 +1,6 @@
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
-import type {AddCommentRequest, AuctionDetailed} from "@/features/types/AuctionDetailed.ts";
+import type {AddCommentRequest, AuctionDetailed, UpdateAuctionStatusRequest} from "@/features/types/AuctionDetailed.ts";
 
 export const AuctionsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -30,6 +30,17 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
+
+    updateAuctionStatus: builder.mutation<void, UpdateAuctionStatusRequest>({
+      query: (data) => {
+        return {
+          url: "/Auctions/update-status",
+          method: "PUT",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.id }],
+    }),
   }),
 });
 
@@ -38,5 +49,6 @@ export const {
   useGetAuctionByIdQuery,
   useGetAuctionDetailedByIdQuery,
   useAddAuctionCommentMutation,
-    useGetActionActiveQuery
+  useUpdateAuctionStatusMutation,
+  useGetActionActiveQuery
 } = AuctionsEndpoints;
