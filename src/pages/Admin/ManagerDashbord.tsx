@@ -1,6 +1,10 @@
 import { useState } from "react";
+import React from "react";
 import { MessageSquare, ChevronRight } from "lucide-react";
-import { useGetInpendingCarsQuery } from "@/features/api/endpoints/Profile";
+import {
+  useGetInpendingCarsQuery,
+  useGetManagetCarsQuery,
+} from "@/features/api/endpoints/Profile";
 
 export default function ManagerDashbord() {
   const [activeTab, setActiveTab] = useState("is-pending");
@@ -10,13 +14,13 @@ export default function ManagerDashbord() {
     pageSize: 10,
   });
 
-  const gearboxMap = {
-    0: "automatic",
-    1: "manual",
-  };
+  const { data: managedCarsData } = useGetManagetCarsQuery({
+    pageNumber: 1,
+    pageSize: 10,
+  });
 
   console.log("In Pending Cars Data:", inPendingCarsData);
-
+  console.log("Managed Cars Data:", managedCarsData);
   return (
     <div className="min-h-screen bg-steria-dark text-black dark:text-white">
       <div className="max-w-[1440px] mx-auto py-8">
@@ -112,7 +116,7 @@ export default function ManagerDashbord() {
                   {inPendingCarsData?.items?.map((car: any) => (
                     <div
                       key={car.id}
-                      className="w-[1016px] p-2 rounded-md outline outline-1 outline-offset-[-1px] inline-flex justify-start items-start gap-6 overflow-hidden"
+                      className="w-[990px] p-2 rounded-md outline outline-1 outline-offset-[-1px] inline-flex justify-start items-start gap-6 overflow-hidden"
                     >
                       <img
                         className="w-48 h-32 relative rounded-md"
@@ -126,24 +130,10 @@ export default function ManagerDashbord() {
                           <div className="self-stretch justify-start text-White text-sm font-normal font-synonym">
                             VIN code: {car.vin} <br /> {car?.bodyStyle} <br />
                             Speeds: {car?.speeds}
-                            <br />
-                            Engine: {car?.engine}
                           </div>
                         </div>
                         <div className="w-40 self-stretch py-2 inline-flex flex-col justify-center items-start gap-3">
                           <div className="self-stretch inline-flex justify-start items-start gap-2 flex-wrap content-start overflow-hidden p-[2px]">
-                            <div className="px-3 py-2 bg-graphite- rounded-lg outline outline-1 outline-offset-[-1px] outline-Gray flex justify-center items-center gap-3 overflow-hidden">
-                              <div className="h-4 inline-flex flex-col justify-center items-center gap-2.5">
-                                <div className="justify-start text-White text-xs font-medium font-synonym leading-none">
-                                  {
-                                    gearboxMap[
-                                      car?.transmissionType as keyof typeof gearboxMap
-                                    ]
-                                }
-                                </div>
-                                
-                              </div>
-                            </div>
                             <div className="px-3 py-2 bg-graphite- rounded-lg outline outline-1 outline-offset-[-1px] outline-Gray flex justify-center items-center gap-3 overflow-hidden">
                               <div className="h-4 inline-flex flex-col justify-center items-center gap-2.5">
                                 <div className="justify-start text-White text-xs font-medium font-synonym leading-none">
@@ -181,7 +171,7 @@ export default function ManagerDashbord() {
                             </div>
                             <div className="w-7 h-4 relative origin-top-left ">
                               <ChevronRight />
-                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -190,14 +180,40 @@ export default function ManagerDashbord() {
                 </div>
               )}
 
-             {activeTab === "live-auctions" && (
-                <div className="p-4 rounded-md bg-[#212121] inline-flex flex-col justify-center items-start gap-3 overflow-hidden">
-                  <div className="justify-start text-White text-lg font-bold font-amulya leading-tight">
-                    No new commissions
-                  </div>
-                  <div className="justify-start text-White text-sm font-normal font-synonym">
-                    You have no new commissions at the moment. Please check back
-                    later.
+              {activeTab === "live-auctions" && (
+                <div className="self-stretch p-4  rounded-md  inline-flex bg-[#212121] flex-col justify-center items-start gap-3 overflow-hidden">
+                  <div className="grid grid-cols-2 w-[990px] gap-4">
+                    {inPendingCarsData?.items?.map((car: any) => (
+                      <React.Fragment key={car.id}>
+                        <div className="w-full max-w-[510px] min-w-[460px] items-center rounded-md outline outline-1 outline-offset-[-1px] p-3 inline-flex justify-center gap-4 overflow-hidden">
+                          <div className="flex justify-center items-center">
+                            <img
+                              className="flex justify-center items-center rounded-md"
+                              src={
+                                car.otherImage || "https://placehold.co/190x127"
+                              }
+                            />
+                          </div>
+                          <div className="w-40 self-stretch py-2 inline-flex flex-col justify-start items-start gap-3">
+                            <div className="self-stretch justify-start text-White text-lg font-bold font-amulya leading-tight">
+                              {car.year} {car.make} {car.model}
+                            </div>
+                            <div className="w-40 flex-1 flex flex-col justify-center items-start gap-3">
+                              <div className="self-stretch justify-start text-White text-sm font-normal font-synonym">
+                                {car.description || "No description available."}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1 bg-Red rounded-md flex justify-center items-center gap-2.5">
+                            <div className="justify-start text-White text-sm font-bold font-amulya rounded-md px-4 py-2 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 border border-transparent hover:border-red-500 transition-all duration-200">
+                              View Detail information
+                            </div>
+                          </div>
+                        </div>
+
+                      
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               )}
@@ -208,5 +224,3 @@ export default function ManagerDashbord() {
     </div>
   );
 }
-
-

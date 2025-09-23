@@ -18,7 +18,7 @@ console.log(img)  ;
 
 
   return (
-    <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto">
+    <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12  mx-auto min-h-[80vh]">
       <div className="flex flex-col items-center justify-center  ">
         <div className="self-stretch inline-flex justify-center items-start gap-5 pb-10">
             {
@@ -55,7 +55,7 @@ console.log(img)  ;
           <SettingsMenu />
         </div>
         <div className="flex justify-center items-center grid  grid-cols-2 gap-5 m-4 ">
-         {body?.items?.map((auction) => (
+         {body?.items?.map((auction :any) => (
           <AuctionCards key={auction.id} data={auction} />
         ))}
         </div>
