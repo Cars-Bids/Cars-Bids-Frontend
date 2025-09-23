@@ -40,7 +40,7 @@ export default function AuctionPage() {
           </div>
 
           <div className="mt-8">
-            <LotQA qa={data.qa} />
+            <LotQA qa={data.qa} auction={data.auction} />
           </div>
 
           <div className="mt-8">
