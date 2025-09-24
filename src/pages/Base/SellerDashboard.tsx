@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight, Clock as ClockIcon, CircleDollarSign, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Added Link import
 import { useSelector } from "react-redux";
 import Sidebar from "@/components/Main/SidebarProfile";
 import {
@@ -143,13 +143,45 @@ export default function SellerDashboard() {
         let tagColors: string[] = [];
         let publishDate = null;
 
-        if (car.auction && car.auction.status === AuctionStatus.Pending) {
+        if (car.auction && car.auction.status.toString() === "inPending") {
             statusLabel = "Will be published on";
-            publishDate = new Date(car.auction.startTime).toLocaleDateString();
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
+            statusColor = "bg-blue-500 text-black";
+            tags = ["Waiting to start"];
+            tagColors = ["bg-[#5CA1FF] text-black"];
+            statusMessage = "No additional information needed.";
+        }
+        else if (car.auction && car.auction.status.toString() === "new") {
+            statusLabel = "Will be published on";
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
             statusColor = "bg-yellow-500 text-black";
-            tags = ["Pending"];
+            tags = ["In progress"];
+            tagColors = ["bg-[#C3F73A] text-black"];
+            statusMessage = "Additional information is still needed.";
+        }
+        else if (car.auction && car.auction.status.toString() === "approved") {
+            statusLabel = "Will be published on";
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
+            statusColor = "bg-yellow-500 text-black";
+            tags = ["Waiting your accept"];
+            tagColors = ["bg-[#5CA1FF] text-black"];
+            statusMessage = "No additional information needed.";
+        }
+        else if (car && car.status.toString() === "inPending") {
+            statusLabel = "Will be published on";
+            publishDate = "...";
+            statusColor = "bg-yellow-500 text-black";
+            tags = ["Waiting"];
             tagColors = ["bg-yellow-500 text-black"];
-        } else {
+            statusMessage = "Additional information is still needed.";
+        }
+        else {
             const statusMap: Record<number, { label: string; color: string }> = {
                 0: { label: "Pending", color: "bg-yellow-500 text-black" },
                 1: { label: "Canceled", color: "bg-red-500 text-black dark:text-white" },
@@ -161,10 +193,6 @@ export default function SellerDashboard() {
             statusColor = mappedStatus.color;
             tags = [statusLabel];
             tagColors = [statusColor];
-        }
-
-        if (car.status === 0 || car.status === 2) {
-            statusMessage = "Additional information is still needed.";
         }
 
         return {
@@ -227,7 +255,7 @@ export default function SellerDashboard() {
         const status =
             auction.status === AuctionStatus.Sold
                 ? { tags: ["Sold"], tagColors: ["bg-green-500 text-white"] }
-                : auction.status === AuctionStatus.NotSold
+                : auction.status.toString() === "notSold"
                     ? { tags: ["Not Sold"], tagColors: ["bg-red-500 text-white"] }
                     : auction.status === AuctionStatus.Cancelled
                         ? { tags: ["Cancelled"], tagColors: ["bg-yellow-500 text-black"] }
@@ -310,6 +338,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : inReviewError ? (
                                         <p className="text-red-400">Error loading vehicles during inspection</p>
+                                    ) : inReviewCarsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {inReviewCarsData?.items.map((car, index) => {
@@ -348,31 +378,38 @@ export default function SellerDashboard() {
                                                                         ))}
                                                                     </div>
                                                                 </div>
-                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
+                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 justify-between flex-grow-0 lg:text-right">
                                                                     <h4 className={`text-lg font-bold mb-3 `}>
                                                                         {mappedCar.status} {mappedCar.publishDate ? mappedCar.publishDate : ''}
                                                                     </h4>
-                                                                    <p className={`text-sm mb-6 text-red-400 ${mappedCar.statusMessage ? '' : 'hidden'}`}>
+                                                                    <p
+                                                                        className={`text-sm mb-6 ${mappedCar.statusMessage
+                                                                                ? mappedCar.statusMessage === "No additional information needed."
+                                                                                    ? "text-[#8EBF0B]"
+                                                                                    : "text-[14px]"
+                                                                                : "hidden"
+                                                                            }`}
+                                                                    >
                                                                         {mappedCar.statusMessage}
                                                                     </p>
                                                                     <div className="flex items-center gap-4 lg:justify-end">
                                                                         {mappedCar.hasChat && (
-                                                                            <button
-                                                                                onClick={() => navigate(`/${currentLang}/chat/${mappedCar.chatId}`)}
+                                                                            <Link
+                                                                                to={mappedCar.chatId ? `/${currentLang}/chat/${mappedCar.chatId}` : '#'}
                                                                                 className="flex items-center gap-1 text-black dark:text-white hover:text-gray-200 transition-colors"
                                                                             >
                                                                                 <span>Open chat</span>
                                                                                 <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                            </button>
+                                                                            </Link>
                                                                         )}
                                                                         {mappedCar.hasAuction && (
-                                                                            <button
-                                                                                onClick={() => navigate(`/${currentLang}/auction/${mappedCar.auctionId}`)}
+                                                                            <Link
+                                                                                to={mappedCar.auctionId ? `/${currentLang}/auction-approval/${mappedCar.auctionId}` : '#'}
                                                                                 className="flex items-center gap-1 text-black dark:text-white hover:text-gray-200 transition-colors"
                                                                             >
                                                                                 <span>See details</span>
                                                                                 <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                            </button>
+                                                                            </Link>
                                                                         )}
                                                                         {(!mappedCar.hasAuction || !mappedCar.hasChat) && (
                                                                             <span className="text-black dark:text-white">Pending</span>
@@ -399,6 +436,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : activeAuctionsError ? (
                                         <p className="text-red-400">Error loading active auctions</p>
+                                    ) : activeAuctionsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {activeAuctionsData?.items.map((auction, index) => {
@@ -459,13 +498,13 @@ export default function SellerDashboard() {
                                                                                 <span className="text-black dark:text-white font-bold">{mappedAuction.currentBid}</span>
                                                                             </div>
                                                                         </div>
-                                                                        <button
-                                                                            onClick={() => navigate(`/${currentLang}/auction/${auction.id}`)}
+                                                                        <Link
+                                                                            to={auction.id ? `/${currentLang}/auction/${auction.id}` : '#'}
                                                                             className="flex items-center gap-1 lg:justify-end text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
                                                                         >
                                                                             <span>See details</span>
                                                                             <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                        </button>
+                                                                        </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -488,6 +527,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : commentsError ? (
                                         <p className="text-red-400">Error loading comments</p>
+                                    ) : commentsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {commentsData?.items.map((comment, index) => {
@@ -513,13 +554,13 @@ export default function SellerDashboard() {
                                                                     </p>
                                                                 </div>
                                                                 <div className="py-2 basis-[20%] flex-shrink-0 flex-grow-0 lg:text-right flex items-center">
-                                                                    <button
-                                                                        onClick={() => navigate(`/${currentLang}/auction/${mappedComment.auctionId}`)}
+                                                                    <Link
+                                                                        to={mappedComment.auctionId ? `/${currentLang}/auction/${mappedComment.auctionId}` : '#'}
                                                                         className="flex items-center gap-1 lg:justify-end w-full text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
                                                                     >
                                                                         <span>See comment</span>
                                                                         <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                    </button>
+                                                                    </Link>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -541,6 +582,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : endedAuctionsError ? (
                                         <p className="text-red-400">Error loading completed auctions</p>
+                                    ) : endedAuctionsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available</p>
                                     ) : (
                                         <>
                                             {endedAuctionsData?.items.map((auction, index) => {
@@ -593,13 +636,13 @@ export default function SellerDashboard() {
                                                                                 <span className="text-black dark:text-white font-bold text-right">{mappedAuction.soldFor}</span>
                                                                             </div>
                                                                         </div>
-                                                                        <button
-                                                                            onClick={() => navigate(`/${currentLang}/auction/${auction.id}`)}
+                                                                        <Link
+                                                                            to={auction.id ? `/${currentLang}/auction/${auction.id}` : '#'}
                                                                             className="flex items-center gap-1 lg:justify-end mt-auto text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
                                                                         >
                                                                             <span>See details</span>
                                                                             <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                        </button>
+                                                                        </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>

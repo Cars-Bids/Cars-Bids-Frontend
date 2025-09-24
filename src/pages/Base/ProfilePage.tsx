@@ -11,7 +11,7 @@ import {
   useGetUserCommentsQuery,
   useUpdateProfileMutation,
 } from "@/features/api/endpoints/Profile";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [updateProfile] = useUpdateProfileMutation();
@@ -22,6 +22,7 @@ export default function Profile() {
   const [allAuctionComments, setAllAuctionComments] = useState<any[]>([]);
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
+  const currentLang = useSelector((state: RootState) => state.lang.current);
   const { data: profile } = useGetProfileQuery(undefined, {
     skip: !isAuthenticated,
     refetchOnFocus: true,
@@ -356,7 +357,7 @@ export default function Profile() {
                     <div
                       key={car.carId}
                       className="bg-steria-dark-card rounded-xl overflow-hidden hover:bg-opacity-80 transition-all duration-200 shadow-lg border-1 border-gray-200 dark:shadow-none"
-                      onClick={() => navigate(`/en/auction/${car.carId}`)}
+                      onClick={() => navigate(`/${currentLang}/auction/${car.carId}`)} // Use currentLang for navigation
                     >
                       <div className="relative">
                         <img
@@ -431,7 +432,7 @@ export default function Profile() {
                     <div
                       key={comment.id}
                       className="flex flex-col rounded-xl lg:flex-row gap-4 w-full max-w-[518px] overflow-hidden shadow-lg dark:shadow-none border-1 border-gray-200"
-                      onClick={() => navigate(`/en/auction/${comment.auctionId}`)}
+                      onClick={() => navigate(`/${currentLang}/auction/${comment.auctionId}`)} // Use currentLang for navigation
                     >
                       <div className="w-full h-48 lg:w-[239px] flex-shrink-0 relative">
                         <img

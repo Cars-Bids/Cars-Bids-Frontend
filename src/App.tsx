@@ -19,6 +19,7 @@ import CreateAuctionPage from './pages/Base/AuctionCreatePage';
 import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 import ProtectedRoute from "@/hooks/Protector";
 import Unauthorized from '@/pages/Errors/unauthorized';
+import AcceptPage from './pages/Admin/AcceptPage';
 function LangWrapper() {
   useLangFromURL();
 
@@ -46,16 +47,24 @@ function LangWrapper() {
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound404 />} />
-   
-   <Route
-  path="dashboard"
-  element={
-    <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
-      <ManagerDashboard />
-    </ProtectedRoute>
-  }
-/>
-        
+
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="accept-page/:id"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <AcceptPage />
+            </ProtectedRoute>
+          }
+        />
+
       </Route>
 
     </Routes>
