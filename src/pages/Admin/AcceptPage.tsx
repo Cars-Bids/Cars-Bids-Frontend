@@ -1,7 +1,6 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Added useNavigate
 import { useSelector } from "react-redux"; // Added useSelector
-import { Search, Bell, User, ChevronDown } from "lucide-react";
+import { User } from "lucide-react";
 import { useAssignAndStartAuctionMutation, useGetCarManagerByIdQuery } from "@/features/api/endpoints/Car";
 import type { RootState } from "@/app/store"; // Import RootState for typing
 
@@ -11,7 +10,7 @@ export default function AcceptPage() {
   const currentLang = useSelector((state: RootState) => state.lang.current); // Get currentLang from Redux
 
   const [assignAndStartAuction, { isLoading: isAccepting }] = useAssignAndStartAuctionMutation();
-  const { data: carData, isLoading, isError, error } = useGetCarManagerByIdQuery(Number(id));
+  const { data: carData, isLoading, isError } = useGetCarManagerByIdQuery(Number(id));
 
   const mockSpecialtyOptions = [
     "Premium Package (power folding mirrors, Comfort Access keyless entry, power rear sunshade, power-adjustable front seats, rear Park Distance Control, navigation system, and more)",

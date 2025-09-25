@@ -14,10 +14,6 @@ import type { PagedResult } from "@/features/types/types";
 
 const ProfileEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getProfile: builder.query<Profile, void>({
-      query: () => "/Profile",
-      providesTags: ['Profile']
-    }),
 
     updateProfile: builder.mutation<void, ProfileUpdateRequest>({
       query: (profileData) => {
@@ -37,23 +33,29 @@ const ProfileEndpoints = apiSlice.injectEndpoints({
       invalidatesTags: ['Profile']
     }),
 
-    getBidsAndWins: builder.query<UserBidsAndWinsDto, void>({
-      query: () => "/Profile/bids-and-wins",
+    getProfile: builder.query<Profile, { userId: number }>({
+      query: ({ userId }) => `/Profile/get/?userId=${userId}`,
+      providesTags: ['Profile']
     }),
 
-    getBiddedCars: builder.query<PagedResult<UserBiddedCarsDto>, { pageNumber?: number; pageSize?: number }>({
-      query: ({ pageNumber = 1, pageSize = 10 }) =>
-        `/Profile/bidded-cars?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    getBidsAndWins: builder.query<UserBidsAndWinsDto, { userId: number }>({
+      query: ({ userId }) => `/Profile/bids-and-wins?userId=${userId}`,
     }),
 
-    getCommentsCount: builder.query<number, void>({
-      query: () => "/Profile/comments/count",
+    getBiddedCars: builder.query<PagedResult<UserBiddedCarsDto>, { userId: number; pageNumber?: number; pageSize?: number }>({
+      query: ({ userId, pageNumber = 1, pageSize = 10 }) =>
+        `/Profile/bidded-cars?userId=${userId}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
     }),
 
-    getUserComments: builder.query<PagedResult<UserCommentDto>, { pageNumber?: number; pageSize?: number }>({
-      query: ({ pageNumber = 1, pageSize = 10 }) =>
-        `/Profile/comments?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    getCommentsCount: builder.query<number, { userId: number }>({
+      query: ({ userId }) => `/Profile/comments/count?userId=${userId}`,
     }),
+
+    getUserComments: builder.query<PagedResult<UserCommentDto>, { userId: number; pageNumber?: number; pageSize?: number }>({
+      query: ({ userId, pageNumber = 1, pageSize = 10 }) =>
+        `/Profile/comments?userId=${userId}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    }),
+
 
     getUserNotificationSettings: builder.query<UpdateUserNotificationSettingDto[], void>({
       query: () => "/Profile/user-notification-setting",
@@ -98,14 +100,35 @@ const ProfileEndpoints = apiSlice.injectEndpoints({
       providesTags: ['ActiveAuctions'],
 
     }),
-    getInpendingCars: builder.query<PagedResult<AuctionDto>,{ pageNumber?: number; pageSize?: number } >({
+    getInpendingCars: builder.query<PagedResult<AuctionDto>, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 10 }) =>
         `/Profile/in-pending-cars?pageNumber=${pageNumber}&pageSize=${pageSize}`,
     }),
-    getManagetCars: builder.query<PagedResult<AuctionDto>,{ pageNumber?: number; pageSize?: number } >({
+    getManagetCars: builder.query<PagedResult<AuctionDto>, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 10 }) =>
         `/Profile/managed-cars?pageNumber=${pageNumber}&pageSize=${pageSize}`,
     }),
+
+    followUser: builder.mutation<void, { followingId: number }>({
+      query: ({ followingId }) => ({
+        url: `/Profile/follow/${followingId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Profile'],
+    }),
+
+    unfollowUser: builder.mutation<void, { followingId: number }>({
+      query: ({ followingId }) => ({
+        url: `/Profile/follow/${followingId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Profile'],
+    }),
+    getIsFollowing: builder.query<boolean, { userId: number }>({
+      query: ({ userId }) => `/Profile/is-following?userId=${userId}`,
+      providesTags: ['Profile'],
+    }),
+    
   }),
 });
 
@@ -125,4 +148,7 @@ export const {
   useGetActiveAuctionsQuery,
   useGetInpendingCarsQuery,
   useGetManagetCarsQuery,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useGetIsFollowingQuery,
 } = ProfileEndpoints;
