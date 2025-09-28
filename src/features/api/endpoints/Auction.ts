@@ -3,8 +3,8 @@ import type { Auction } from "@/features/types/Auction";
 import type {
   AddAnswerRequest,
   AddCommentRequest,
-  AddQuestionRequest,
-  AuctionDetailed,
+  AddQuestionRequest, AddToWishListRequest,
+  AuctionDetailed, RemoveFromWishListRequest,
   UpdateAuctionStatusRequest
 } from "@/features/types/AuctionDetailed.ts";
 
@@ -69,6 +69,28 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
+
+    addToWishList: builder.mutation<void, AddToWishListRequest>({
+      query: (data) => {
+        return {
+          url: "/wishlist",
+          method: "POST",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
+    }),
+
+    removeFromWishList: builder.mutation<void, RemoveFromWishListRequest>({
+      query: (data) => {
+        return {
+          url: "/wishlist",
+          method: "DELETE",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
+    }),
   }),
 });
 
@@ -80,5 +102,7 @@ export const {
   useUpdateAuctionStatusMutation,
   useGetActionActiveQuery,
   useAddAuctionQuestionMutation,
-  useAddAuctionAnswerMutation
+  useAddAuctionAnswerMutation,
+  useAddToWishListMutation,
+  useRemoveFromWishListMutation
 } = AuctionsEndpoints;

@@ -4,22 +4,32 @@ import {timeAgo} from "@/lib/utils.ts";
 import type {CommentData} from "@/features/types/AuctionDetailed.ts";
 import {message} from "antd";
 import {useAddAuctionCommentMutation} from "@/features/api/endpoints/Auction.ts";
+import {Link} from "react-router-dom";
+import {useSelector} from "react-redux";
+import type {RootState} from "@/app/store.ts";
 
 const MAX_LENGTH = 200;
 
-export default function LotComments({ comments, auctionId }: { comments: CommentData[], auctionId: number }) {
+export default function LotComments({ comments, auctionId, sellerId }: { comments: CommentData[], auctionId: number, sellerId: number }) {
     const [inputText, setInputText] = useState("");
     const [replyToId, setReplyToId] = useState<number | null>(null);
     const [replyTo, setReplyTo] = useState<string>("");
+    const [filter, setFilter] = useState("Newest");
+    const [filteredComments, setFilteredComments] = useState(comments);
     const [addComment, { isLoading }] = useAddAuctionCommentMutation();
     const inputRef = useRef<HTMLInputElement>(null);
+    const currentLang = useSelector((state: RootState) => state.lang.current);
+
+    React.useEffect(() => {
+        handleFiltering(filter);
+    }, [comments, filter]);
 
     const handleReport = (commentId: number) => {
         message.info(`Report was sent for comment ${commentId}`);
     };
     const handleReply = (commentId: number, author?: string) => {
         const prefix = `Re: ${author}:`;
-        setReplyToId(commentId);
+        setReplyToId(commentId > 0 ? commentId : null);
         setReplyTo(prefix);
         setInputText(prefix + " ");
 
@@ -59,9 +69,34 @@ export default function LotComments({ comments, auctionId }: { comments: Comment
         }
     };
 
+    const handleFiltering = (currFilter: string) => {
+        switch (currFilter) {
+            case "Most Upvoted":
+                setFilteredComments(comments.filter(x => !x.bid).sort((a, b) => b.upvotes - a.upvotes));
+                break;
+            case "Seller Comments":
+                setFilteredComments(comments.filter(x => x.authorId === sellerId));
+                break;
+            case "Bid History":
+                setFilteredComments(comments.filter(x => x.bid));
+                break;
+            default:
+                setFilteredComments(comments);
+        }
+    };
+
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-black dark:text-gray-200">Comments</h3>
+            <div className="flex justify-between text-black dark:text-gray-200">
+                <h3 className="text-lg font-semibold">Comments</h3>
+                <div className="flex gap-5 text-sm">
+                    <a className={`cursor-pointer ${filter == "Newest" && "font-bold"}`} onClick={() => setFilter("Newest")}>Newest</a>
+                    <a className={`cursor-pointer ${filter == "Most Upvoted" && "font-bold"}`} onClick={() => setFilter("Most Upvoted")}>Most Upvoted</a>
+                    <a className={`cursor-pointer ${filter == "Seller Comments" && "font-bold"}`} onClick={() => setFilter("Seller Comments")}>Seller Comments</a>
+                    <a className={`cursor-pointer ${filter == "Bid History" && "font-bold"}`} onClick={() => setFilter("Bid History")}>Bid History</a>
+                </div>
+            </div>
+
             <section>
                 {/* Інпут з іконкою всередині */}
                 <div className="mb-1 relative">
@@ -87,17 +122,27 @@ export default function LotComments({ comments, auctionId }: { comments: Comment
                     {inputText.length}/{MAX_LENGTH}
                 </div>
 
-                <ul className="space-y-4">
-                    {comments.map((c) => (
+                <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    {filteredComments.map((c) => (
                         <li key={c.id} className="p-3">
                             <div className="mb-1 text-xs text-black dark:text-gray-200">
                                 {c.authorPhoto
                                     ? <img src={c.authorPhoto} alt={c.author} className="h-6 inline rounded-full" />
                                     : <User className="h-6 w-4 inline" />}
-                                <b> {c.author}</b> • {timeAgo(new Date(c.createdAt))}
+                                    <Link to={`/${currentLang.toLowerCase()}/profile/${c.authorId}`} className="inline px-2">
+                                        <b>{c.author}</b>
+                                    </Link>
+                                • {timeAgo(new Date(c.createdAt))}
+                                {(c.authorId == sellerId) && <span className="px-2 text-xs font-bold text-red-700">Seller</span>}
                             </div>
                             <p className="text-sm leading-relaxed mb-2 text-black dark:text-gray-200">
-                                <b>{c.replyTo ? `Re: ${c.replyTo} ` : ""}</b>{c.text}
+                                {c.replyTo && <b>{`Re: ${c.replyTo} `}</b>}
+                                {c.bid ?
+                                    <div className="inline bottom-1 left-1 rounded-md border border-red-700">
+                                        <span className="px-2 border-r dark:border-zinc-100 border-zinc-800">Bid</span>
+                                        <span className="px-2">{`$${c.bid}`}</span>
+                                    </div>
+                                    : c.text}
                             </p>
                             <div className="flex gap-4 text-xs text-black dark:text-gray-200">
                                 <button

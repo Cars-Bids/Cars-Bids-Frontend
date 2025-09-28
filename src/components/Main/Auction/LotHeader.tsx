@@ -1,18 +1,31 @@
 import { Star, Share2 } from "lucide-react";
+import { useAddToWishListMutation, useRemoveFromWishListMutation} from "@/features/api/endpoints/Auction.ts";
 
 interface LotHeaderProps {
   title: string;
   subtitle?: string;
   isWatched: boolean;
-  onToggleWatch: () => void;
+  auctionId: number;
 }
 
-export default function LotHeader({
-                                    title,
-                                    subtitle,
-                                    isWatched,
-                                    onToggleWatch,
-                                  }: LotHeaderProps) {
+export default function LotHeader({ title, subtitle, isWatched, auctionId }: LotHeaderProps) {
+
+  const [add] = useAddToWishListMutation();
+  const [remove] = useRemoveFromWishListMutation();
+
+  const onToggleWatch = async () => {
+    try {
+      if (isWatched){
+        await remove({ auctionId: auctionId }).unwrap();
+      }
+      else {
+        await add({ auctionId: auctionId }).unwrap();
+      }
+    } catch (err) {
+      console.error("Error adding to WatchList", err);
+    }
+  };
+
   const handleShareClick = async () => {
     try {
       if (navigator.share) {

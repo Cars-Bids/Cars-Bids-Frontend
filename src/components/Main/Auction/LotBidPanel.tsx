@@ -1,11 +1,14 @@
 import type { AuctionData } from "@/features/types/AuctionDetailed";
-import {User, Calendar, Star, Eye, LoaderPinwheel, X} from "lucide-react";
+import {User, Calendar, Star, LoaderPinwheel, X} from "lucide-react";
 import {useEffect, useState} from "react";
 import { message } from "antd";
 import {useAuctionSignalR} from "@/features/signalr/AuctionSignalRProvider.tsx";
 import {Dialog, DialogClose, DialogContent, DialogTitle} from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {getTimeRemaining} from "@/lib/utils.ts";
+import {Link} from "react-router-dom";
+import {useSelector} from "react-redux";
+import type {RootState} from "@/app/store.ts";
 
 export default function LotBidPanel({ auction, title, about, mainPhoto } :
                                     { auction: AuctionData; title: string; about: string; mainPhoto: string }) {
@@ -15,13 +18,14 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
     const { connection } = useAuctionSignalR();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [bidAmount, setBidAmount] = useState<string | null>(null);
-    const [timeLeft, setTimeLeft] = useState(getTimeRemaining(auction.endTime));
+    const [timeLeft, setTimeLeft] = useState(getTimeRemaining(auction.endTime ?? new Date()));
 
     const format = (num: number) => String(num).padStart(2, "0");
+    const currentLang = useSelector((state: RootState) => state.lang.current);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeLeft(getTimeRemaining(auction.endTime));
+            setTimeLeft(getTimeRemaining(auction.endTime ?? new Date()));
         }, 1000);
         return () => clearInterval(timer);
     }, [auction.endTime]);
@@ -67,7 +71,9 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                     {auction.currentBidderPhoto
                         ? <img src={auction.currentBidderPhoto} alt={auction.currentBidder} className="h-6 inline rounded-full" />
                         : <User className="h-6 w-4 inline" />}
-                    {auction.currentBidder}
+                    <Link to={`/${currentLang.toLowerCase()}/profile/${auction.currentBidderId}`} className="block">
+                        {auction.currentBidder}
+                    </Link>
                 </div>}
             </div>
 
@@ -76,7 +82,7 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                 { auction.status == "Active"
                     ?
                 <button onClick={() => setIsModalOpen(true)} disabled={auction.isSeller}
-                    className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950">
+                    className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950 cursor-pointer">
                         Place Bid
                 </button>
                     :
@@ -92,21 +98,38 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                     {auction.sellerPhoto
                         ? <img src={auction.sellerPhoto} alt={auction.seller} className="h-6 inline rounded-full" />
                         : <User className="h-6 w-4 inline" />}
-                    {auction.seller}
+                    <Link to={`/${currentLang.toLowerCase()}/profile/${auction.sellerId}`} className="block">
+                        {auction.seller}
+                    </Link>
                 </div>
             </div>
+
             <div className="grid grid-cols-2 items-center my-2">
-                <div className="text-xs font-bold tracking-wide">Endings</div>
-                <div className="text-xs flex items-center gap-1"><Calendar className="h-6 w-4" />{new Date(auction.endTime).toLocaleString()}</div>
+                <div className="text-xs font-bold tracking-wide">Starting</div>
+                <div className="text-xs flex items-center gap-1">
+                    <Calendar className="h-6 w-4" />
+                    {auction.startTime ? new Date(auction.startTime).toLocaleString() : " - "}
+                </div>
             </div>
+
+            <div className="grid grid-cols-2 items-center my-2">
+                <div className="text-xs font-bold tracking-wide">Ending</div>
+                <div className="text-xs flex items-center gap-1">
+                    <Calendar className="h-6 w-4" />
+                    {auction.endTime ? new Date(auction.endTime).toLocaleString() : " - "}
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 items-center my-2">
                 <div className="text-xs font-bold tracking-wide">Bids count</div>
                 <div className="text-xs flex items-center gap-1"><LoaderPinwheel className="h-5" />{auction.bidsCount}</div>
             </div>
-            <div className="grid grid-cols-2 items-center my-2">
-                <div className="text-xs font-bold tracking-wide">Views</div>
-                <div className="text-xs flex items-center gap-1"><Eye className="h-6 w-4" />{auction.viewsCount}</div>
-            </div>
+
+            {/*<div className="grid grid-cols-2 items-center my-2">*/}
+            {/*    <div className="text-xs font-bold tracking-wide">Views</div>*/}
+            {/*    <div className="text-xs flex items-center gap-1"><Eye className="h-6 w-4" />{auction.viewsCount}</div>*/}
+            {/*</div>*/}
+
             <div className="grid grid-cols-2 items-center my-2">
                 <div className="text-xs font-bold tracking-wide">Watching</div>
                 <div className="text-xs flex items-center gap-1"><Star className="h-6 w-4" />{auction.watchersCount}</div>
@@ -174,7 +197,7 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                         focus:border-zinc-600 rounded-md w-full bg-zinc-700"
                     />
                     <button onClick={handleConfirm}
-                            className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950">
+                            className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950 cursor-pointer">
                         Make a bid
                     </button>
 

@@ -49,29 +49,19 @@ export const AuctionSignalRProvider = ({ auctionId, children }: Props) => {
             .catch(err => console.error("SignalR connection failed:", err));
 
         // Загальні події
-        conn.on("NewBidReceived", (id: number, newPrice: number, bidder: string, endTime: Date) => {
+        conn.on("NewBidReceived", (id: number, newPrice: number) => {
             if (id !== auctionId) return;
             message.success(`Received new bid ${newPrice}$`);
             dispatch(
-                AuctionsEndpoints.util.updateQueryData("getAuctionDetailedById", id, (draft: AuctionDetailed) => {
-                    draft.auction.currentPrice = newPrice;
-                    draft.auction.currentBidder = bidder;
-                    draft.auction.endTime = endTime;
-                    draft.auction.bidsCount++;
-                })
+                AuctionsEndpoints.util.invalidateTags([{ type: 'AuctionDetailed', id }])
             );
         });
 
-        conn.on("BidPlaced", (id: number, newPrice: number, bidder: string, endTime: Date) => {
+        conn.on("BidPlaced", (id: number) => {
             if (id !== auctionId) return;
             message.success("Bid placed successfully!");
             dispatch(
-                AuctionsEndpoints.util.updateQueryData("getAuctionDetailedById", id, (draft: AuctionDetailed) => {
-                    draft.auction.currentPrice = newPrice;
-                    draft.auction.currentBidder = bidder;
-                    draft.auction.endTime = endTime;
-                    draft.auction.bidsCount++;
-                })
+                AuctionsEndpoints.util.invalidateTags([{ type: 'AuctionDetailed', id }])
             );
         });
 

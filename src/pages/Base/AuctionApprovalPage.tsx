@@ -29,7 +29,7 @@ export default function AuctionApprovalPage() {
                 </div>
 
                 <div className="mt-6 lg:col-span-5 lg:mt-0 xl:col-span-4">
-                    <LotBidPanelApproval auction={data.auction} title={data.car.title} about={data.car.subtitle} />
+                    <LotBidPanelApproval auction={data.auction} title={data.car.title} about={data.car.about ?? data.car.subtitle} />
                 </div>
             </main>
         </div>
