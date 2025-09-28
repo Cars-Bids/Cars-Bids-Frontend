@@ -75,7 +75,7 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                 <div className="text-2xl font-extrabold">{fmtCurrency(auction.currentPrice)}</div>
                 { auction.status == "Active"
                     ?
-                <button onClick={() => setIsModalOpen(true)} disabled={auction.IsSeller}
+                <button onClick={() => setIsModalOpen(true)} disabled={auction.isSeller}
                     className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950">
                         Place Bid
                 </button>

@@ -82,17 +82,21 @@ export default function LotBidPanelApproval({ auction, title, about } :
             <h5 className="font-bold mt-5">About {title}</h5>
             <p className="text-xs my-3">{about}</p>
 
-            <div className="flex items-center justify-center gap-5 mt-15">
-                <button onClick={handleDecline} disabled={auction.IsSeller}
-                        className="rounded-md bg-red-700 px-4 py-1 text-sm font-semibold text-white hover:bg-red-800">
-                    Decline
-                </button>
+            {auction.isSeller ?
+                (<div className="flex items-center justify-center gap-5 mt-15">
+                    <button onClick={handleDecline}
+                            className="rounded-md bg-red-700 px-4 py-1 text-sm font-semibold text-white hover:bg-red-800">
+                        Decline
+                    </button>
 
-                <button onClick={handleApprove} disabled={auction.IsSeller}
-                        className="rounded-md bg-blue-500 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-800">
-                    Approve
-                </button>
-            </div>
+                    <button onClick={handleApprove}
+                            className="rounded-md bg-blue-500 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-800">
+                        Approve
+                    </button>
+                </div>)
+                :
+                (<div className="text-xl text-red-700 text-center font-bold">You don't have access to manage this auction</div>)
+            }
         </section>
     );
 }

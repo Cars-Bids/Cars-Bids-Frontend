@@ -18,7 +18,6 @@ import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import CreateAuctionPage from './pages/Base/AuctionCreatePage';
 import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 import ProtectedRoute from "@/hooks/Protector";
-import Unauthorized from '@/pages/Errors/unauthorized';
 function LangWrapper() {
   useLangFromURL();
 
