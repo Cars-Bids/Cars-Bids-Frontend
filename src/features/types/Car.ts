@@ -117,3 +117,27 @@ export interface CarImageDto {
   orderNumber: number;
   uploadedAt: string;
 }
+
+export interface CarManagerDto {
+  id: number;
+  year: number;
+  vin?: string;
+  exteriorColor?: string;
+  interiorColor?: string;
+  mileage: number;
+  location?: string;
+  isOnSaleElsewhere: boolean;
+  isModified: boolean;
+  drivetrain: number;
+  engine?: string;
+  transmissionType: number;
+  speeds: number;
+  status: number;
+  createdAt: string;
+  managerId?: number;
+  owner: string;
+  bodyStyle: string;
+  model: string;
+  make: string;
+  images?: CarImageDto[];
+}

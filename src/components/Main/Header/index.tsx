@@ -15,12 +15,36 @@ import {
   setStep,
   setResetTokeAndEmail,
 } from "@/features/api/Slices/authModalSlice";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 import LangMenu from "@/components/MenuLang";
 
 import { Links } from "@/components/Main/Links";
+
+
+function parseJwtPayload(token: string | null | undefined) {
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    // base64url -> base64
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Failed parsing token payload", e);
+    return null;
+  }
+}
+
 export default function Navbar() {
   {
     /*UseState */
@@ -54,7 +78,21 @@ export default function Navbar() {
   const dispatch = useDispatch<AppDispatch>();
   const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
+  const accessTokenFromRedux = useSelector((state: RootState) => (state as any).auth?.accessToken);
+  const accessToken = accessTokenFromRedux || localStorage.getItem("accessToken") || localStorage.getItem("token") || null;
 
+  const jwtPayload = parseJwtPayload(accessToken);
+
+  const rawId =
+    jwtPayload?.nameid ??
+    jwtPayload?.nameidentifier ??
+    jwtPayload?.sub ??
+    jwtPayload?.id ??
+    jwtPayload?.userId ??
+    jwtPayload?.UserId ??
+    null;
+
+  const userId = rawId ? Number(rawId) : undefined
   {
     /*Routes */
   }
@@ -65,10 +103,11 @@ export default function Navbar() {
   {
     /*RTK Queue */
   }
-  const { data: profile } = useGetProfileQuery(undefined, {
-    skip: !isAuthenticated
-  });
-console.log(profile);
+  const { data: profile } = useGetProfileQuery(
+    userId ? { userId } : skipToken,
+    { refetchOnFocus: true, refetchOnReconnect: true }
+  );
+  console.log(profile);
   {
     /*Handlers*/
   }
@@ -315,13 +354,11 @@ console.log(profile);
                 `}
               >
                 <Links
-                  to={"/profile"}
+                  to={userId ? `/profile/${userId}` : "#"}
                   className="self-stretch inline-flex justify-between items-center"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                 >
-                  <div className="justify-start text-black dark:text-white font-medium text-base font-synonym hover:text-red-500">
-                    Profile
-                  </div>
+                  <div className="justify-start ...">Profile</div>
                   <img
                     className="w-7 h-7 rounded-3xl relative"
                     src={
@@ -503,7 +540,7 @@ console.log(profile);
                 <Button
                   variant="ghost"
                   onClick={() => setIsLoginOpen(true)}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent text-white dark:text-white hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 dark:text-gray-200 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent text-white dark:text-white hover:to-transparent hover:text-red-500 hover:border hover:border-red-500 font-semibold px-4 text-scaling-lg transition-all duration-200 border border-transparent"
                 >
                   SignUp
                 </Button>
