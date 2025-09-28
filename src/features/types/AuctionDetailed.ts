@@ -21,7 +21,7 @@ export interface AuctionData {
     viewsCount: number;
     watchersCount: number;
     isWatched: boolean;
-    IsSeller: boolean;
+    isSeller: boolean;
     isInspected: boolean;
 }
 
@@ -102,4 +102,15 @@ export interface AddCommentRequest {
 export interface UpdateAuctionStatusRequest {
     id: number;
     status: string;
+}
+
+export interface AddQuestionRequest {
+    auctionId: number;
+    questionText: string;
+}
+
+export interface AddAnswerRequest {
+    auctionId: number;
+    questionId: number;
+    answerText: string;
 }
