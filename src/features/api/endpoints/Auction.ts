@@ -1,6 +1,7 @@
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
 import type {AddCommentRequest, AuctionDetailed} from "@/features/types/AuctionDetailed.ts";
+import type {ManagingAuctionPageDto} from "@/features/types/Car.ts";
 
 export const AuctionsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -30,6 +31,19 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
+
+    getManagingAuction: builder.query<ManagingAuctionPageDto, number>({
+      query: (auctionId) => `Auctions/managing/${auctionId}`,
+    }),
+
+    approveAuctionByManager: builder.mutation<void, number>({
+      query: (auctionId) => {
+        return{
+          url: `Auctions/approve-auction/${auctionId}`,
+          method: "POST",
+        }
+      },
+    }),
   }),
 });
 
@@ -38,5 +52,7 @@ export const {
   useGetAuctionByIdQuery,
   useGetAuctionDetailedByIdQuery,
   useAddAuctionCommentMutation,
-    useGetActionActiveQuery
+  useGetActionActiveQuery,
+  useGetManagingAuctionQuery,
+    useApproveAuctionByManagerMutation
 } = AuctionsEndpoints;

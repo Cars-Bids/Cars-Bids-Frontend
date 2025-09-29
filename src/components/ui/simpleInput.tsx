@@ -8,7 +8,7 @@ export const SimpleInput = React.forwardRef<HTMLInputElement, SimpleInputProps>(
             <input
                 ref={ref}
                 className={cn(
-                    "px-2 py-2 w-full rounded-md border placeholder-[#d0d0d0] focus:outline-none focus:ring-2 focus:ring-red-500",
+                    "px-2 py-2 w-full rounded-md border placeholder-[#d0d0d0] focus:outline-none",
                     className
                 )}
                 {...props}

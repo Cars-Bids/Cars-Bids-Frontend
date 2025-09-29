@@ -8,14 +8,25 @@ import {useDispatch} from "react-redux";
 import type {AppDispatch} from "@/app/store";
 import {ChatEndpoints} from "@/features/api/endpoints/Chat";
 
+interface TypingUser {
+    userId: number;
+    username?: string;
+}
+
 interface ChatSignalRContextValue {
     connection: HubConnection | null;
     sendMessage: (text: string, files?: File[]) => Promise<void>;
+    sendTypingStatus: (isTyping: boolean) => void;
+    readMessage: (messageId: number) => void;
+    typingUsers: TypingUser[];
 }
 
 const ChatSignalRContext = createContext<ChatSignalRContextValue>({
     connection: null,
     sendMessage: async () => {},
+    sendTypingStatus: () => {},
+    readMessage: () => {},
+    typingUsers: []
 });
 
 export const useChatSignalR = () => useContext(ChatSignalRContext);
@@ -28,6 +39,30 @@ interface Props {
 export const ChatSignalRProvider = ({ chatId, children }: Props) => {
     const dispatch = useDispatch<AppDispatch>();
     const [connection, setConnection] = useState<HubConnection | null>(null);
+    const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
+
+    // Typing status sender
+    const sendTypingStatus = useCallback((isTyping: boolean) => {
+        if (!connection) {
+            console.log("Cannot send typing status - no connection");
+            return;
+        }
+
+        console.log(`Sending typing status: ${isTyping} for chat ${chatId}`);
+        connection.invoke("SendTypingStatus", chatId, isTyping)
+            .then(() => {
+                console.log(`Successfully sent typing status: ${isTyping}`);
+            })
+            .catch(err => console.error("Error sending typing status:", err));
+    }, [connection, chatId]);
+
+    // Read message function
+    const readMessage = useCallback((messageId: number) => {
+        if (!connection) return;
+
+        connection.invoke("ReadMessage", chatId, messageId)
+            .catch(err => console.error("Error marking message as read:", err));
+    }, [connection, chatId]);
 
     useEffect(() => {
         const conn = new HubConnectionBuilder()
@@ -55,6 +90,76 @@ export const ChatSignalRProvider = ({ chatId, children }: Props) => {
                     (draft) => {
                         draft.messages.unshift(newMessage); // додаємо нове повідомлення
                         draft.totalCount++;
+                    }
+                )
+            );
+        });
+
+        // Typing status received
+        conn.on("ReceiveTypingStatus", (data: {
+            chatId: number;
+            userId: number;
+            isTyping: boolean;
+            username?: string;
+        }) => {
+            console.log("ReceiveTypingStatus received:", data);
+
+            if (data.chatId !== chatId) return;
+
+            console.log(`User ${data.userId} ${data.isTyping ? 'started' : 'stopped'} typing`);
+
+            setTypingUsers(prev => {
+                if (data.isTyping) {
+                    // Add user to typing list if not already there
+                    const exists = prev.some(user => user.userId === data.userId);
+                    if (!exists) {
+                        console.log(`Adding User ${data.userId} to typing users`);
+                        return [...prev, { userId: data.userId, username: data.username }];
+                    }
+                    return prev;
+                } else {
+                    // Remove user from typing list
+                    console.log(`Removing User ${data.userId} from typing users`);
+                    return prev.filter(user => user.userId !== data.userId);
+                }
+            });
+
+            // Auto-remove typing indicator after 5 seconds
+            if (data.isTyping) {
+                setTimeout(() => {
+                    setTypingUsers(prev => prev.filter(user => user.userId !== data.userId));
+                }, 5000);
+            }
+        });
+
+        // Message seen notification
+        conn.on("MessageSeen", ({ ChatId, MessageId, ReaderId }: {
+            ChatId: number;
+            MessageId: number;
+            ReaderId: number;
+        }) => {
+            if (ChatId !== chatId) return;
+
+            // Update message read status in cache
+            dispatch(
+                ChatEndpoints.util.updateQueryData(
+                    "getChatMessages",
+                    { chatId, page: 1, pageSize: 50 },
+                    (draft) => {
+                        const messageIndex = draft.messages.findIndex(msg => msg.id === MessageId);
+                        if (messageIndex !== -1) {
+                            // Add reader to message if read status tracking exists
+                            if (!draft.messages[messageIndex].readBy) {
+                                draft.messages[messageIndex].readBy = [];
+                            }
+                            const alreadyRead = draft.messages[messageIndex].readBy?.some(reader => reader.userId === ReaderId);
+                            if (!alreadyRead) {
+                                draft.messages[messageIndex].readBy?.push({
+                                    userId: ReaderId,
+                                    readAt: new Date().toISOString()
+                                });
+                            }
+                        }
                     }
                 )
             );
@@ -119,8 +224,13 @@ export const ChatSignalRProvider = ({ chatId, children }: Props) => {
         setConnection(conn);
 
         return () => {
+            // Stop typing when disconnecting
+            if (conn.state === "Connected") {
+                conn.invoke("SendTypingStatus", chatId, false).catch(() => {});
+            }
             conn.stop();
             setConnection(null);
+            setTypingUsers([]);
             console.log(`SignalR disconnected for chat ${chatId}`);
         };
     }, [chatId, dispatch]);
@@ -160,7 +270,13 @@ export const ChatSignalRProvider = ({ chatId, children }: Props) => {
     );
 
     return (
-        <ChatSignalRContext.Provider value={{ connection, sendMessage }}>
+        <ChatSignalRContext.Provider value={{
+            connection,
+            sendMessage,
+            sendTypingStatus,
+            readMessage,
+            typingUsers
+        }}>
             {children}
         </ChatSignalRContext.Provider>
     );

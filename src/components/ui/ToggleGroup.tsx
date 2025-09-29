@@ -24,8 +24,8 @@ export function ToggleGroup({ name, label, options }: Props) {
                         onClick={() => handleSelect(opt.value)}
                         className={`p-2 border rounded-md font-synonym transition-colors ${
                             field.value === opt.value
-                                ? "bg-[#d0d0d0] text-[#2c2c2c] border-[#d0d0d0]"
-                                : "border-[#d0d0d0] hover:text-[#2c2c2c] hover:bg-[#cccccc]"
+                                ? "bg-[#2c2c2c] text-[#d0d0d0] dark:bg-[#d0d0d0] dark:text-[#2c2c2c] dark:border-[#d0d0d0] "
+                                : " dark:border-[#d0d0d0] dark:hover:text-[#2c2c2c] dark:hover:bg-[#cccccc]"
                         }`}
                     >
                         {opt.label}

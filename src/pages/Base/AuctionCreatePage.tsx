@@ -1,28 +1,36 @@
-import React, { useState } from "react";
-import { Star, Share2, User, Calendar } from "lucide-react";
+import { Formik, Form, Field } from "formik";
+import {Camera, Share2, Star, User } from "lucide-react";
+import { SimpleInput } from "@/components/ui/simpleInput.tsx";
+import { MarkdownInput } from "@/components/ui/MarkdownInput.tsx";
+import { InlineAutoComplete } from "@/components/ui/InlineAutoComplete.tsx";
+import {ToggleButton} from "@/components/ui/ToggleButton.tsx";
+import {DateTimeRangeInput} from "@/components/ui/DateTimeInputField.tsx";
+import CarFilesManager from "@/components/Main/Modal/CreateCar/CarFilesManager.tsx";
+import {validationUpdateCarCommandSchema} from "@/components/Main/Modal/Validation";
+import {useApproveAuctionByManagerMutation, useGetManagingAuctionQuery} from "@/features/api/endpoints/Auction.ts";
+import {useParams} from "react-router-dom";
+import {useEffect, useMemo, useState } from "react";
+import {useGetMakesQuery} from "@/features/api/endpoints/Make.ts";
+import {useGetModelsByMakeQuery} from "@/features/api/endpoints/Models.ts";
+import {useGetStylesQuery} from "@/features/api/endpoints/BodyStyle.ts";
+import type {CarImageDto} from "@/features/types/Car.ts";
+import type {UpdateCarCommand} from "@/features/types/UpdateCarCommand.ts";
+import {useUpdateCarMutation} from "@/features/api/endpoints/CarEndpoints.ts";
 
-interface FormDataType {
-    title: string;
-    subtitle: string;
-    startPrice: string;
-    seller: string;
-    startDate: string;
-    endDate: string;
-    inspected: boolean;
-    about: string;
-    brand: string;
-    model: string;
+interface FormValues {
+    brandId: number;
+    modelId: number;
     mileage: string;
+    year: string;
     vin: string;
-    titleStatus: string;
     location: string;
-    engine: string;
-    drivetrain: string;
-    transmission: string;
-    bodyStyle: string;
     exteriorColor: string;
     interiorColor: string;
-    sellerType: string;
+    engine: string;
+    drivetrainId: number | null;
+    transmissionId: number | null;
+    bodyStyleId: number | null;
+    speeds: string;
     highlights: string;
     serviceHistory: string;
     equipment: string;
@@ -31,512 +39,705 @@ interface FormDataType {
     otherItems: string;
     ownershipHistory: string;
     sellerNotes: string;
+    videoLinks: string;
+    startPrice: string;
+    startTime: Date | null;
+    endTime: Date | null;
+    isInspected: boolean;
+    about: string;
 }
 
-type TextFieldKey = Exclude<keyof FormDataType, 'inspected'>;
+type Option = { id: number; name: string; makeId?: number };
 
-export default function CreateAuctionPage() {
-    const [formData, setFormData] = useState<FormDataType>({
-        title: "2013 BMW M3 Coupe",
-        subtitle: "Supercharged V8, ~45,800 Miles, 6-Speed Manual, Mostly Washington-Owned",
-        startPrice: "$ 12,000",
-        seller: "Porsche_lover",
-        startDate: "Thr, Aug 7 14:55",
-        endDate: "Thr, Aug 14",
-        inspected: false,
-        about: `The E9X BMW M3 stands out as the only M3 offered with a V8, delivering a performance experience we're unlikely to see again – and this particular E92 M3 Coupe takes things even further with a Harrop supercharger kit that should make it especially thrilling to drive. This M3 is also finished in eye-catching Melbourne Red, and it touts the desirable 6-speed manual transmission – and it comes with some great factory equipment like the Premium Package, Novillo leather upholstery, and an Enhanced Premium sound system.`,
-        brand: "",
-        model: "",
-        mileage: "",
-        vin: "WBSKG9C55DJ593976",
-        titleStatus: "Clean (WA)",
-        location: "",
-        engine: "",
-        drivetrain: "",
-        transmission: "",
-        bodyStyle: "",
-        exteriorColor: "",
-        interiorColor: "",
-        sellerType: "Private Party",
-        highlights: "",
-        serviceHistory: "",
-        equipment: "",
-        flaws: "",
-        modifications: "",
-        otherItems: "",
-        ownershipHistory: "",
-        sellerNotes: "",
+const TRANSMISSION_OPTIONS: Option[] = [
+    { id: 0, name: "Automatic" },
+    { id: 1, name: "Manual" },
+];
+
+const DRIVETRAIN_OPTIONS: Option[] = [
+    { id: 0, name: "Front-Wheel Drive (FWD)" },
+    { id: 1, name: "Rear-Wheel Drive (RWD)" },
+    { id: 2, name: "All-Wheel Drive (AWD)" },
+];
+
+const defaultInitialValues: FormValues = {
+    brandId: 0,
+    modelId: 0,
+    mileage: "",
+    year: "",
+    vin: "",
+    location: "",
+    exteriorColor: "",
+    interiorColor: "",
+    engine: "",
+    drivetrainId: null,
+    transmissionId: null,
+    bodyStyleId: null,
+    speeds: "",
+    highlights: "",
+    serviceHistory: "",
+    equipment: "",
+    flaws: "",
+    modifications: "",
+    otherItems: "",
+    ownershipHistory: "",
+    sellerNotes: "",
+    videoLinks: "",
+    startPrice: "",
+    startTime: null,
+    endTime: null,
+    isInspected: false,
+    about: "",
+};
+
+interface CarImageForUI {
+    id: number;
+    url: string;
+    orderNumber: number;
+}
+
+export function CreateAuctionPage() {
+    const { id } = useParams<{ id: string }>();
+    const [loading, setLoading] = useState({
+        submitting: false,
     });
+    const [isManagerOpen, setIsManagerOpen] = useState(false);
+    const [carImages, setCarImages] = useState<{
+        mainPhoto: CarImageForUI[];
+        interior: CarImageForUI[];
+        exterior: CarImageForUI[];
+        others: CarImageForUI[];
+    }>({
+        mainPhoto: [],
+        interior: [],
+        exterior: [],
+        others: []
+    });
+    const [carVideos, setCarVideos] = useState<string[]>([]);
 
-    const [mainPhoto, setMainPhoto] = useState<File | null>(null);
-    const [exteriorPhotos, setExteriorPhotos] = useState<File[]>([]);
-    const [interiorPhotos, setInteriorPhotos] = useState<File[]>([]);
-    const [otherPhotos, setOtherPhotos] = useState<File[]>([]);
+    // Add state for tracking current form values to control model queries
+    const [currentBrandId, setCurrentBrandId] = useState<number>(0);
+    const [hasChanges, setHasChanges] = useState<boolean>(false);
 
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
+    const auctionId = Number(id);
 
-        if (e.target instanceof HTMLInputElement) {
-            if (e.target.type === "checkbox") {
-                setFormData((prev) => ({ ...prev, [name]: e.target.checked }));
-            } else {
-                setFormData((prev) => ({ ...prev, [name]: value }));
+    // Redux queries
+    const { data, isLoading, isError } = useGetManagingAuctionQuery(auctionId);
+    const { data: brands = [], isLoading: brandsLoading } = useGetMakesQuery();
+
+    // Use currentBrandId for models query, not data?.carBrandId
+    const { data: models = [], isLoading: modelsLoading } = useGetModelsByMakeQuery(
+        currentBrandId || 0,
+        { skip: !currentBrandId }
+    );
+
+    const { data: bodyStylesData, isLoading: bodyStylesLoading } = useGetStylesQuery();
+    const [updateCar] = useUpdateCarMutation();
+    const [approveAuction] = useApproveAuctionByManagerMutation();
+
+
+    // Map bodyStyles to match Option interface
+    const bodyStyles = useMemo(() => {
+        if (!bodyStylesData?.items) return [];
+        return bodyStylesData.items.map((style: any) => ({
+            id: style.id,
+            name: style.styleName
+        }));
+    }, [bodyStylesData]);
+
+    // Convert server data to form format - memoized to prevent unnecessary recalculations
+    const initialValues: FormValues = useMemo(() => {
+        if (!data) return defaultInitialValues;
+
+        const values = {
+            brandId: data.carBrandId || 0,
+            modelId: data.carModelId || 0,
+            mileage: data.carMileage?.toString() || "",
+            year: data.carYear?.toString() || "",
+            vin: data.carVin || "",
+            location: data.carLocation || "",
+            exteriorColor: data.carExteriorColor || "",
+            interiorColor: data.carInteriorColor || "",
+            engine: data.carEngine || "",
+            drivetrainId: data.carDriveTrainId ?? null,
+            transmissionId: data.carTransmissionId ?? null,
+            bodyStyleId: data.carBodyStyleId ?? null,
+            speeds: data.carSpeeds?.toString() || "",
+            highlights: data.carHighlights || "",
+            serviceHistory: data.carServiceHistory || "",
+            equipment: data.carEquipment || "",
+            flaws: data.carFlaws || "",
+            modifications: data.carModifications || "",
+            otherItems: data.carOtherItems || "",
+            ownershipHistory: data.carOwnershipHistory || "",
+            sellerNotes: data.carSellerNotes || "",
+            videoLinks: data.carVideoLinks || "",
+            startPrice: data.startPrice?.toString() || "",
+            startTime: data.startTime ? new Date(data.startTime) : null,
+            endTime: data.endTime ? new Date(data.endTime) : null,
+            isInspected: data.isInspected || false,
+            about: data.carAbout || "",
+        };
+
+        // Set the current brand ID when data loads
+        if (data.carBrandId && currentBrandId === 0) {
+            setCurrentBrandId(data.carBrandId);
+        }
+
+        return values;
+    }, [data, currentBrandId]);
+
+    // Convert server images to component format
+    useEffect(() => {
+        if (data) {
+            const convertImages = (images: CarImageDto[] | null) =>
+                images ? images.map(img => ({
+                    id: img.id,
+                    url: img.imageUrl,
+                    orderNumber: img.orderNumber
+                })) : [];
+
+            // Find main photo from all images or use carMainPhotoUrl
+            const mainPhoto = data.carMainPhotoUrl ?
+                [{ id: 0, url: data.carMainPhotoUrl, orderNumber: 1 }] :
+                [];
+
+            setCarImages({
+                mainPhoto: mainPhoto,
+                interior: convertImages(data.carInteriorPhotoUrls),
+                exterior: convertImages(data.carExteriorPhotoUrls),
+                others: convertImages(data.carOtherPhotoUrls)
+            });
+
+            // Parse video links (comma-separated string to array)
+            const videoArray = data.carVideoLinks ?
+                data.carVideoLinks.split(", ").filter(link => link.trim()) :
+                [];
+            setCarVideos(videoArray);
+        }
+    }, [data]);
+
+    const handleSubmit = async (values: FormValues) => {
+        if (!data) return;
+
+        setLoading(prev => ({ ...prev, submitting: true }));
+
+        try {
+            // Convert video array back to comma-separated string
+            const videoLinksString = carVideos.join(", ");
+
+            const updateCommand: UpdateCarCommand = {
+                id: data.carId,
+                modelId: Number(values.modelId),
+                mileage: Number(values.mileage),
+                year: Number(values.year),
+                vin: values.vin,
+                location: values.location,
+                exteriorColor: values.exteriorColor,
+                interiorColor: values.interiorColor,
+                engine: values.engine,
+                drivetrainId: values.drivetrainId,
+                transmissionId: values.transmissionId,
+                bodyStyleId: values.bodyStyleId,
+                speeds: Number(values.speeds),
+                highlights: values.highlights,
+                serviceHistory: values.serviceHistory,
+                equipment: values.equipment,
+                flaws: values.flaws,
+                modifications: values.modifications,
+                otherItems: values.otherItems,
+                ownershipHistory: values.ownershipHistory,
+                sellerNotes: values.sellerNotes,
+                videoLinks: videoLinksString,
+                auctionId: auctionId,
+                startPrice: values.startPrice,
+                startTime: values.startTime,
+                endTime: values.endTime,
+                isInspected: values.isInspected,
+                about: values.about
+            };
+
+            await updateCar(updateCommand).unwrap();
+            console.log("Car updated successfully");
+        } catch (error) {
+            console.error('Error updating car:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, submitting: false }));
+        }
+    };
+
+    // Watch for brand changes and handle model clearing
+    const [prevBrandId, setPrevBrandId] = useState<number>(0);
+
+    // Get current display values for title
+    const getCurrentDisplayValues = (values: FormValues) => {
+        const currentBrand = brands.find(b => b.id === values.brandId)?.name || '';
+        const currentModel = models.find(m => m.id === values.modelId)?.name || '';
+        const year = values.year || data?.carYear || '';
+        const mileage = values.mileage || data?.carMileage || '';
+        const engine = values.engine || data?.carEngine || '';
+        const location = values.location || data?.carLocation || '';
+        const drivetrainId = values.drivetrainId || data?.carDriveTrainId || null;
+        const transmissionId = values.transmissionId || data?.carTransmissionId || null;
+        const bodystyleId = values.bodyStyleId || data?.carBodyStyleId || null;
+
+        return { currentBrand, currentModel, year, mileage, engine, location, drivetrainId, transmissionId, bodystyleId };
+    };
+
+    // Check if form values have changed from initial values
+    const checkForChanges = (currentValues: FormValues, initialValues: FormValues) => {
+        const fieldsToCheck = [
+            'brandId', 'modelId', 'mileage', 'year', 'vin', 'location',
+            'exteriorColor', 'interiorColor', 'engine', 'drivetrainId',
+            'transmissionId', 'bodyStyleId', 'speeds', 'highlights',
+            'serviceHistory', 'equipment', 'flaws', 'modifications',
+            'otherItems', 'ownershipHistory', 'sellerNotes', 'videoLinks',
+            'startPrice', 'isInspected', 'about'
+        ];
+
+        for (const field of fieldsToCheck) {
+            if (currentValues[field as keyof FormValues] !== initialValues[field as keyof FormValues]) {
+                return true;
             }
-        } else {
-            setFormData((prev) => ({ ...prev, [name]: value }));
         }
-    };
 
+        // Check date fields separately
+        const currentStartTime = currentValues.startTime?.getTime();
+        const initialStartTime = initialValues.startTime?.getTime();
+        const currentEndTime = currentValues.endTime?.getTime();
+        const initialEndTime = initialValues.endTime?.getTime();
 
-
-    const handleMainPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files && files.length > 0) {
-            setMainPhoto(files[0]);
+        if (currentStartTime !== initialStartTime || currentEndTime !== initialEndTime) {
+            return true;
         }
+
+        return false;
     };
 
-    const handleMultiplePhotosChange = (setter: React.Dispatch<React.SetStateAction<File[]>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files) {
-            const newFiles = Array.from(files);
-            setter((prev) => [...prev, ...newFiles].slice(0, 10));
-        }
-    };
+    // Show loading state while fetching data
+    if (isLoading) {
+        return (
+            <div className="w-3/4 mx-auto flex justify-center items-center mt-20">
+                <div className="text-white text-xl">Loading...</div>
+            </div>
+        );
+    }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Form submitted:", { ...formData, mainPhoto, exteriorPhotos, interiorPhotos, otherPhotos });
-        // TODO: Send to backend
-    };
-
-    const handleSave = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Form saved:", { ...formData, mainPhoto, exteriorPhotos, interiorPhotos, otherPhotos });
-        // TODO: Send to backend
-    };
+    // Show error state
+    if (isError || !data) {
+        return (
+            <div className="w-3/4 mx-auto flex justify-center items-center mt-20">
+                <div className="text-red-500 text-xl">Error loading auction data</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="w-[1920px] bg-[#2c2c2c] inline-flex flex-col justify-start items-start gap-5 overflow-hidden">
-            <div className="self-stretch px-60 pb-12 flex flex-col justify-start items-start gap-8">
-                <div className="self-stretch pb-4 relative flex flex-col justify-start items-start gap-4">
-                    <div className="self-stretch flex flex-col justify-start items-start">
-                        <div className="self-stretch inline-flex justify-between items-center">
-                            <div className="justify-start text-white text-2xl font-bold">{formData.title}</div>
-                            <div className="flex justify-start items-center gap-3">
-                                <div data-property-1="Default" className="w-[95px] px-2 py-1.5 bg-[#212121] rounded flex justify-center items-center gap-2.5">
-                                    <div data-property-1="Default" className="flex-1 h-[18px] relative">
-                                        <Star className="w-[15px] h-[14.30px] left-[1.50px] top-[1.50px] absolute bg-white/0 outline-2 outline-offset-[-1px] outline-white" />
+        <div className="w-3/4 mx-auto flex flex-col gap-3 justify-between mt-5 mb-9">
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationUpdateCarCommandSchema}
+                onSubmit={handleSubmit}
+                enableReinitialize={true}
+            >
+                {({ values, setFieldValue }) => {
+                    const displayValues = getCurrentDisplayValues(values);
+
+                    // Handle brand ID updates for models query
+                    useEffect(() => {
+                        if (values.brandId && values.brandId !== currentBrandId) {
+                            setCurrentBrandId(values.brandId);
+                            // Clear model when brand changes (but not on initial load)
+                            if (currentBrandId !== 0) {
+                                setFieldValue('modelId', 0);
+                            }
+                        }
+                    }, [values.brandId, currentBrandId, setFieldValue]);
+
+                    // Check for changes whenever values change
+                    useEffect(() => {
+                        const hasFormChanges = checkForChanges(values, initialValues);
+                        setHasChanges(hasFormChanges);
+                    }, [values]);
+
+                    return (
+                        <Form className="flex flex-col gap-3 text-black dark:text-white justify-between">
+                            {/* Title + short info */}
+                            <div>
+                                <div className="flex justify-between">
+                                    <p className="font-amulya text-2xl font-bold">
+                                        {displayValues.year} {displayValues.currentBrand} {displayValues.currentModel}
+                                    </p>
+                                    <div className="flex justify-between gap-3">
+                                        <button
+                                            type="button"
+                                            className="rounded-sm w-[95px] px-2 py-1.5 text-sm bg-[#212121] text-[#e9e9e9] transition-colors flex items-center justify-between gap-2.5"
+                                        >
+                                            <Star className="w-[15px]" />
+                                            <span className="font-amulya font-bold text-base">Watch</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="rounded-sm w-[95px] px-2 py-1.5 text-sm bg-[#212121] text-[#e9e9e9] transition-colors flex items-center justify-between gap-2.5"
+                                        >
+                                            <Share2 className="w-[15px]"/>
+                                            <span className="font-amulya font-bold text-base">Share</span>
+                                        </button>
                                     </div>
-                                    <div className="justify-start text-white text-base font-bold">Watch</div>
                                 </div>
-                                <div data-property-1="Default" className="w-[95px] px-2 py-1.5 bg-[#212121] rounded flex justify-center items-center gap-2.5">
-                                    <Share2 className="w-6 h-6 relative" />
-                                    <div className="justify-start text-white text-base font-bold">Share</div>
+                                <div className="font-synonym text-sm font-normal">
+                                    {displayValues.engine}, ~{Number(displayValues.mileage)?.toLocaleString() || 0} Kilometres, {displayValues.location}
                                 </div>
                             </div>
-                        </div>
-                        <div className="justify-start text-white text-sm font-normal">{formData.subtitle}</div>
-                    </div>
-                    <div className="self-stretch inline-flex justify-start items-start gap-3 flex-wrap content-start">
-                        <div className="w-[956px] h-[637px] p-[89px] bg-[#212121] inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-                            <div className="w-[72px] h-[72px] relative">
-                                <svg width="72" height="73" viewBox="0 0 72 73" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M43.5 12.5H28.5L21 21.5H12C10.4087 21.5 8.88258 22.1321 7.75736 23.2574C6.63214 24.3826 6 25.9087 6 27.5V54.5C6 56.0913 6.63214 57.6174 7.75736 58.7426C8.88258 59.8679 10.4087 60.5 12 60.5H60C61.5913 60.5 63.1174 59.8679 64.2426 58.7426C65.3679 57.6174 66 56.0913 66 54.5V27.5C66 25.9087 65.3679 24.3826 64.2426 23.2574C63.1174 22.1321 61.5913 21.5 60 21.5H51L43.5 12.5Z" stroke="#2C2C2C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M43.5 12.5H28.5L21 21.5H12C10.4087 21.5 8.88258 22.1321 7.75736 23.2574C6.63214 24.3826 6 25.9087 6 27.5V54.5C6 56.0913 6.63214 57.6174 7.75736 58.7426C8.88258 59.8679 10.4087 60.5 12 60.5H60C61.5913 60.5 63.1174 59.8679 64.2426 58.7426C65.3679 57.6174 66 56.0913 66 54.5V27.5C66 25.9087 65.3679 24.3826 64.2426 23.2574C63.1174 22.1321 61.5913 21.5 60 21.5H51L43.5 12.5Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M36 48.5C40.9706 48.5 45 44.4706 45 39.5C45 34.5294 40.9706 30.5 36 30.5C31.0294 30.5 27 34.5294 27 39.5C27 44.4706 31.0294 48.5 36 48.5Z" stroke="#2C2C2C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M36 48.5C40.9706 48.5 45 44.4706 45 39.5C45 34.5294 40.9706 30.5 36 30.5C31.0294 30.5 27 34.5294 27 39.5C27 44.4706 31.0294 48.5 36 48.5Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+
+                            {/* Photo + Auction */}
+                            <div className="flex gap-3">
+                                <div className="w-2/3 bg-[#dedede] dark:bg-[#212121] h-[640px] flex flex-col justify-center ">
+                                    <button onClick={() => setIsManagerOpen(true)}>
+                                        <div className="hover:text-red-500 inline-block items-center transition-all duration-200">
+                                            <Camera size={72} className="mx-auto"/>
+                                            <span className="font-amulya font-medium text-center">Add photo</span>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <div className="w-1/3 flex flex-col px-3 py-4 bg-[#dedede] dark:bg-[#212121] justify-between gap-8">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-medium text-xl">Enter start price</span>
+                                            <Field name="startPrice">
+                                                {({ field }: any) => (
+                                                    <SimpleInput
+                                                        {...field}
+                                                        type="text"
+                                                        placeholder="$ 12,000"
+                                                        className="border bg-[#c7c7c7] dark:bg-[#2c2c2c] placeholder:font-synonym px-2.5 py-2.5 focus:border-red-500"
+                                                    />
+                                                )}
+                                            </Field>
+                                        </div>
+                                        <div className="grid grid-cols-2">
+                                            <span className="font-amulya font-bold text-lg">Seller</span>
+                                            <div className="flex gap-2">
+                                                <User className="h-[24px]"/>
+                                                <span className="font-synonym">{data.sellerUsername}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* DateTime Range Picker */}
+                                    <div>
+                                        <DateTimeRangeInput
+                                            startLabel="Start date & time"
+                                            endLabel="Select end date"
+                                            startValue={values.startTime}
+                                            endValue={values.endTime}
+                                            onStartChange={(date) => setFieldValue('startTime', date)}
+                                            onEndChange={(date) => setFieldValue('endTime', date)}
+                                        />
+
+                                        <div className="flex items-center gap-2 mt-4">
+                                            <ToggleButton name="isInspected" label="Inspected"/>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 font-synonym ">
+                                        <span className="font-semibold">About {displayValues.currentBrand} {displayValues.currentModel}</span>
+                                        <MarkdownInput value={values.about}
+                                                       onChange={(val) => setFieldValue("about", val)}
+                                                       textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c] overflow-scroll max-h-[250px] min-h-[250px]"
+                                                       previewClassName="dark:bg-[#2c2c2c] overflow-scroll h-[250px]"
+                                                       placeholder="Enter short information about car " />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="justify-start text-white text-base font-medium">Add Photo</div>
-                        </div>
-                        <div className="w-full md:w-[472px] h-[637px] px-3 py-4 bg-[#212121] inline-flex flex-col justify-between items-start overflow-hidden">
-                            <div className="self-stretch flex flex-col justify-start items-start gap-4">
-                                <div className="self-stretch bg-[#212121] flex flex-col justify-start items-start gap-2.5">
-                                    <div className="self-stretch flex flex-col justify-start items-start gap-2.5 px-0.5">
-                                        <div className="justify-start text-white text-xl font-medium leading-tight">Enter start price</div>
-                                        <div className="self-stretch h-10 px-2.5 bg-[#2c2c2c] rounded-md outline-1 outline-offset-[-1px] outline-[#d0d0d0] inline-flex justify-start items-center gap-[258px] overflow-hidden">
-                                            <input
+
+                            {/* Car Info + btn */}
+                            <div className="flex w-full gap-3">
+                                <div className="flex flex-col gap-3 w-2/3">
+                                    {/* Table */}
+                                    <div className="flex gap-4.5 w-full">
+                                        <div className="border w-full border-[#212121] dark:border-white grid grid-cols-[40%_60%] bg-[#c7c7c7] dark:bg-[#212121] rounded-lg">
+                                            <span className="p-3 font-amulya font-bold text-lg">Brand</span>
+                                            <div className="border-l border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <InlineAutoComplete
+                                                    name="brandId"
+                                                    options={brands}
+                                                    placeholder="Select brand"
+                                                    isLoading={brandsLoading}
+                                                />
+                                            </div>
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Model</span>
+                                            <div className="border-l border-t border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <InlineAutoComplete
+                                                    name="modelId"
+                                                    options={models}
+                                                    placeholder="Select model"
+                                                    filterByMakeId={values.brandId ?? null}
+                                                    isLoading={modelsLoading}
+                                                    key={`model-${currentBrandId}`} // Force re-render when brand changes
+                                                />
+                                            </div>
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Mileage</span>
+                                            <Field
+                                                name="mileage"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                placeholder="Enter mileage"
                                                 type="text"
-                                                name="startPrice"
-                                                value={formData.startPrice}
-                                                onChange={handleInputChange}
-                                                className="flex-1 justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">VIN</span>
+                                            <Field
+                                                name="vin"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                placeholder="Enter VIN"
+                                                type="text"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Location</span>
+                                            <Field
+                                                name="location"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                placeholder="Enter car location"
+                                                type="text"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Year</span>
+                                            <Field
+                                                name="year"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                placeholder="Enter manufacture year"
+                                                type="text"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Seller</span>
+                                            <div className="flex gap-2 border-l border-t border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <User className="h-[24px]"/>
+                                                <span className="font-synonym">{data.sellerUsername}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="border w-full border-[#212121] dark:border-[#d0d0d0] grid grid-cols-[40%_60%] rounded-lg bg-[#c7c7c7] dark:bg-[#212121]">
+                                            <span className="p-3 font-amulya font-bold text-lg">Engine</span>
+                                            <Field
+                                                name="engine"
+                                                className="border-l p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                type="text"
+                                                placeholder="Enter engine model"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Drivetrain</span>
+                                            <div className="border-l border-t border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <InlineAutoComplete
+                                                    name="drivetrainId"
+                                                    options={DRIVETRAIN_OPTIONS}
+                                                    placeholder="Select drivetrain"
+                                                />
+                                            </div>
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Transmission</span>
+                                            <div className="border-l border-t border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <InlineAutoComplete
+                                                    name="transmissionId"
+                                                    options={TRANSMISSION_OPTIONS}
+                                                    placeholder="Select transmission"
+                                                />
+                                            </div>
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Body style</span>
+                                            <div className="border-l border-t border-[#212121] dark:border-[#d0d0d0] p-3">
+                                                <InlineAutoComplete
+                                                    name="bodyStyleId"
+                                                    options={bodyStyles}
+                                                    placeholder="Select body style"
+                                                    isLoading={bodyStylesLoading}
+                                                />
+                                            </div>
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Exterior Color</span>
+                                            <Field
+                                                name="exteriorColor"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                type="text"
+                                                placeholder="Enter car color"
+                                            />
+
+                                            <span className="p-3 font-amulya border-t font-bold text-lg">Interior Color</span>
+                                            <Field
+                                                name="interiorColor"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                type="text"
+                                                placeholder="Enter interior color"
+                                            />
+
+                                            <span className="p-3 font-amulya font-bold text-lg border-t border-[#212121] dark:border-[#d0d0d0]">Speeds</span>
+                                            <Field
+                                                name="speeds"
+                                                className="border-l border-t p-3 focus:outline-none bg-transparent border-[#212121] dark:border-[#d0d0d0]"
+                                                placeholder="Enter car speeds"
+                                                type="text"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Textareas - keeping existing implementation */}
+                                    <div className="flex flex-col gap-6">
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Highlights</span>
+                                            <MarkdownInput
+                                                value={values.highlights}
+                                                onChange={(val) => setFieldValue("highlights", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter basic information about this car"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Recent Service History</span>
+                                            <MarkdownInput
+                                                value={values.serviceHistory}
+                                                onChange={(val) => setFieldValue("serviceHistory", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter service history information of this car"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Equipment</span>
+                                            <MarkdownInput
+                                                value={values.equipment}
+                                                onChange={(val) => setFieldValue("equipment", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter information about additional equipment of this car"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Known Flaws</span>
+                                            <MarkdownInput
+                                                value={values.flaws}
+                                                onChange={(val) => setFieldValue("flaws", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter information about car flaws"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Modifications</span>
+                                            <MarkdownInput
+                                                value={values.modifications}
+                                                onChange={(val) => setFieldValue("modifications", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter information about car modifications"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Other Items Included in Sale</span>
+                                            <MarkdownInput
+                                                value={values.otherItems}
+                                                onChange={(val) => setFieldValue("otherItems", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter information about items included in sale"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Ownership History</span>
+                                            <MarkdownInput
+                                                value={values.ownershipHistory}
+                                                onChange={(val) => setFieldValue("ownershipHistory", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter ownership information"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2.5">
+                                            <span className="font-amulya font-bold text-2xl">Seller Notes</span>
+                                            <MarkdownInput
+                                                value={values.sellerNotes}
+                                                onChange={(val) => setFieldValue("sellerNotes", val)}
+                                                textareaClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]"
+                                                previewClassName="dark:bg-[#2с2с2с]"
+                                                placeholder="Enter additional information from the seller"
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="self-stretch inline-flex justify-start items-center gap-2.5">
-                                    <div className="flex-1 flex justify-start items-center gap-[102px]">
-                                        <div className="w-[120px] justify-start text-white text-lg font-bold leading-tight">Seller</div>
-                                        <div className="flex justify-center items-center gap-2">
-                                            <User className="w-6 h-6 relative" />
-                                            <div className="justify-start text-white text-base font-normal">{formData.seller}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="self-stretch h-[175px] inline-flex flex-col justify-start items-start gap-4 overflow-hidden">
-                                <div className="self-stretch inline-flex flex-col justify-center items-start gap-2.5">
-                                    <div className="justify-start text-white text-lg font-bold leading-tight">Start date & time</div>
-                                </div>
-                                <div className="self-stretch inline-flex justify-start items-center gap-2.5">
-                                    <div className="flex-1 flex justify-start items-center gap-2">
-                                        <div className="p-1 bg-[#2c2c2c] rounded-[10px] inline-flex flex-col justify-center items-start gap-2.5">
-                                            <Calendar className="w-6 h-6 relative text-[#cd1f22]" />
-                                        </div>
-                                        <input
-                                            type="datetime-local"
-                                            name="startDate"
-                                            value={formData.startDate}
-                                            onChange={handleInputChange}
-                                            className="justify-start text-white text-base font-normal bg-transparent outline-none border border-white rounded p-1"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="self-stretch inline-flex flex-col justify-center items-start gap-2.5">
-                                    <div className="justify-start text-white text-lg font-bold leading-tight">Select end date</div>
-                                </div>
-                                <div className="self-stretch inline-flex justify-start items-center gap-2.5">
-                                    <div className="flex-1 flex justify-start items-center gap-2">
-                                        <div className="p-1 bg-[#2c2c2c] rounded-[10px] inline-flex flex-col justify-center items-start gap-2.5">
-                                            <Calendar className="w-6 h-6 relative text-[#cd1f22]" />
-                                        </div>
-                                        <input
-                                            type="date"
-                                            name="endDate"
-                                            value={formData.endDate}
-                                            onChange={handleInputChange}
-                                            className="justify-start text-white text-base font-normal bg-transparent outline-none border border-white rounded p-1"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="self-stretch inline-flex justify-start items-center gap-2.5">
-                                    <div data-property-1="Inspected_button" className="px-1.5 py-0.5 bg-[#d0d0d0] rounded-lg outline-1 outline-offset-[-1px] outline-white flex justify-center items-center gap-3">
-                                        <div className="justify-start text-white text-base font-bold">
-                                            <input
-                                                type="checkbox"
-                                                name="inspected"
-                                                checked={formData.inspected}
-                                                onChange={handleInputChange}
-                                                className="mr-2"
-                                            />
-                                            Inspected
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="self-stretch h-56 flex flex-col justify-start items-start gap-1">
-                                <div className="justify-start text-white text-base font-semibold">About BMW M3 E9X</div>
-                                <textarea
-                                    name="about"
-                                    value={formData.about}
-                                    onChange={handleInputChange}
-                                    className="self-stretch justify-start text-white text-base font-normal bg-transparent outline-none resize-none"
-                                    rows={6}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="w-[956px] inline-flex justify-start items-start gap-3 flex-wrap content-start">
-                        <div className="w-[956px] inline-flex flex-col justify-start items-start gap-6 overflow-hidden">
-                            <div className="self-stretch flex flex-col justify-start items-start gap-[18px]">
-                                <div className="self-stretch inline-flex justify-start items-center gap-6 p-[1px]">
-                                    <div className="w-[466px] h-[336px] bg-[#212121] rounded-lg outline-1 outline-offset-[-1px] outline-[#d0d0d0] inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch h-12 inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Brand</div>
-                                            </div>
-                                            <div className="flex-1 self-stretch p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="brand"
-                                                    value={formData.brand}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter brand name"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Model</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="model"
-                                                    value={formData.model}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter car model name"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Mileage</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="mileage"
-                                                    value={formData.mileage}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter mileage"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">VIN</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="vin"
-                                                    value={formData.vin}
-                                                    onChange={handleInputChange}
-                                                    className="justify-start text-white text-base font-medium bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Title Status</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="titleStatus"
-                                                    value={formData.titleStatus}
-                                                    onChange={handleInputChange}
-                                                    className="justify-start text-white text-base font-medium bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Location</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="location"
-                                                    value={formData.location}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter car location"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Seller</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <div className="flex justify-center items-center gap-2">
-                                                    <User className="w-6 h-6 relative" />
-                                                    <div className="justify-start text-white text-base font-medium">{formData.seller}</div>
+
+                                <div className="w-1/3">
+                                    <button
+                                        type="button"
+                                        disabled={loading.submitting}
+                                        onClick={async () => {
+                                            await approveAuction(auctionId).unwrap();
+                                        }}
+                                        className="px-[30px] py-2.5 mx-auto block sticky top-25 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-2.5 transition-all duration-200 border border-transparent disabled:opacity-50"
+                                    >
+                                        {loading.submitting ? 'Updating...' : 'Send to Client for approval'}
+                                    </button>
+
+                                    {/* Sticky Save Button - appears when there are changes */}
+                                    {hasChanges && (
+                                        <div className="sticky bottom-12 top-35 z-50 p-4">
+                                            <div className="mx-auto flex justify-center items-center">
+                                                <div className="flex gap-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setHasChanges(false);
+                                                            window.location.reload();
+                                                        }}
+                                                        className="px-6 py-2 mt-2.5 bg-[#2c2c2c] border border-[#404040] text-white rounded-md hover:bg-[#2c2c2c] transition-colors font-amulya"
+                                                    >
+                                                        Discard Changes
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        onClick={() => {
+                                                            handleSubmit(values);
+                                                            setHasChanges(false);
+                                                        }}
+                                                        disabled={loading.submitting}
+                                                        className="px-6 py-2 bg-gradient-to-r bg-[#d0d0d0] text-black rounded-md text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 mt-2.5 transition-all duration-200 border border-transparent disabled:opacity-50"
+                                                    >
+                                                        {loading.submitting ? 'Saving...' : 'Save Auction'}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="w-[466px] h-[336px] bg-[#212121] rounded-lg outline-1 outline-offset-[-1px] outline-[#d0d0d0] inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch h-12 inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Engine</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="engine"
-                                                    value={formData.engine}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter engine model"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Drivetrain</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="drivetrain"
-                                                    value={formData.drivetrain}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter drivetrain"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Transmission</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="transmission"
-                                                    value={formData.transmission}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter transmission type"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Body Style</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="bodyStyle"
-                                                    value={formData.bodyStyle}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter car body type"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Exterior Color</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="exteriorColor"
-                                                    value={formData.exteriorColor}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter car color"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Interior Color</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="interiorColor"
-                                                    value={formData.interiorColor}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter interior color"
-                                                    className="justify-start text-[#d0d0d0] text-base font-normal bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="self-stretch h-12 border-t border-[#d0d0d0] inline-flex justify-start items-center">
-                                            <div className="w-[180px] p-3 flex justify-start items-center gap-2.5">
-                                                <div className="justify-start text-white text-lg font-bold leading-tight">Seller Type</div>
-                                            </div>
-                                            <div className="flex-1 p-3 border-l border-[#d0d0d0] flex justify-start items-center gap-2.5">
-                                                <input
-                                                    type="text"
-                                                    name="sellerType"
-                                                    value={formData.sellerType}
-                                                    onChange={handleInputChange}
-                                                    className="justify-start text-white text-base font-medium bg-transparent outline-none w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
+
+                                <CarFilesManager
+                                    isOpen={isManagerOpen}
+                                    onClose={() => setIsManagerOpen(false)}
+                                    carId={data.carId}
+                                    initialImages={carImages}
+                                    initialVideos={carVideos}
+                                    onImagesUpdate={(category, images) => {
+                                        setCarImages(prev => ({ ...prev, [category]: images }));
+                                    }}
+                                    onVideosUpdate={(videos) => {
+                                        setCarVideos(videos);
+                                    }}
+                                />
                             </div>
-                            <div className="self-stretch flex flex-col justify-start items-start gap-6">
-                                {[
-                                    { key: "highlights" as TextFieldKey, label: "Highlights", placeholder: "Enter basic information about this car" },
-                                    { key: "serviceHistory" as TextFieldKey, label: "Recent Service History", placeholder: "Enter service history information of this car" },
-                                    { key: "equipment" as TextFieldKey, label: "Equipment", placeholder: "Enter information about additional equipment of this car" },
-                                    { key: "flaws" as TextFieldKey, label: "Known Flaws", placeholder: "Enter information about car flaws" },
-                                    { key: "modifications" as TextFieldKey, label: "Modifications", placeholder: "Enter information about car modifications" },
-                                    { key: "otherItems" as TextFieldKey, label: "Other Items Included in Sale", placeholder: "Enter information about other items" },
-                                    { key: "ownershipHistory" as TextFieldKey, label: "Ownership History", placeholder: "Enter ownership information" },
-                                    { key: "sellerNotes" as TextFieldKey, label: "Seller Notes", placeholder: "Enter additional information from the seller" },
-                                ].map(({ key, label, placeholder }) => (
-                                    <div key={key} className="self-stretch flex flex-col justify-start px-[1px] py-[1px] items-start gap-2.5">
-                                        <div className="justify-start text-white text-2xl font-bold">{label}</div>
-                                        <textarea
-                                            name={key}
-                                            value={formData[key]}
-                                            onChange={handleInputChange}
-                                            placeholder={placeholder}
-                                            className="self-stretch h-[127px] p-3 bg-[#2c2c2c] rounded-md outline-[0.50px] outline-offset-[-0.50px] outline-[#d0d0d0] inline-flex justify-start items-start gap-[258px] overflow-hidden flex-1 text-[#d0d0d0] text-base font-normal"
-                                        />
-                                    </div>
-                                ))}
-                                <div className="self-stretch flex flex-col justify-start px-[1px] py-[1px] items-start gap-2.5">
-                                    <div className="justify-start text-white text-2xl font-bold">Main Photo (1 photo)</div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleMainPhotoChange}
-                                        className="self-stretch p-3 bg-[#2c2c2c] rounded-md outline-[0.50px] outline-offset-[-0.50px] outline-[#d0d0d0] text-[#d0d0d0] text-base font-normal"
-                                    />
-                                    {mainPhoto && <div className="text-white">{mainPhoto.name}</div>}
-                                </div>
-                                <div className="self-stretch flex flex-col justify-start px-[1px] py-[1px] items-start gap-2.5">
-                                    <div className="justify-start text-white text-2xl font-bold">Exterior Photos (up to 10)</div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleMultiplePhotosChange(setExteriorPhotos)}
-                                        className="self-stretch p-3 bg-[#2c2c2c] rounded-md outline-[0.50px] outline-offset-[-0.50px] outline-[#d0d0d0] text-[#d0d0d0] text-base font-normal"
-                                    />
-                                    <div className="text-white">{exteriorPhotos.length} photos selected</div>
-                                </div>
-                                <div className="self-stretch flex flex-col justify-start px-[1px] py-[1px] items-start gap-2.5">
-                                    <div className="justify-start text-white text-2xl font-bold">Interior Photos (up to 10)</div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleMultiplePhotosChange(setInteriorPhotos)}
-                                        className="self-stretch p-3 bg-[#2c2c2c] rounded-md outline-[0.50px] outline-offset-[-0.50px] outline-[#d0d0d0] text-[#d0d0d0] text-base font-normal"
-                                    />
-                                    <div className="text-white">{interiorPhotos.length} photos selected</div>
-                                </div>
-                                <div className="self-stretch flex flex-col justify-start px-[1px] py-[1px] items-start gap-2.5">
-                                    <div className="justify-start text-white text-2xl font-bold">Other Photos (up to 10)</div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleMultiplePhotosChange(setOtherPhotos)}
-                                        className="self-stretch p-3 bg-[#2c2c2c] rounded-md outline-[0.50px] outline-offset-[-0.50px] outline-[#d0d0d0] text-[#d0d0d0] text-base font-normal"
-                                    />
-                                    <div className="text-white">{otherPhotos.length} photos selected</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="pt-[29px] left-[1015px] top-[724px] absolute flex flex-col justify-center items-center gap-2.5">
-                        <button
-                            onClick={handleSubmit}
-                            className="px-[30px] py-2.5 bg-[#cd1f22] rounded-md inline-flex justify-center items-center gap-2.5"
-                        >
-                            <div className="justify-start text-white text-2xl font-bold">Send to Client for approval</div>
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-[30px] py-2.5 bg-[#cd1f22] rounded-md inline-flex justify-center items-center gap-2.5"
-                        >
-                            <div className="justify-start text-white text-2xl font-bold">Save</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                        </Form>
+                    );
+                }}
+            </Formik>
+
+
         </div>
     );
 }

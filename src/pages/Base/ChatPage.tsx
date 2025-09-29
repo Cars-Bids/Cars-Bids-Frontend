@@ -6,58 +6,73 @@ import { useGetChatMessagesQuery } from "@/features/api/endpoints/Chat";
 import {ChatSignalRProvider} from "@/features/signalr/ChatSignalRProvider.tsx";
 import ChatInput from "@/components/ui/ChatInput.tsx";
 import RequiredInfoPanel from "@/components/ui/RequiredInfoPanel.tsx";
+import TypingIndicator from "@/components/ui/TypingIndicator.tsx";
 
 function getUserIdFromToken() {
-    const token = localStorage.getItem('accessToken');
+    const token =
+        localStorage.getItem("accessToken") ??
+        sessionStorage.getItem("accessToken");
+
     if (!token) {
-        console.error('Токен не знайдено в localStorage');
+        console.error("Токен не знайдено ні в localStorage, ні в sessionStorage");
         return null;
     }
 
     try {
-        const payload = token.split('.')[1];
-        const decodedPayload = atob(payload);
+        const payload = token.split(".")[1];
+
+        let base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+        // додаємо падінг, якщо треба
+        while (base64.length % 4 !== 0) {
+            base64 += "=";
+        }
+
+        const decodedPayload = atob(base64);
         const parsedPayload = JSON.parse(decodedPayload);
         const userId = parsedPayload.nameid;
 
         if (!userId) {
-            console.error('User ID not found in token');
+            console.error("User ID не знайдено в токені");
             return null;
         }
 
-        console.log(userId)
-
         return userId;
     } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Помилка при декодуванні токена:", error);
         return null;
     }
 }
 
 function getUserRoleFromToken() {
-    const token = localStorage.getItem('accessToken');
+    const token =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken");
+
     if (!token) {
-        console.error('Токен не знайдено в localStorage');
+        console.error("Токен не знайдено ні в localStorage, ні в sessionStorage");
         return null;
     }
 
     try {
-        const payload = token.split('.')[1];
-        const decodedPayload = atob(payload);
+        const payload = token.split(".")[1];
+        const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+        const decodedPayload = atob(base64);
         const parsedPayload = JSON.parse(decodedPayload);
+
         const role = parsedPayload.roles;
 
         if (!role) {
-            console.error('User ID not found in token');
+            console.error("Role не знайдено в токені");
             return null;
         }
 
         return role;
     } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Помилка при декодуванні токена:", error);
         return null;
     }
 }
+
 
 function formatDate(date: Date) {
     const now = new Date();
@@ -246,8 +261,9 @@ function ChatPage({ chatId }: { chatId: number }) {
                             );
                         })
                     )}
-                </div>
 
+                </div>
+                <TypingIndicator/>
                 <ChatInput/>
             </section>
         </main>

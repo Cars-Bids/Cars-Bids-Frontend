@@ -15,7 +15,7 @@ import AuctionPage from "@/pages/Base/AuctionPage.tsx";
 import { AboutPage } from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
 import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
-import CreateAuctionPage from './pages/Base/AuctionCreatePage';
+import {CreateAuctionPage} from "@/pages/Base/AuctionCreatePage.tsx";
 
 function LangWrapper() {
   useLangFromURL();
@@ -37,7 +37,7 @@ function LangWrapper() {
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="create-auction" element={<CreateAuctionPage />} />
+        <Route path="create-auction/:id" element={<CreateAuctionPage />} />
         <Route path="whats-steria" element={<AboutPage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
