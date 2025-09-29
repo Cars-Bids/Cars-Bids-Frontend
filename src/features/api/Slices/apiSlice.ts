@@ -41,7 +41,7 @@ const baseQueryWithReauth = async (
     if (!refreshToken) {
       clearTokens();
       api.dispatch(logout());
-      api.dispatch(apiSlice.util.resetApiState()); // очищаємо кеш після logout
+      api.dispatch(apiSlice.util.resetApiState()); 
       return result;
     }
 
@@ -54,9 +54,10 @@ const baseQueryWithReauth = async (
       api,
       extraOptions
     );
-
+    console.log("Refresh result:", refreshResult.data);
     if (refreshResult.data) {
       const authData = refreshResult.data as AuthResponse;
+      console.log("New auth data:", authData);
       const rememberMe = getRememberMe();
 
   
