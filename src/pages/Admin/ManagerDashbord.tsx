@@ -5,6 +5,7 @@ import {
   useGetInpendingCarsQuery,
   useGetManagetCarsQuery,
 } from "@/features/api/endpoints/Profile";
+import { Link } from "react-router-dom";
 
 export default function ManagerDashbord() {
   const [activeTab, setActiveTab] = useState("is-pending");
@@ -183,7 +184,7 @@ export default function ManagerDashbord() {
               {activeTab === "live-auctions" && (
                 <div className="self-stretch p-4  rounded-md  inline-flex bg-[#212121] flex-col justify-center items-start gap-3 overflow-hidden">
                   <div className="grid grid-cols-2 w-[990px] gap-4">
-                    {inPendingCarsData?.items?.map((car: any) => (
+                    {managedCarsData?.items?.map((car: any) => (
                       <React.Fragment key={car.id}>
                         <div className="w-full max-w-[510px] min-w-[460px] items-center rounded-md outline-1 outline-offset-[-1px] p-3 inline-flex justify-center gap-4 overflow-hidden">
                           <div className="flex justify-center items-center">
@@ -205,9 +206,9 @@ export default function ManagerDashbord() {
                             </div>
                           </div>
                           <div className="px-3 py-1 bg-Red rounded-md flex justify-center items-center gap-2.5">
-                            <div className="justify-start text-White text-sm font-amulya rounded-md px-4 py-2 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 border border-transparent hover:border-red-500 transition-all duration-200">
+                            <Link to={`accept-page/${car.id}`} className="justify-start text-White text-sm font-amulya rounded-md px-4 py-2 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 border border-transparent hover:border-red-500 transition-all duration-200">
                               View Detail information
-                            </div>
+                            </Link>
                           </div>
                         </div>
 

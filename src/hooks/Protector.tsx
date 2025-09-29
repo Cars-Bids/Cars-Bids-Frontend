@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { type RootState } from "@/app/store";
-import { Navigate } from "react-router-dom";
+
 import Unauthorized from "@/pages/Errors/unauthorized";
 import React from "react";
 

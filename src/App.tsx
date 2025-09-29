@@ -18,7 +18,7 @@ import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import {CreateAuctionPage} from "@/pages/Base/AuctionCreatePage.tsx";
 import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 import ProtectedRoute from "@/hooks/Protector";
-import AcceptPage from './pages/Admin/AcceptPage';
+import AcceptPage from '@/pages/Admin/AcceptPage';
 
 function LangWrapper() {
   useLangFromURL();
@@ -46,7 +46,7 @@ function LangWrapper() {
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="*" element={<NotFound404 />} />
+        <Route path="*" element={<NotFound404 />} /> 
 
         <Route
           path="dashboard"
