@@ -1,7 +1,13 @@
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
-import type {AddCommentRequest, AuctionDetailed} from "@/features/types/AuctionDetailed.ts";
 import type {ManagingAuctionPageDto} from "@/features/types/Car.ts";
+import type {
+  AddAnswerRequest,
+  AddCommentRequest,
+  AddQuestionRequest,
+  AuctionDetailed,
+  UpdateAuctionStatusRequest
+} from "@/features/types/AuctionDetailed.ts";
 
 export const AuctionsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -31,7 +37,7 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
-
+    
     getManagingAuction: builder.query<ManagingAuctionPageDto, number>({
       query: (auctionId) => `Auctions/managing/${auctionId}`,
     }),
@@ -43,6 +49,37 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
           method: "POST",
         }
       },
+    updateAuctionStatus: builder.mutation<void, UpdateAuctionStatusRequest>({
+      query: (data) => {
+        return {
+          url: "/Auctions/update-status",
+          method: "PUT",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.id }],
+    }),
+
+    addAuctionQuestion: builder.mutation<void, AddQuestionRequest>({
+      query: (data) => {
+        return {
+          url: "/Auctions/add-question",
+          method: "POST",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
+    }),
+
+    addAuctionAnswer: builder.mutation<void, AddAnswerRequest>({
+      query: (data) => {
+        return {
+          url: "/Auctions/add-answer",
+          method: "POST",
+          body: data,
+        };
+      },
+      invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
   }),
 });
@@ -52,7 +89,10 @@ export const {
   useGetAuctionByIdQuery,
   useGetAuctionDetailedByIdQuery,
   useAddAuctionCommentMutation,
-  useGetActionActiveQuery,
   useGetManagingAuctionQuery,
-    useApproveAuctionByManagerMutation
+  useApproveAuctionByManagerMutation,
+  useUpdateAuctionStatusMutation,
+  useGetActionActiveQuery,
+  useAddAuctionQuestionMutation,
+  useAddAuctionAnswerMutation
 } = AuctionsEndpoints;

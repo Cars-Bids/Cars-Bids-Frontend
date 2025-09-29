@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, Clock as ClockIcon, CircleDollarSign, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom"; // Added Link import
+import { useSelector } from "react-redux";
 import Sidebar from "@/components/Main/SidebarProfile";
 import {
     useGetInReviewCarsQuery,
@@ -7,6 +9,7 @@ import {
     useGetEndedAuctionsQuery,
     useGetActiveAuctionsQuery,
 } from "@/features/api/endpoints/Profile";
+import type { RootState } from "@/app/store";
 import type { UserCommentDto } from "@/features/types/Profile";
 import type { ProfileInReviewCarDto } from "@/features/types/Car";
 import type { AuctionDto } from "@/features/types/Auction";
@@ -14,9 +17,10 @@ import { AuctionStatus, DrivetrainType, TransmissionType } from "@/features/type
 
 type TabType = "in-progress" | "live-auctions" | "comments" | "past-listings";
 
-
 export default function SellerDashboard() {
-    const [activeTab, setActiveTab] = useState("in-progress");
+    const navigate = useNavigate();
+    const currentLang = useSelector((state: RootState) => state.lang.current);
+    const [activeTab, setActiveTab] = useState<TabType>("in-progress");
     const [pagination, setPagination] = useState({
         "in-progress": 1,
         "live-auctions": 1,
@@ -50,7 +54,7 @@ export default function SellerDashboard() {
         error: activeAuctionsError,
     } = useGetActiveAuctionsQuery({ pageNumber: pagination["live-auctions"], pageSize });
 
-    const handlePageChange = (tab: string, page: number) => {
+    const handlePageChange = (tab: TabType, page: number) => {
         setPagination((prev) => ({
             ...prev,
             [tab]: page,
@@ -115,7 +119,7 @@ export default function SellerDashboard() {
         return {
             id: auction.id,
             image:
-                auction.car.mainImage ||
+                auction.car.mainImageUrl ||
                 "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
             year: auction.car.year.toString(),
             make: auction.car.make,
@@ -132,14 +136,64 @@ export default function SellerDashboard() {
     };
 
     const mapCarToListing = (car: ProfileInReviewCarDto) => {
-        const statusMap: Record<number, { label: string; color: string }> = {
-            0: { label: "In Pending", color: "bg-yellow-500 text-black" },
-            1: { label: "Canceled", color: "bg-red-500 text-black dark:text-white" },
-            2: { label: "In Review", color: "bg-blue-500 text-black dark:text-white" },
-            3: { label: "Approved", color: "bg-green-500 text-black dark:text-white" },
-        };
+        let statusLabel = "Unknown";
+        let statusColor = "bg-gray-500 text-black dark:text-white";
+        let statusMessage = "";
+        let tags: string[] = [];
+        let tagColors: string[] = [];
+        let publishDate = null;
 
-        const status = statusMap[car.status] || { label: "Unknown", color: "bg-gray-500 text-black dark:text-white" };
+        if (car.auction && car.auction.status.toString() === "inPending") {
+            statusLabel = "Will be published on";
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
+            statusColor = "bg-blue-500 text-black";
+            tags = ["Waiting to start"];
+            tagColors = ["bg-[#5CA1FF] text-black"];
+            statusMessage = "No additional information needed.";
+        }
+        else if (car.auction && car.auction.status.toString() === "new") {
+            statusLabel = "Will be published on";
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
+            statusColor = "bg-yellow-500 text-black";
+            tags = ["In progress"];
+            tagColors = ["bg-[#C3F73A] text-black"];
+            statusMessage = "Additional information is still needed.";
+        }
+        else if (car.auction && car.auction.status.toString() === "approved") {
+            statusLabel = "Will be published on";
+            publishDate = car.auction.startTime
+                ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+                : "...";
+            statusColor = "bg-yellow-500 text-black";
+            tags = ["Waiting your accept"];
+            tagColors = ["bg-[#5CA1FF] text-black"];
+            statusMessage = "No additional information needed.";
+        }
+        else if (car && car.status.toString() === "inPending") {
+            statusLabel = "Will be published on";
+            publishDate = "...";
+            statusColor = "bg-yellow-500 text-black";
+            tags = ["Waiting"];
+            tagColors = ["bg-yellow-500 text-black"];
+            statusMessage = "Additional information is still needed.";
+        }
+        else {
+            const statusMap: Record<number, { label: string; color: string }> = {
+                0: { label: "Pending", color: "bg-yellow-500 text-black" },
+                1: { label: "Canceled", color: "bg-red-500 text-black dark:text-white" },
+                2: { label: "In Review", color: "bg-blue-500 text-black dark:text-white" },
+                3: { label: "Approved", color: "bg-green-500 text-black dark:text-white" },
+            };
+            const mappedStatus = statusMap[car.status] || { label: "Unknown", color: "bg-gray-500 text-black dark:text-white" };
+            statusLabel = mappedStatus.label;
+            statusColor = mappedStatus.color;
+            tags = [statusLabel];
+            tagColors = [statusColor];
+        }
 
         return {
             id: car.id,
@@ -154,17 +208,22 @@ export default function SellerDashboard() {
                     ? "Automatic"
                     : "Manual",
             mileage: `${car.mileage} km`,
-            status: car.status === 0 ? "Will be published on ..." : status.label,
-            statusColor: car.status === 0 ? "" : status.color,
-            statusMessage: "Additional information is still needed.",
-            tags: [status.label],
-            tagColors: [status.color],
+            status: statusLabel,
+            publishDate,
+            statusColor,
+            statusMessage,
+            tags,
+            tagColors,
             drivetrain:
                 car.drivetrain === DrivetrainType.FWD
                     ? "FWD"
                     : car.drivetrain === DrivetrainType.RWD
                         ? "RWD"
                         : "AWD",
+            hasAuction: !!car.auction,
+            hasChat: !!car.chatId,
+            auctionId: car.auction?.id,
+            chatId: car.chatId,
         };
     };
 
@@ -196,7 +255,7 @@ export default function SellerDashboard() {
         const status =
             auction.status === AuctionStatus.Sold
                 ? { tags: ["Sold"], tagColors: ["bg-green-500 text-white"] }
-                : auction.status === AuctionStatus.NotSold
+                : auction.status.toString() === "notSold"
                     ? { tags: ["Not Sold"], tagColors: ["bg-red-500 text-white"] }
                     : auction.status === AuctionStatus.Cancelled
                         ? { tags: ["Cancelled"], tagColors: ["bg-yellow-500 text-black"] }
@@ -205,7 +264,7 @@ export default function SellerDashboard() {
         return {
             id: auction.id,
             image:
-                auction.car.mainImage ||
+                auction.car.mainImageUrl ||
                 "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80",
             year: auction.car.year.toString(),
             make: auction.car.make.toString(),
@@ -279,6 +338,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : inReviewError ? (
                                         <p className="text-red-400">Error loading vehicles during inspection</p>
+                                    ) : inReviewCarsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {inReviewCarsData?.items.map((car, index) => {
@@ -299,7 +360,7 @@ export default function SellerDashboard() {
                                                                 </div>
                                                                 <div className="py-2 basis-[21.28%] flex-shrink-0 flex-grow-0">
                                                                     <div className="flex flex-wrap gap-2 mb-3">
-                                                                        <span className="px-3 py-2 dark:bg-[#2C2C2C] bg-[#D3D3D3]    border border-[#2F2F2F] dark:border-[#D0D0D0] rounded-lg text-xs text-black dark:text-white">
+                                                                        <span className="px-3 py-2 dark:bg-[#2C2C2C] bg-[#D3D3D3] border border-[#2F2F2F] dark:border-[#D0D0D0] rounded-lg text-xs text-black dark:text-white">
                                                                             {mappedCar.transmission}
                                                                         </span>
                                                                         <span className="px-3 py-2 dark:bg-[#2C2C2C] bg-[#D3D3D3] border border-[#2F2F2F] dark:border-[#D0D0D0] rounded-lg text-xs text-black dark:text-white">
@@ -317,16 +378,42 @@ export default function SellerDashboard() {
                                                                         ))}
                                                                     </div>
                                                                 </div>
-                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 flex-grow-0 lg:text-right">
-                                                                    <h4 className={`text-lg font-bold mb-3 ${mappedCar.statusColor}`}>
-                                                                        {mappedCar.status}
+                                                                <div className="py-2 basis-[31.25%] flex-shrink-0 justify-between flex-grow-0 lg:text-right">
+                                                                    <h4 className={`text-lg font-bold mb-3 `}>
+                                                                        {mappedCar.status} {mappedCar.publishDate ? mappedCar.publishDate : ''}
                                                                     </h4>
-                                                                    <p className={`text-sm mb-6 text-red-400`}>
+                                                                    <p
+                                                                        className={`text-sm mb-6 ${mappedCar.statusMessage
+                                                                                ? mappedCar.statusMessage === "No additional information needed."
+                                                                                    ? "text-[#8EBF0B]"
+                                                                                    : "text-[14px]"
+                                                                                : "hidden"
+                                                                            }`}
+                                                                    >
                                                                         {mappedCar.statusMessage}
                                                                     </p>
-                                                                    <div className="flex items-center gap-1 lg:justify-end">
-                                                                        <span className="text-black dark:text-white">See details</span>
-                                                                        <ChevronRight className="w-4 h-4 text-black dark:text-white" />
+                                                                    <div className="flex items-center gap-4 lg:justify-end">
+                                                                        {mappedCar.hasChat && (
+                                                                            <Link
+                                                                                to={mappedCar.chatId ? `/${currentLang}/chat/${mappedCar.chatId}` : '#'}
+                                                                                className="flex items-center gap-1 text-black dark:text-white hover:text-gray-200 transition-colors"
+                                                                            >
+                                                                                <span>Open chat</span>
+                                                                                <ChevronRight className="w-4 h-4 text-black dark:text-white" />
+                                                                            </Link>
+                                                                        )}
+                                                                        {mappedCar.hasAuction && (
+                                                                            <Link
+                                                                                to={mappedCar.auctionId ? `/${currentLang}/auction-approval/${mappedCar.auctionId}` : '#'}
+                                                                                className="flex items-center gap-1 text-black dark:text-white hover:text-gray-200 transition-colors"
+                                                                            >
+                                                                                <span>See details</span>
+                                                                                <ChevronRight className="w-4 h-4 text-black dark:text-white" />
+                                                                            </Link>
+                                                                        )}
+                                                                        {(!mappedCar.hasAuction || !mappedCar.hasChat) && (
+                                                                            <span className="text-black dark:text-white">Pending</span>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -349,6 +436,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : activeAuctionsError ? (
                                         <p className="text-red-400">Error loading active auctions</p>
+                                    ) : activeAuctionsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {activeAuctionsData?.items.map((auction, index) => {
@@ -409,10 +498,13 @@ export default function SellerDashboard() {
                                                                                 <span className="text-black dark:text-white font-bold">{mappedAuction.currentBid}</span>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="flex items-center gap-1 lg:justify-end">
-                                                                            <span className="text-black dark:text-white">See details</span>
+                                                                        <Link
+                                                                            to={auction.id ? `/${currentLang}/auction/${auction.id}` : '#'}
+                                                                            className="flex items-center gap-1 lg:justify-end text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
+                                                                        >
+                                                                            <span>See details</span>
                                                                             <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                        </div>
+                                                                        </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -435,6 +527,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : commentsError ? (
                                         <p className="text-red-400">Error loading comments</p>
+                                    ) : commentsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
                                             {commentsData?.items.map((comment, index) => {
@@ -460,10 +554,13 @@ export default function SellerDashboard() {
                                                                     </p>
                                                                 </div>
                                                                 <div className="py-2 basis-[20%] flex-shrink-0 flex-grow-0 lg:text-right flex items-center">
-                                                                    <div className="flex items-center gap-1 lg:justify-end w-full">
-                                                                        <span className="text-black dark:text-white">See comment</span>
+                                                                    <Link
+                                                                        to={mappedComment.auctionId ? `/${currentLang}/auction/${mappedComment.auctionId}` : '#'}
+                                                                        className="flex items-center gap-1 lg:justify-end w-full text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
+                                                                    >
+                                                                        <span>See comment</span>
                                                                         <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                    </div>
+                                                                    </Link>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -485,6 +582,8 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">Loading...</p>
                                     ) : endedAuctionsError ? (
                                         <p className="text-red-400">Error loading completed auctions</p>
+                                    ) : endedAuctionsData?.items.length === 0 ? (
+                                        <p className="text-black dark:text-white">No data available</p>
                                     ) : (
                                         <>
                                             {endedAuctionsData?.items.map((auction, index) => {
@@ -537,10 +636,13 @@ export default function SellerDashboard() {
                                                                                 <span className="text-black dark:text-white font-bold text-right">{mappedAuction.soldFor}</span>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="flex items-center gap-1 lg:justify-end mt-auto">
-                                                                            <span className="text-black dark:text-white">See details</span>
+                                                                        <Link
+                                                                            to={auction.id ? `/${currentLang}/auction/${auction.id}` : '#'}
+                                                                            className="flex items-center gap-1 lg:justify-end mt-auto text-black dark:text-white hover:text-gray-200 transition-colors cursor-pointer"
+                                                                        >
+                                                                            <span>See details</span>
                                                                             <ChevronRight className="w-4 h-4 text-black dark:text-white" />
-                                                                        </div>
+                                                                        </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>

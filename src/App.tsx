@@ -16,6 +16,9 @@ import { AboutPage } from "@/pages/Base/AboutPage.tsx";
 import ChatPage from "@/pages/Base/ChatPage.tsx";
 import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import {CreateAuctionPage} from "@/pages/Base/AuctionCreatePage.tsx";
+import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
+import ProtectedRoute from "@/hooks/Protector";
+import AcceptPage from './pages/Admin/AcceptPage';
 
 function LangWrapper() {
   useLangFromURL();
@@ -34,17 +37,34 @@ function LangWrapper() {
         <Route path="reset-password" element={<HomePage />} />
         <Route path="sell-your-car" element={<SellYourCar />} />
         <Route path="auction/:id" element={<AuctionPage />} />
+        <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
-        <Route path="profile" element={<ProfilePage />} />
         <Route path="create-auction/:id" element={<CreateAuctionPage />} />
+        <Route path="profile/:id" element={<ProfilePage />} />
         <Route path="whats-steria" element={<AboutPage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
         <Route path="watchlist" element={<WatchList />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound404 />} />
-        <Route path={"dashboard"} element={<ManagerDashboard />} />
-        
+
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="accept-page/:id"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <AcceptPage />
+            </ProtectedRoute>
+          }
+        />
+
       </Route>
 
     </Routes>

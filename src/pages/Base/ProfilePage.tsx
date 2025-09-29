@@ -10,29 +10,132 @@ import {
   useGetCommentsCountQuery,
   useGetUserCommentsQuery,
   useUpdateProfileMutation,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useGetIsFollowingQuery,
 } from "@/features/api/endpoints/Profile";
+import { useNavigate, useParams } from "react-router-dom";
+
+function parseJwtPayload(token: string | null | undefined) {
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Failed parsing token payload", e);
+    return null;
+  }
+}
 
 export default function Profile() {
+
+  const params = useParams();
+  const routeId = params.id;
+  const userId = routeId ? parseInt(routeId, 10) : undefined;
+
+  const accessTokenFromRedux = useSelector((s: RootState) => (s as any).auth?.accessToken);
+  const accessToken =
+    accessTokenFromRedux ||
+    localStorage.getItem("accessToken") ||
+    localStorage.getItem("token") ||
+    null;
+
+  const jwtPayload = parseJwtPayload(accessToken);
+  const rawId =
+    jwtPayload?.nameid ??
+    jwtPayload?.nameidentifier ??
+    jwtPayload?.sub ??
+    jwtPayload?.id ??
+    jwtPayload?.userId ??
+    jwtPayload?.UserId ??
+    jwtPayload?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ??
+    null;
+
+  const currentUserId = rawId ? Number(rawId) : undefined;
+  const isOwnProfile = userId === currentUserId;
+
+
+  const [followUser, { isLoading: isFollowLoading }] = useFollowUserMutation();
+  const [unfollowUser, { isLoading: isUnfollowLoading }] = useUnfollowUserMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [biddedCarsPage, setBiddedCarsPage] = useState(1);
   const [auctionCommentsPage, setAuctionCommentsPage] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
   const [allBiddedCars, setAllBiddedCars] = useState<any[]>([]);
   const [allAuctionComments, setAllAuctionComments] = useState<any[]>([]);
-
+  const navigate = useNavigate();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
-  const { data: profile } = useGetProfileQuery(undefined, {
-    skip: !isAuthenticated,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
-  });
+  const currentLang = useSelector((state: RootState) => state.lang.current);
+
+  const { data: profile, refetch: refetchProfile } = useGetProfileQuery(
+    userId ? { userId } : (undefined as any),
+    {
+      skip: !userId,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
+
+  const { data: isFollowing, isLoading: isCheckingFollowing, refetch: refetchIsFollowing } =
+    useGetIsFollowingQuery(
+      userId ? { userId } : (undefined as any),
+      { skip: !userId || isOwnProfile }
+    );
+
+  const [isActionPending, setIsActionPending] = useState(false);
+
+  const handleFollow = async () => {
+    if (!isAuthenticated) {
+      navigate(`/${currentLang}/login`);
+      return;
+    }
+    if (!userId) return;
+    try {
+      setIsActionPending(true);
+      await followUser({ followingId: userId }).unwrap();
+      await Promise.all([refetchProfile?.(), refetchIsFollowing?.()]);
+    } catch (err) {
+      console.error("Follow failed", err);
+      alert("Не вдалося підписатися. Спробуйте пізніше.");
+    } finally {
+      setIsActionPending(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!isAuthenticated) {
+      navigate(`/${currentLang}/login`);
+      return;
+    }
+    if (!userId) return;
+    try {
+      setIsActionPending(true);
+      await unfollowUser({ followingId: userId }).unwrap();
+      await Promise.all([refetchProfile?.(), refetchIsFollowing?.()]);
+    } catch (err) {
+      console.error("Unfollow failed", err);
+      alert("Не вдалося відписатися. Спробуйте пізніше.");
+    } finally {
+      setIsActionPending(false);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
       setBio(profile.bio || "");
       setProfileImage(
         profile.profilePictureUrl ||
-          `https://ui-avatars.com/api/?name=${profile.username}&background=random`
+        `https://ui-avatars.com/api/?name=${profile.username}&background=random`
       );
     }
   }, [profile]);
@@ -40,33 +143,44 @@ export default function Profile() {
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(
     profile?.profilePictureUrl ||
-      `https://ui-avatars.com/api/?name=${profile?.username}&background=random`
+    `https://ui-avatars.com/api/?name=${profile?.username}&background=random`
   );
   const [bio, setBio] = useState(profile?.bio || "");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: bidsAndWins } = useGetBidsAndWinsQuery(undefined, {
-    skip: !isAuthenticated,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
-  });
-
-  const { data: biddedCarsData, isLoading: isBiddedCarsLoading, error: biddedCarsError } = useGetBiddedCarsQuery(
-    { pageNumber: biddedCarsPage, pageSize: 8 },
-    { skip: !isAuthenticated }
+  const { data: bidsAndWins } = useGetBidsAndWinsQuery(
+    userId ? { userId } : (undefined as any),
+    {
+      skip: !userId,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    }
   );
 
-  const { data: commentsCount } = useGetCommentsCountQuery(undefined, {
-    skip: !isAuthenticated,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
-  });
+  const { data: biddedCarsData, isLoading: isBiddedCarsLoading, error: biddedCarsError } =
+    useGetBiddedCarsQuery(
+      userId ? { userId, pageNumber: biddedCarsPage, pageSize: 8 } : (undefined as any),
+      { skip: !userId }
+    );
 
-  const { data: auctionCommentsData, isLoading: isCommentsLoading, error: commentsError } = useGetUserCommentsQuery(
-    { pageNumber: auctionCommentsPage, pageSize: 2 },
-    { skip: !isAuthenticated }
+  const { data: commentsCount } = useGetCommentsCountQuery(
+    userId ? { userId } : (undefined as any),
+    { skip: !userId, refetchOnFocus: true, refetchOnReconnect: true }
   );
+
+  const { data: auctionCommentsData, isLoading: isCommentsLoading, error: commentsError } =
+    useGetUserCommentsQuery(
+      userId ? { userId, pageNumber: auctionCommentsPage, pageSize: 2 } : (undefined as any),
+      { skip: !userId }
+    );
+
+  useEffect(() => {
+    setAllBiddedCars([]);
+    setAllAuctionComments([]);
+    setBiddedCarsPage(1);
+    setAuctionCommentsPage(1);
+  }, [userId]);
 
   useEffect(() => {
     if (biddedCarsData?.items) {
@@ -102,7 +216,9 @@ export default function Profile() {
   };
 
   const handleProfileImageClick = () => {
-    fileInputRef.current?.click();
+    if (isOwnProfile) {
+      fileInputRef.current?.click();
+    }
   };
 
   const handleSaveCroppedImage = async (data: {
@@ -136,22 +252,24 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-steria-dark text-white">
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        className="hidden"
-      />
+      {isOwnProfile && (
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+      )}
       <div className="max-w-[1440px] mx-auto py-8">
-        <div className="flex flex-col lg:flex-row">
-          <Sidebar />
+        <div className={`flex flex-col lg:flex-row ${isOwnProfile ? "" : "justify-center"}`}>
+          {isOwnProfile && <Sidebar />}
           <div className="flex-1 max-w-[1072px]">
             <div className="bg-steria-dark-card rounded-xl p-3">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col min-[900px]:flex-row items-center min-[900px]:justify-center min-[1280px]:items-stretch gap-6 w-full">
                   <div
-                    className="relative w-[200px] h-[200px] rounded-[85px] overflow-hidden group cursor-pointer mx-auto"
+                    className={`relative w-[200px] h-[200px] rounded-[85px] overflow-hidden ${isOwnProfile ? "group cursor-pointer" : ""}`}
                     onClick={handleProfileImageClick}
                   >
                     <img
@@ -159,31 +277,35 @@ export default function Profile() {
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute group-hover:bg-black/50 inset-0 bg-opacity-0 group-hover:bg-opacity-40 transition-all z-10"></div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                      <svg
-                        width="72"
-                        height="72"
-                        viewBox="0 0 72 72"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M43.5 12H28.5L21 21H12C10.4087 21 8.88258 21.6321 7.75736 22.7574C6.63214 23.8826 6 25.4087 6 27V54C6 55.5913 6.63214 57.1174 7.75736 58.2426C8.88258 59.3679 10.4087 60 12 60H60C61.5913 60 63.1174 59.3679 64.2426 58.2426C65.3679 57.1174 66 55.5913 66 54V27C66 25.4087 65.3679 23.8826 64.2426 22.7574C63.1174 21.6321 61.5913 21 60 21H51L43.5 12Z"
-                          stroke="white"
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M36 48C40.9706 48 45 43.9706 45 39C45 34.0294 40.9706 30 36 30C31.0294 30 27 34.0294 27 39C27 43.9706 31.0294 48 36 48Z"
-                          stroke="white"
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
+                    {isOwnProfile && (
+                      <>
+                        <div className="absolute group-hover:bg-black/50 inset-0 bg-opacity-0 group-hover:bg-opacity-40 transition-all z-10"></div>
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                          <svg
+                            width="72"
+                            height="72"
+                            viewBox="0 0 72 72"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M43.5 12H28.5L21 21H12C10.4087 21 8.88258 21.6321 7.75736 22.7574C6.63214 23.8826 6 25.4087 6 27V54C6 55.5913 6.63214 57.1174 7.75736 58.2426C8.88258 59.3679 10.4087 60 12 60H60C61.5913 60 63.1174 59.3679 64.2426 58.2426C65.3679 57.1174 66 55.5913 66 54V27C66 25.4087 65.3679 23.8826 64.2426 22.7574C63.1174 21.6321 61.5913 21 60 21H51L43.5 12Z"
+                              stroke="white"
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M36 48C40.9706 48 45 43.9706 45 39C45 34.0294 40.9706 30 36 30C31.0294 30 27 34.0294 27 39C27 43.9706 31.0294 48 36 48Z"
+                              stroke="white"
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col gap-4 w-full items-center min-[900px]:items-start">
                     <h1 className="text-2xl font-bold text-black dark:text-white text-center min-[900px]:text-left">
@@ -215,9 +337,9 @@ export default function Profile() {
                         Joined{" "}
                         {profile?.createdAt
                           ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                            })
+                            year: "numeric",
+                            month: "long",
+                          })
                           : null}
                       </span>
                     </div>
@@ -256,36 +378,62 @@ export default function Profile() {
                       </svg>
                     </div>
                     <div className="flex-grow"></div>
-                    <div className="flex flex-col justify-end">
-                      <button
-                        onClick={() => setShowEditModal(true)}
-                        className="flex items-center justify-end gap-2 py-2 text-black dark:text-white bg-transparent hover:text-gray-200 transition-colors mb-2"
-                      >
-                        <svg
-                          width="19"
-                          height="19"
-                          viewBox="0 0 19 19"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+                    {isOwnProfile ? (
+                      <div className="flex flex-col justify-end">
+                        <button
+                          onClick={() => setShowEditModal(true)}
+                          className="flex items-center justify-end gap-2 py-2 text-black dark:text-white bg-transparent hover:text-gray-200 transition-colors mb-2"
                         >
-                          <path
-                            className="stroke-black dark:stroke-white"
-                            d="M9 2.5H3.16667C2.72464 2.5 2.30072 2.67559 1.98816 2.98816C1.67559 3.30072 1.5 3.72464 1.5 4.16667V15.8333C1.5 16.2754 1.67559 16.6993 1.98816 17.0118C2.30072 17.3244 2.72464 17.5 3.16667 17.5H14.8333C15.2754 17.5 15.6993 17.3244 16.0118 17.0118C16.3244 16.6993 16.5 15.8333V10"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M14.3125 2.18751C14.644 1.85599 15.0937 1.66974 15.5625 1.66974C16.0313 1.66974 16.481 1.85599 16.8125 2.18751C17.144 2.51903 17.3303 2.96866 17.3303 3.43751C17.3303 3.90635 17.144 4.35599 16.8125 4.68751L9.30166 12.1992C9.10379 12.3969 8.85933 12.5416 8.59083 12.62L6.19666 13.32C6.12496 13.3409 6.04895 13.3422 5.97659 13.3236C5.90423 13.3051 5.83819 13.2675 5.78537 13.2146C5.73255 13.1618 5.6949 13.0958 5.67637 13.0234C5.65783 12.9511 5.65908 12.875 5.68 12.8033L6.38 10.4092C6.45877 10.1409 6.60378 9.89672 6.80166 9.69917L14.3125 2.18751Z"
-                            className="stroke-black dark:stroke-white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        Edit bio
-                      </button>
-                    </div>
+                          <svg
+                            width="19"
+                            height="19"
+                            viewBox="0 0 19 19"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              className="stroke-black dark:stroke-white"
+                              d="M9 2.5H3.16667C2.72464 2.5 2.30072 2.67559 1.98816 2.98816C1.67559 3.30072 1.5 3.72464 1.5 4.16667V15.8333C1.5 16.2754 1.67559 16.6993 1.98816 17.0118C2.30072 17.3244 2.72464 17.5 3.16667 17.5H14.8333C15.2754 17.5 15.6993 17.3244 16.0118 17.0118C16.3244 16.6993 16.5 15.8333V10"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M14.3125 2.18751C14.644 1.85599 15.0937 1.66974 15.5625 1.66974C16.0313 1.66974 16.481 1.85599 16.8125 2.18751C17.144 2.51903 17.3303 2.96866 17.3303 3.43751C17.3303 3.90635 17.144 4.35599 16.8125 4.68751L9.30166 12.1992C9.10379 12.3969 8.85933 12.5416 8.59083 12.62L6.19666 13.32C6.12496 13.3409 6.04895 13.3422 5.97659 13.3236C5.90423 13.3051 5.83819 13.2675 5.78537 13.2146C5.73255 13.1618 5.6949 13.0958 5.67637 13.0234C5.65783 12.9511 5.65908 12.875 5.68 12.8033L6.38 10.4092C6.45877 10.1409 6.60378 9.89672 6.80166 9.69917L14.3125 2.18751Z"
+                              className="stroke-black dark:stroke-white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Edit bio
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col justify-end">
+                        {isCheckingFollowing ? (
+                          <button className="py-2 px-4 rounded-md bg-gray-600 text-white" disabled>
+                            Loading...
+                          </button>
+                        ) : isFollowing ? (
+                          <button
+                            onClick={handleUnfollow}
+                            disabled={isActionPending || isUnfollowLoading}
+                            className="py-2 px-4 rounded-md border border-white bg-transparent text-white hover:bg-white/10 transition"
+                          >
+                            Unfollow
+                          </button>
+                        ) : (
+                          <button
+                            onClick={handleFollow}
+                            disabled={isActionPending || isFollowLoading}
+                            className="py-2 px-4 rounded-md bg-red-600 text-white hover:bg-red-700 transition"
+                          >
+                            Follow
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex xl:hidden w-full flex-row justify-center gap-4">
@@ -304,34 +452,58 @@ export default function Profile() {
                       />
                     </svg>
                   </button>
-                  <button
-                    onClick={() => setShowEditModal(true)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2 text-black dark:text-white bg-transparent hover:text-gray-200 transition-colors"
-                  >
-                    <svg
-                      width="19"
-                      height="19"
-                      viewBox="0 0 19 19"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                  {isOwnProfile ? (
+                    <button
+                      onClick={() => setShowEditModal(true)}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 text-black dark:text-white bg-transparent hover:text-gray-200 transition-colors"
                     >
-                      <path
-                        d="M9 2.5H3.16667C2.72464 2.5 2.30072 2.67559 1.98816 2.98816C1.67559 3.30072 1.5 3.72464 1.5 4.16667V15.8333C1.5 16.2754 1.67559 16.6993 1.98816 17.0118C2.30072 17.3244 2.72464 17.5 3.16667 17.5H14.8333C15.2754 17.5 15.6993 17.3244 16.0118 17.0118C16.3244 16.6993 16.5 15.8333V10"
-                        className="stroke-black dark:stroke-white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M14.3125 2.18751C14.644 1.85599 15.0937 1.66974 15.5625 1.66974C16.0313 1.66974 16.481 1.85599 16.8125 2.18751C17.144 2.51903 17.3303 2.96866 17.3303 3.43751C17.3303 3.90635 17.144 4.35599 16.8125 4.68751L9.30166 12.1992C9.10379 12.3969 8.85933 12.5416 8.59083 12.62L6.19666 13.32C6.12496 13.3409 6.04895 13.3422 5.97659 13.3236C5.90423 13.3051 5.83819 13.2675 5.78537 13.2146C5.73255 13.1618 5.6949 13.0958 5.67637 13.0234C5.65783 12.9511 5.65908 12.875 5.68 12.8033L6.38 10.4092C6.45877 10.1409 6.60378 9.89672 6.80166 9.69917L14.3125 2.18751Z"
-                        className="stroke-black dark:stroke-white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Edit bio
-                  </button>
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 19 19"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M9 2.5H3.16667C2.72464 2.5 2.30072 2.67559 1.98816 2.98816C1.67559 3.30072 1.5 3.72464 1.5 4.16667V15.8333C1.5 16.2754 1.67559 16.6993 1.98816 17.0118C2.30072 17.3244 2.72464 17.5 3.16667 17.5H14.8333C15.2754 17.5 15.6993 17.3244 16.0118 17.0118C16.3244 16.6993 16.5 15.8333V10"
+                          className="stroke-black dark:stroke-white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M14.3125 2.18751C14.644 1.85599 15.0937 1.66974 15.5625 1.66974C16.0313 1.66974 16.481 1.85599 16.8125 2.18751C17.144 2.51903 17.3303 2.96866 17.3303 3.43751C17.3303 3.90635 17.144 4.35599 16.8125 4.68751L9.30166 12.1992C9.10379 12.3969 8.85933 12.5416 8.59083 12.62L6.19666 13.32C6.12496 13.3409 6.04895 13.3422 5.97659 13.3236C5.90423 13.3051 5.83819 13.2675 5.78537 13.2146C5.73255 13.1618 5.6949 13.0958 5.67637 13.0234C5.65783 12.9511 5.65908 12.875 5.68 12.8033L6.38 10.4092C6.45877 10.1409 6.60378 9.89672 6.80166 9.69917L14.3125 2.18751Z"
+                          className="stroke-black dark:stroke-white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      Edit bio
+                    </button>
+                  ) : (
+                    <div className="flex-1">
+                      {isCheckingFollowing ? (
+                        <button className="w-full py-2 rounded-md bg-gray-600 text-white" disabled>Loading...</button>
+                      ) : isFollowing ? (
+                        <button
+                          onClick={handleUnfollow}
+                          disabled={isActionPending || isUnfollowLoading}
+                          className="w-full py-2 rounded-md border border-white bg-transparent text-white hover:bg-white/10 transition"
+                        >
+                          Unfollow
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleFollow}
+                          disabled={isActionPending || isFollowLoading}
+                          className="w-full py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition"
+                        >
+                          Follow
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -355,6 +527,7 @@ export default function Profile() {
                     <div
                       key={car.carId}
                       className="bg-steria-dark-card rounded-xl overflow-hidden hover:bg-opacity-80 transition-all duration-200 shadow-lg border-1 border-gray-200 dark:shadow-none"
+                      onClick={() => navigate(`/${currentLang}/auction/${car.carId}`)}
                     >
                       <div className="relative">
                         <img
@@ -429,6 +602,7 @@ export default function Profile() {
                     <div
                       key={comment.id}
                       className="flex flex-col rounded-xl lg:flex-row gap-4 w-full max-w-[518px] overflow-hidden shadow-lg dark:shadow-none border-1 border-gray-200"
+                      onClick={() => navigate(`/${currentLang}/auction/${comment.auctionId}`)}
                     >
                       <div className="w-full h-48 lg:w-[239px] flex-shrink-0 relative">
                         <img
@@ -476,38 +650,42 @@ export default function Profile() {
             </div>
           </div>
         </div>
-        <EditBioModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          initialValue={bio}
-          onSave={async (newBio) => {
-            setBio(newBio);
-            try {
-              await updateProfile({
-                id: profile!.id,
-                username: profile!.username!,
-                email: profile!.email!,
-                bio: newBio,
-                profilePicture: undefined,
-              }).unwrap();
-            } catch (error) {
-              console.error("Failed to update bio:", error);
-              alert("Failed to update bio.");
-            }
-          }}
-        />
-        <CropPhotoModal
-          isOpen={isCropModalOpen}
-          onClose={() => {
-            if (selectedImage) {
-              URL.revokeObjectURL(selectedImage);
-              setSelectedImage(null);
-            }
-            setIsCropModalOpen(false);
-          }}
-          initialImage={selectedImage || profileImage}
-          onSave={handleSaveCroppedImage}
-        />
+        {isOwnProfile && (
+          <>
+            <EditBioModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              initialValue={bio}
+              onSave={async (newBio) => {
+                setBio(newBio);
+                try {
+                  await updateProfile({
+                    id: profile!.id,
+                    username: profile!.username!,
+                    email: profile!.email!,
+                    bio: newBio,
+                    profilePicture: undefined,
+                  }).unwrap();
+                } catch (error) {
+                  console.error("Failed to update bio:", error);
+                  alert("Failed to update bio.");
+                }
+              }}
+            />
+            <CropPhotoModal
+              isOpen={isCropModalOpen}
+              onClose={() => {
+                if (selectedImage) {
+                  URL.revokeObjectURL(selectedImage);
+                  setSelectedImage(null);
+                }
+                setIsCropModalOpen(false);
+              }}
+              initialImage={selectedImage || profileImage}
+              onSave={handleSaveCroppedImage}
+            />
+          </>
+        )}
       </div>
     </div>
   );

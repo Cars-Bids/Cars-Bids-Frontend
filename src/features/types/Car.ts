@@ -105,6 +105,7 @@ export interface ProfileInReviewCarDto {
   make: string;
   otherImage: string;
   auction: AuctionDto | null;
+  chatId?: number | null;
 }
 
 
@@ -153,4 +154,29 @@ export interface ManagingAuctionPageDto {
     isInspected: boolean;
     startPrice?: number;
     sellerUsername: string;
+    uploadedAt: string;
+}
+
+export interface CarManagerDto {
+  id: number;
+  year: number;
+  vin?: string;
+  exteriorColor?: string;
+  interiorColor?: string;
+  mileage: number;
+  location?: string;
+  isOnSaleElsewhere: boolean;
+  isModified: boolean;
+  drivetrain: number;
+  engine?: string;
+  transmissionType: number;
+  speeds: number;
+  status: number;
+  createdAt: string;
+  managerId?: number;
+  owner: string;
+  bodyStyle: string;
+  model: string;
+  make: string;
+  images?: CarImageDto[];
 }
