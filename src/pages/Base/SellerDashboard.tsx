@@ -253,11 +253,11 @@ export default function SellerDashboard() {
                 : "Manual";
 
         const status =
-            auction.status === AuctionStatus.Sold
+            auction.status.toString() === "sold"
                 ? { tags: ["Sold"], tagColors: ["bg-green-500 text-white"] }
                 : auction.status.toString() === "notSold"
                     ? { tags: ["Not Sold"], tagColors: ["bg-red-500 text-white"] }
-                    : auction.status === AuctionStatus.Cancelled
+                    : auction.status.toString() === "cancelled"
                         ? { tags: ["Cancelled"], tagColors: ["bg-yellow-500 text-black"] }
                         : { tags: ["Active"], tagColors: ["bg-blue-500 text-white"] };
 
