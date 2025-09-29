@@ -44,11 +44,13 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
 
     approveAuctionByManager: builder.mutation<void, number>({
       query: (auctionId) => {
-        return{
+        return {
           url: `Auctions/approve-auction/${auctionId}`,
           method: "POST",
         }
       },
+    }),
+
     updateAuctionStatus: builder.mutation<void, UpdateAuctionStatusRequest>({
       query: (data) => {
         return {

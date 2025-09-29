@@ -1,6 +1,6 @@
 ﻿import {Button} from "@/components/ui/button.tsx";
 import {ErrorMessage, Field, Form, Formik} from "formik";
-import {sellCarSchema, validationUpdateCarCommandSchema} from "@/components/Main/Modal/Validation";
+import {validationUpdateCarCommandSchema} from "@/components/Main/Modal/Validation";
 import {Label} from "@/components/ui/label.tsx";
 import {useState} from "react";
 import {SimpleInput} from "@/components/ui/simpleInput.tsx";

@@ -149,14 +149,14 @@ export const ChatSignalRProvider = ({ chatId, children }: Props) => {
                         const messageIndex = draft.messages.findIndex(msg => msg.id === MessageId);
                         if (messageIndex !== -1) {
                             // Add reader to message if read status tracking exists
-                            if (!draft.messages[messageIndex].readBy) {
-                                draft.messages[messageIndex].readBy = [];
+                            if (!draft.messages[messageIndex].seenBy) {
+                                draft.messages[messageIndex].seenBy = [];
                             }
-                            const alreadyRead = draft.messages[messageIndex].readBy?.some(reader => reader.userId === ReaderId);
+                            const alreadyRead = draft.messages[messageIndex].seenBy?.some(reader => reader.userId === ReaderId);
                             if (!alreadyRead) {
-                                draft.messages[messageIndex].readBy?.push({
+                                draft.messages[messageIndex].seenBy?.push({
                                     userId: ReaderId,
-                                    readAt: new Date().toISOString()
+                                    seenAt: new Date()
                                 });
                             }
                         }
