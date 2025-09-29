@@ -12,11 +12,14 @@ export interface AuctionData {
     carId: number;
     seller?: string;
     status: string;
+    sellerId: number;
     sellerPhoto?: string;
     currentPrice: number;
     currentBidder?: string;
+    currentBidderId?: number;
     currentBidderPhoto?: string;
-    endTime: Date;
+    startTime?: Date;
+    endTime?: Date;
     bidsCount: number;
     viewsCount: number;
     watchersCount: number;
@@ -29,8 +32,8 @@ export interface OtherAuction {
     id: number;
     mainPhoto?: string;
     currentPrice: number;
-    startTime: Date;
-    endTime: Date;
+    startTime?: Date;
+    endTime?: Date;
     isWatched: boolean;
     isInspected: boolean;
     location?: string;
@@ -58,6 +61,7 @@ export interface CarData {
     sellerType?: string;
     title: string;
     subtitle: string;
+    about?: string;
 
     videoLinks: string[];
     highlights: string[];
@@ -80,6 +84,7 @@ export interface QAData {
     id: number;
     question: string;
     answer?: string;
+    authorId: number;
     author?: string;
     authorPhoto?: string;
 }
@@ -89,8 +94,11 @@ export interface CommentData {
     createdAt: Date;
     text: string;
     replyTo?: string;
+    authorId: number;
     author?: string;
     authorPhoto?: string;
+    bid: number;
+    upvotes: number;
 }
 
 export interface AddCommentRequest {
@@ -113,4 +121,12 @@ export interface AddAnswerRequest {
     auctionId: number;
     questionId: number;
     answerText: string;
+}
+
+export interface AddToWishListRequest {
+    auctionId: number;
+}
+
+export interface RemoveFromWishListRequest {
+    auctionId: number;
 }

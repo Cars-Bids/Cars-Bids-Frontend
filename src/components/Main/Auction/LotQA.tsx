@@ -5,6 +5,9 @@ import { useAddAuctionAnswerMutation, useAddAuctionQuestionMutation } from "@/fe
 import {Dialog, DialogClose, DialogContent, DialogTitle} from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {message} from "antd";
+import {Link} from "react-router-dom";
+import {useSelector} from "react-redux";
+import type {RootState} from "@/app/store.ts";
 
 const MAX_LENGTH = 180;
 
@@ -21,14 +24,12 @@ function Accordion({ title, children, actionLink, defaultOpen = false }: { title
 }
 
 export default function LotQAAccordions({ qa, auction }: { qa: QAData[], auction: AuctionData }) {
-    const mid = Math.ceil(qa.length / 2);
-    const left = qa.slice(0, mid);
-    const right = qa.slice(mid);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [inputText, setInputText] = useState("");
     const [questionId, setQuestionId] = useState<number | null>(null);
     const [addQuestion] = useAddAuctionQuestionMutation();
     const [addAnswer] = useAddAuctionAnswerMutation();
+    const currentLang = useSelector((state: RootState) => state.lang.current);
 
     const renderColumn = (column: QAData[]) =>
         column.map((q) => (
@@ -37,13 +38,15 @@ export default function LotQAAccordions({ qa, auction }: { qa: QAData[], auction
                     {q.authorPhoto
                         ? <img src={q.authorPhoto} alt={q.author} className="h-6 inline rounded-full" />
                         : <User className="h-6 w-4 inline" />}
-                    <b> {q.author}</b>
+                    <Link to={`/${currentLang.toLowerCase()}/profile/${q.authorId}`} className="inline px-2">
+                        <b>{q.author}</b>
+                    </Link>
                 </div>
                 <div className="mb-2"><b>Q: </b>{q.question}</div>
 
                 <div className="flex items-start gap-2 p-2 text-sm text-black dark:text-gray-200">
                     <Forward className="mt-0.5 text-black dark:text-gray-200" />
-                    <span><b>A: </b>{q.answer || (auction.isSeller ? answerLink(q.id) : "no answer yet")}</span>
+                    <span><b>A: </b>{q.answer || (auction.isSeller ? answerLink(q.id) : <span className="opacity-50">no answer yet</span>)}</span>
                 </div>
             </div>
         ));
@@ -115,8 +118,7 @@ export default function LotQAAccordions({ qa, auction }: { qa: QAData[], auction
         <>
         <Accordion title="Seller Q&A" defaultOpen={true} actionLink={auction.isSeller ? null : questionLink}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>{renderColumn(left)}</div>
-                <div>{renderColumn(right)}</div>
+                {renderColumn(qa)}
             </div>
         </Accordion>
 

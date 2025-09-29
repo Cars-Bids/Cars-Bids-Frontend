@@ -11,7 +11,7 @@ export default function LotOtherAuctions({ items }: { items: OtherAuction[]; }) 
 
     return (
         <section className="sticky top-20">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-400">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-900 dark:text-zinc-100">
                 Other auctions
             </h3>
             <ul className="space-y-3">
@@ -31,11 +31,21 @@ function AuctionItem({ item, getTimeRemaining }: {
         seconds: number;
     };
 }) {
-    const [timeLeft, setTimeLeft] = useState(getTimeRemaining(item.endTime));
+    const [timeLeft, setTimeLeft] = useState({hours: 0, minutes: 0, seconds: 0});
 
     useEffect(() => {
+        let time: Date;
+        if (item.startTime && new Date(item.startTime) > new Date()) {
+            time = item.startTime;
+        }
+        else if (item.endTime && new Date(item.endTime) > new Date()) {
+            time = item.endTime;
+        }
+        else {
+            return;
+        }
         const timer = setInterval(() => {
-            setTimeLeft(getTimeRemaining(item.endTime));
+            setTimeLeft(getTimeRemaining(time));
         }, 1000);
         return () => clearInterval(timer);
     }, [item.endTime]);
@@ -45,7 +55,7 @@ function AuctionItem({ item, getTimeRemaining }: {
 
     return (
         <Link to={`/${currentLang.toLowerCase()}/auction/${item.id}`} className="block group">
-        <li className="flex gap-1 border border-zinc-700 rounded-md aspect-[8/3] text-zinc-100">
+        <li className="flex gap-1 border border-zinc-700 rounded-md aspect-[8/3] text-zinc-900 dark:text-zinc-100">
             <div className="min-w-0 flex-1 relative">
                 <img src={item.mainPhoto} alt={item.title} className="h-full w-full object-cover" />
                 <Star className={`h-4 w-4 absolute top-2 left-2 ${item.isWatched ? "fill-yellow-400 stroke-yellow-400" : ""}`} />

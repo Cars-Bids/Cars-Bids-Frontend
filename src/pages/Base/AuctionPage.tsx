@@ -7,25 +7,18 @@ import LotComments from "@/components/Main/Auction/LotComments.tsx";
 import LotBidPanel from "@/components/Main/Auction/LotBidPanel.tsx";
 import LotOtherAuctions from "@/components/Main/Auction/LotOtherAuctions.tsx";
 import {useParams} from "react-router-dom";
-import {useState} from "react";
 import {useGetAuctionDetailedByIdQuery} from "@/features/api/endpoints/Auction.ts";
 import {AuctionSignalRProvider} from "@/features/signalr/AuctionSignalRProvider.tsx";
 
 export default function AuctionPage() {
   const { id } = useParams<{ id: string }>();
   const {data} = useGetAuctionDetailedByIdQuery(Number(id));
-  const [watched, setWatched] = useState(data?.auction.isWatched ?? false);
   console.log("data", data);
-
-  const onToggleWatch = () => {
-    setWatched(prev => !prev);
-    //todo - save to db
-  };
 
   return (data &&
     <AuctionSignalRProvider auctionId={Number(id)}>
     <div className="min-h-dvh">
-      <LotHeader title={data.car.title} subtitle={data.car.subtitle} isWatched={watched} onToggleWatch={onToggleWatch} />
+      <LotHeader title={data.car.title} subtitle={data.car.subtitle} isWatched={data.auction.isWatched} auctionId={data.auction.id} />
       <main className="mx-auto max-w-7xl gap-3 px-4 py-5 lg:grid lg:grid-cols-12">
         <div className="lg:col-span-7 xl:col-span-8">
 
@@ -44,12 +37,12 @@ export default function AuctionPage() {
           </div>
 
           <div className="mt-8">
-            <LotComments comments={data.comments} auctionId={data.auction.id} />
+            <LotComments comments={data.comments} auctionId={data.auction.id} sellerId={data.auction.sellerId} />
           </div>
         </div>
 
         <div className="mt-6 lg:col-span-5 lg:mt-0 xl:col-span-4">
-          <LotBidPanel auction={data.auction} title={data.car.title} about={data.car.subtitle}
+          <LotBidPanel auction={data.auction} title={data.car.title} about={data.car.about ?? data.car.subtitle}
                        mainPhoto={data.images ? data.images[0].imageUrl : ""}
           />
           <div className="mt-6 hidden lg:block">

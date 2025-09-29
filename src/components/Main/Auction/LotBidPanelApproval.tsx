@@ -2,7 +2,7 @@ import type { AuctionData } from "@/features/types/AuctionDetailed";
 import {User, Calendar} from "lucide-react";
 import { message } from "antd";
 import {useUpdateAuctionStatusMutation} from "@/features/api/endpoints/Auction.ts";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import type {RootState} from "@/app/store.ts";
 
@@ -68,12 +68,26 @@ export default function LotBidPanelApproval({ auction, title, about } :
                     {auction.sellerPhoto
                         ? <img src={auction.sellerPhoto} alt={auction.seller} className="h-6 inline rounded-full" />
                         : <User className="h-6 w-4 inline" />}
-                    {auction.seller}
+                    <Link to={`/${currentLang.toLowerCase()}/profile/${auction.sellerId}`} className="block">
+                        {auction.seller}
+                    </Link>
                 </div>
             </div>
+
             <div className="grid grid-cols-2 items-center my-2">
-                <div className="text-xs font-bold tracking-wide">Endings</div>
-                <div className="text-xs flex items-center gap-1"><Calendar className="h-6 w-4" />{new Date(auction.endTime).toLocaleString()}</div>
+                <div className="text-xs font-bold tracking-wide">Starting</div>
+                <div className="text-xs flex items-center gap-1">
+                    <Calendar className="h-6 w-4" />
+                    {auction.startTime ? new Date(auction.startTime).toLocaleString() : " - "}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 items-center my-2">
+                <div className="text-xs font-bold tracking-wide">Ending</div>
+                <div className="text-xs flex items-center gap-1">
+                    <Calendar className="h-6 w-4" />
+                    {auction.endTime ? new Date(auction.endTime).toLocaleString() : " - "}
+                </div>
             </div>
 
             <div className="text-xs font-bold tracking-wide">Start price</div>
@@ -85,12 +99,12 @@ export default function LotBidPanelApproval({ auction, title, about } :
             {auction.isSeller ?
                 (<div className="flex items-center justify-center gap-5 mt-15">
                     <button onClick={handleDecline}
-                            className="rounded-md bg-red-700 px-4 py-1 text-sm font-semibold text-white hover:bg-red-800">
+                            className="rounded-md bg-red-700 px-4 py-1 text-sm font-semibold text-white hover:bg-red-800 cursor-pointer">
                         Decline
                     </button>
 
                     <button onClick={handleApprove}
-                            className="rounded-md bg-blue-500 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-800">
+                            className="rounded-md bg-blue-500 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-800 cursor-pointer">
                         Approve
                     </button>
                 </div>)
