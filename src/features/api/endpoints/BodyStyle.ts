@@ -5,7 +5,7 @@ import type { Style } from "@/features/types/Car";
 const BodyStylesEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStyles: builder.query<Style[], void>({
-      query: () => "/BodyStyle",
+      query: () => "/BodyStyle?pageNumber=1&pageSize=200",
     }),
     getStyleById: builder.query<Style, number>({
       query: (id) => `/BodyStyle/${id}`,

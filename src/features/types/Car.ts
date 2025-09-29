@@ -115,7 +115,46 @@ export interface CarImageDto {
   imageUrl: string;
   imageCategory: string;
   orderNumber: number;
-  uploadedAt: string;
+}
+
+export interface ManagingAuctionPageDto {
+    carId: number;
+    carModelId: number;
+    carBrandId: number;
+    carMileage?: number;
+    carYear?: number;
+    carVin?: string;
+    carLocation?: string;
+    carExteriorColor?: string;
+    carInteriorColor?: string;
+    carEngine?: string;
+    carDriveTrainId?: number;
+    carTransmissionId?: number;
+    carBodyStyleId?: number;
+    carSpeeds?: number;
+    carHighlights?: string;
+    carServiceHistory?: string;
+    carEquipment?: string;
+    carFlaws?: string;
+    carModifications?: string;
+    carOtherItems?: string;
+    carOwnershipHistory?: string;
+    carSellerNotes?: string;
+    carVideoLinks?: string;
+    carAbout?: string;
+
+    carMainPhotoUrl?: string;
+    carInteriorPhotoUrls: CarImageDto[];
+    carExteriorPhotoUrls: CarImageDto[];
+    carOtherPhotoUrls: CarImageDto[];
+
+    auctionId: number;
+    startTime?: string;
+    endTime?: string;
+    isInspected: boolean;
+    startPrice?: number;
+    sellerUsername: string;
+    uploadedAt: string;
 }
 
 export interface CarManagerDto {

@@ -1,5 +1,6 @@
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
+import type {ManagingAuctionPageDto} from "@/features/types/Car.ts";
 import type {
   AddAnswerRequest,
   AddCommentRequest,
@@ -36,7 +37,18 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, data) => [{ type: "AuctionDetailed", id: data.auctionId }],
     }),
+    
+    getManagingAuction: builder.query<ManagingAuctionPageDto, number>({
+      query: (auctionId) => `Auctions/managing/${auctionId}`,
+    }),
 
+    approveAuctionByManager: builder.mutation<void, number>({
+      query: (auctionId) => {
+        return{
+          url: `Auctions/approve-auction/${auctionId}`,
+          method: "POST",
+        }
+      },
     updateAuctionStatus: builder.mutation<void, UpdateAuctionStatusRequest>({
       query: (data) => {
         return {
@@ -77,6 +89,8 @@ export const {
   useGetAuctionByIdQuery,
   useGetAuctionDetailedByIdQuery,
   useAddAuctionCommentMutation,
+  useGetManagingAuctionQuery,
+  useApproveAuctionByManagerMutation,
   useUpdateAuctionStatusMutation,
   useGetActionActiveQuery,
   useAddAuctionQuestionMutation,

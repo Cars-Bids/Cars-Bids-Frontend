@@ -40,7 +40,7 @@ export function AutoCompleteInput({
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
-        helpers.setValue(""); // поки не вибрано
+        helpers.setValue("");
         setShowDropdown(true);
     };
 

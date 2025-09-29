@@ -82,7 +82,7 @@ export const sellCarSchema = Yup.object({
       .required("Required"),
 
   modelId: Yup.number()
-      .min(0, "Incorrect brand")
+      .min(0, "Incorrect model")
       .required("Required"),
 
   transmissionId: Yup.number().required("Transmission is required"),
@@ -109,8 +109,38 @@ export const sellCarSchema = Yup.object({
       .required("Please select an option"),
 
   photos: Yup.array()
-      .min(3, "At least 3 photos required")
-      .max(4, "Maximum 4 photos allowed")
+      .min(3, "3 photos required")
+      .max(3, "3 photos only")
       .required("Photos are required")
 
+});
+
+export const validationUpdateCarCommandSchema = Yup.object({
+  brandId: Yup.number(),
+  modelId: Yup.number(),
+  mileage: Yup.string(),
+  year: Yup.string(),
+  vin: Yup.string(),
+  location: Yup.string(),
+  exteriorColor: Yup.string(),
+  interiorColor: Yup.string(),
+  engine: Yup.string(),
+  drivetrainId: Yup.number().nullable(),
+  transmissionId: Yup.number().nullable(),
+  bodyStyleId: Yup.number().nullable(),
+  speeds: Yup.string(),
+  startPrice: Yup.string(),
+  startTime: Yup.string(),
+  endTime: Yup.string(),
+  isInspected: Yup.boolean(),
+  highlights: Yup.string(),
+  serviceHistory: Yup.string(),
+  equipment: Yup.string(),
+  flaws: Yup.string(),
+  modifications: Yup.string(),
+  otherItems: Yup.string(),
+  ownershipHistory: Yup.string(),
+  sellerNotes: Yup.string(),
+  videoLinks: Yup.string(),
+  about: Yup.string(),
 });
