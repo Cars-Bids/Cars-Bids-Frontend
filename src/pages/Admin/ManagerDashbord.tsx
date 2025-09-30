@@ -9,15 +9,16 @@ import { Link } from "react-router-dom";
 
 export default function ManagerDashbord() {
   const [activeTab, setActiveTab] = useState("is-pending");
+  const lang = window.location.pathname.split("/")[1] || "en";
 
-  const { data: inPendingCarsData } = useGetInpendingCarsQuery({
+  const { data: inPendingCarsData } = useGetManagetCarsQuery({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 100,
   });
 
-  const { data: managedCarsData } = useGetManagetCarsQuery({
+  const { data: managedCarsData } = useGetInpendingCarsQuery({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 100,
   });
 
   console.log("In Pending Cars Data:", inPendingCarsData);
@@ -33,11 +34,10 @@ export default function ManagerDashbord() {
               </h1>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 mb-6">
                 <div
-                  className={`flex flex-col items-center p-4 rounded-xl bg-[#DEDEDE] dark:bg-[#212121] cursor-pointer transition-all ${
-                    activeTab === "live-auctions"
-                      ? "border-2 border-[#2F2F2F] dark:border-[#D0D0D0]"
-                      : ""
-                  }`}
+                  className={`flex flex-col items-center p-4 rounded-xl bg-[#DEDEDE] dark:bg-[#212121] cursor-pointer transition-all ${activeTab === "live-auctions"
+                    ? "border-2 border-[#2F2F2F] dark:border-[#D0D0D0]"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("live-auctions")}
                 >
                   <svg
@@ -85,11 +85,10 @@ export default function ManagerDashbord() {
                   </span>
                 </div>
                 <div
-                  className={`flex flex-col items-center p-4 rounded-xl bg-[#DEDEDE] dark:bg-[#212121] cursor-pointer transition-all ${
-                    activeTab === "is-pending"
-                      ? "border-2 border-[#2F2F2F] dark:border-[#D0D0D0]"
-                      : ""
-                  }`}
+                  className={`flex flex-col items-center p-4 rounded-xl bg-[#DEDEDE] dark:bg-[#212121] cursor-pointer transition-all ${activeTab === "is-pending"
+                    ? "border-2 border-[#2F2F2F] dark:border-[#D0D0D0]"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("is-pending")}
                 >
                   <svg
@@ -152,9 +151,12 @@ export default function ManagerDashbord() {
                                   <div className="w-5 h-5 relative">
                                     <MessageSquare />
                                   </div>
-                                  <div className="justify-start text-White text-lg font-bold font-amulya leading-tight">
+                                  <Link
+                                    to={`/${lang}/chat/${car.chatId}`}
+                                    className="justify-start text-White text-lg font-bold font-amulya leading-tight"
+                                  >
                                     Chat with seller
-                                  </div>
+                                  </Link>
                                 </div>
                               </div>
                               {/* <div className="inline-flex justify-end items-center gap-2">
@@ -167,9 +169,12 @@ export default function ManagerDashbord() {
                             </div>
                           </div>
                           <div className="inline-flex justify-start items-center gap-2">
-                            <div className="justify-start text-White text-base font-semibold font-synonym">
+                            <Link
+                              to={`/${lang}/create-auction/${car.auction.id}`}
+                              className="justify-start text-White text-base font-semibold font-synonym"
+                            >
                               Page constructor
-                            </div>
+                            </Link>
                             <div className="w-7 h-4 relative origin-top-left ">
                               <ChevronRight />
                             </div>
@@ -206,13 +211,16 @@ export default function ManagerDashbord() {
                             </div>
                           </div>
                           <div className="px-3 py-1 bg-Red rounded-md flex justify-center items-center gap-2.5">
-                            <Link to={`accept-page/${car.id}`} className="justify-start text-White text-sm font-amulya rounded-md px-4 py-2 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 border border-transparent hover:border-red-500 transition-all duration-200">
+                            <Link
+                              to={`/${lang}/accept-page/${car.id}`}
+                              className="justify-start text-White text-sm font-amulya rounded-md px-4 py-2 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-transparent hover:to-transparent hover:text-red-500 border border-transparent hover:border-red-500 transition-all duration-200"
+                            >
                               View Detail information
                             </Link>
                           </div>
                         </div>
 
-                      
+
                       </React.Fragment>
                     ))}
                   </div>
