@@ -40,7 +40,6 @@ function LangWrapper() {
         <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
-        <Route path="create-auction/:id" element={<CreateAuctionPage />} />
         <Route path="profile/:id" element={<ProfilePage />} />
         <Route path="whats-steria" element={<AboutPage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
@@ -61,6 +60,14 @@ function LangWrapper() {
           element={
             <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
               <AcceptPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="create-auction/:id"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <CreateAuctionPage />
             </ProtectedRoute>
           }
         />
