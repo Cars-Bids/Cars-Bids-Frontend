@@ -28,6 +28,9 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+// Promise lock для одного refresh
+let refreshing: Promise<AuthResponse | null> | null = null;
+
 const baseQueryWithReauth = async (
   args: string | FetchArgs,
   api: BaseQueryApi,
@@ -41,62 +44,79 @@ const baseQueryWithReauth = async (
     if (!refreshToken) {
       clearTokens();
       api.dispatch(logout());
-      api.dispatch(apiSlice.util.resetApiState()); // очищаємо кеш після logout
       return result;
     }
 
-    const refreshResult = await baseQuery(
-      {
-        url: "/Account/LoginViaRefreshToken",
-        method: "POST",
-        body: { refreshToken },
-      },
-      api,
-      extraOptions
-    );
-
-    if (refreshResult.data) {
-      const authData = refreshResult.data as AuthResponse;
-      const rememberMe = getRememberMe();
-
   
-      api.dispatch(apiSlice.util.resetApiState());
-      api.dispatch(
-        setCredentials({
-          tokens: {
-            accessToken: authData.accessToken,
-            refreshToken: authData.refreshToken,
+    if (!refreshing) {
+      refreshing = (async () => {
+        const refreshResult = await baseQuery(
+          {
+            url: "/Account/LoginViaRefreshToken",
+            method: "POST",
+            body: { refreshToken },
           },
-          rememberMe,
-        })
-      );
-      saveTokens(
-        {
-          accessToken: authData.accessToken,
-          refreshToken: authData.refreshToken,
-        },
-        rememberMe
-      );
+          api,
+          extraOptions
+        );
 
-  
+        if (refreshResult.data) {
+          const authData = refreshResult.data as AuthResponse;
+          const rememberMe = getRememberMe();
+
+          api.dispatch(
+            setCredentials({
+              tokens: {
+                accessToken: authData.accessToken,
+                refreshToken: authData.refreshToken,
+              },
+              rememberMe,
+            })
+          );
+          saveTokens(
+            { accessToken: authData.accessToken, refreshToken: authData.refreshToken },
+            rememberMe
+          );
+
+          return authData;
+        } else {
+          clearTokens();
+          api.dispatch(logout());
+          return null;
+        }
+      })().finally(() => {
+        refreshing = null;
+      });
+    }
+
+    
+    const authData = await refreshing;
+
+    if (authData) {
+   
       result = await baseQuery(args, api, extraOptions);
-    } else {
-      clearTokens();
-      api.dispatch(logout());
-      api.dispatch(apiSlice.util.resetApiState());
     }
   }
 
   return result;
 };
 
-
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
-refetchOnMountOrArgChange: 30 ,
-  tagTypes: ["SavedSearches","Wishlists",'Profile', 'EndedAuctions', 'ActiveAuctions', 'NotificationSettings', "AuctionDetailed", "ChatMessages", "ChatRequirements"],
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: 30,
+  tagTypes: [
+    "SavedSearches",
+    "Wishlists",
+    "Profile",
+    "EndedAuctions",
+    "ActiveAuctions",
+    "NotificationSettings",
+    "AuctionDetailed",
+    "ChatMessages",
+    "ChatRequirements",
+  ],
   endpoints: () => ({}),
 });

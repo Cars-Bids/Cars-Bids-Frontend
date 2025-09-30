@@ -15,6 +15,7 @@ export default defineConfig({
    server: {
     port: 8080,     
     host: true   ,
-    allowedHosts: ["aernjdz.ddns.net"] 
+    allowedHosts: ["aernjdz.ddns.net"] ,
+  
    }
 })

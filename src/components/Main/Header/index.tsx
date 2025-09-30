@@ -79,6 +79,7 @@ export default function Navbar() {
   const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
   const accessTokenFromRedux = useSelector((state: RootState) => (state as any).auth?.accessToken);
+  const role = useSelector((state: RootState) => state.auth.role);
   const accessToken = accessTokenFromRedux || localStorage.getItem("accessToken") || localStorage.getItem("token") || null;
 
   const jwtPayload = parseJwtPayload(accessToken);
@@ -92,6 +93,7 @@ export default function Navbar() {
     jwtPayload?.UserId ??
     null;
 
+  console.log("UserId from token:", jwtPayload);
   const userId = rawId ? Number(rawId) : undefined
   {
     /*Routes */
@@ -384,6 +386,13 @@ export default function Navbar() {
                     Watchlist
                   </Links>
                 </div>
+                {role === "Admin" || role === "Manager" ? (
+<div className="w-24 h-7 relative">
+                  <Links to={"/dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                    Mg Panel
+                  </Links>
+                </div>
+                ) : (<></>) }
                 <div onClick={handleLogout} className="w-16 h-7 relative">
                   <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
                     Sign out
