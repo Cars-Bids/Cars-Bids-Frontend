@@ -1,20 +1,48 @@
 import {useEffect, useState} from "react";
 import { Image as ImgIcon, Play } from "lucide-react";
 import type {CarImageData} from "@/features/types/AuctionDetailed.ts";
+import AuctionFilesManager from "@/components/Main/Modal/Auction/AuctionFilesManager.tsx";
 
-
-export default function LotGallery({ photos, title }: {
+export default function LotGallery({ photos, videos, title }: {
     photos: CarImageData[];
+    videos: string[];
     title: string;
 }) {
     // Активне фото, за замовчуванням — перше
     const [activePhoto, setActivePhoto] = useState<CarImageData>(photos[0]);
+    const [isManagerOpen, setIsManagerOpen] = useState(false);
+    const [isVideoMode, setIsVideoMode] = useState(false);
+
+    const [carImages, setCarImages] = useState<{
+        mainPhoto: CarImageData[];
+        interior: CarImageData[];
+        exterior: CarImageData[];
+        others: CarImageData[];
+    }>({
+        mainPhoto: [],
+        interior: [],
+        exterior: [],
+        others: []
+    });
+    const [carVideos, setCarVideos] = useState<string[]>([]);
 
     useEffect(() => {
         if (photos.length > 0) {
             setActivePhoto(photos[0]);
+            setCarImages({
+                mainPhoto: photos.filter(x => x.imageCategory == "Main"),
+                interior: photos.filter(x => x.imageCategory == "Interior"),
+                exterior: photos.filter(x => x.imageCategory == "Exterior"),
+                others: photos.filter(x => x.imageCategory == "Other")
+            });
         }
-    }, [photos]);
+        setCarVideos(videos);
+    }, [photos, videos]);
+
+    const handleClick = (isVideo: boolean) => {
+        setIsVideoMode(isVideo);
+        setIsManagerOpen(true);
+    };
 
     return (
         <section>
@@ -50,7 +78,8 @@ export default function LotGallery({ photos, title }: {
                 {/* Кнопка "All Photos" */}
                 {photos.length > 2 &&
                 <button
-                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
+                    onClick={() => handleClick(false)}
+                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900 cursor-pointer"
                     style={{
                         backgroundImage: `url(${photos[photos.length - 2].imageUrl})`,
                         backgroundSize: "cover",
@@ -65,7 +94,8 @@ export default function LotGallery({ photos, title }: {
                 {/* Кнопка "Videos" */}
                 {photos.length > 2 &&
                 <button
-                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
+                    onClick={() => handleClick(true)}
+                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900 cursor-pointer"
                     style={{
                         backgroundImage: `url(${photos[photos.length - 1].imageUrl})`,
                         backgroundSize: "cover",
@@ -77,6 +107,14 @@ export default function LotGallery({ photos, title }: {
                     <span className="relative z-10">Videos</span>
                 </button>}
             </div>
+
+            <AuctionFilesManager
+                isOpen={isManagerOpen}
+                onClose={() => setIsManagerOpen(false)}
+                isVideoMode={isVideoMode}
+                images={carImages}
+                videos={carVideos}
+            />
         </section>
     );
 }
