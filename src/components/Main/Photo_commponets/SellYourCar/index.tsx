@@ -1,56 +1,25 @@
 // src/components/RecentSales.tsx
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useGetAuctionsQuery } from "@/features/api/endpoints/Auction";
 
-interface Car {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  image: string;
-}
 
-const cars: Car[] = [
-  {
-    id: 1,
-    title: "1991 Nissan Skyline GT-R",
-    description:
-      "Extensively Modified for Racing, Dyno-Verified 706whp, 6-Speed Sequential Manual",
-    price: "$95,000",
-    image: "https://placehold.co/320x176/222/FFF?text=Skyline",
-  },
-  {
-    id: 2,
-    title: "2008 Cadillac Escalade EXT",
-    description: "6.2-Liter V8, AWD, Recent Service, California-Owned",
-    price: "$9,000",
-    image: "https://placehold.co/320x176/333/FFF?text=Escalade",
-  },
-  {
-    id: 3,
-    title: "2022 Porsche 911 Turbo S Coupe",
-    description:
-      "580-hp Twin-Turbo Flat-6, Bordeaux White Interior, Unmodified, and additional info.",
-    price: "$125,000",
-    image: "https://placehold.co/320x176/444/FFF?text=Porsche+911",
-  },
-  {
-    id: 4,
-    title: "2022 Rivian R1T Launch Edition",
-    description: "Quad-Motor AWD, Large Battery Pack, Off-Road Upgrade",
-    price: "$70,000",
-    image: "https://placehold.co/320x176/555/FFF?text=Rivian+R1T",
-  },
-  {
-    id: 5,
-    title: "1999 BMW Z3 M Roadster",
-    description: "23,700 Miles, 5-Speed Manual, Evergreen, Unmodified",
-    price: "$30,000",
-    image: "https://placehold.co/320x176/666/FFF?text=BMW+Z3+M",
-  },
-];
+
+
 
 export default function RecentSales() {
+  const { data: body  } = useGetAuctionsQuery({ PageNumber: 1, PageSize: 10 },  { refetchOnFocus: true,
+         refetchOnReconnect: true, });
+
+         console.log(body)  ;
+  const cars = body?.items.map((auction: any) => ({
+    id: auction.id,
+    title: `${auction.car.make} ${auction.car.model} ${auction.car.year}`,
+    description: auction.car.description,
+    price: `$${auction.currentPrice?.toLocaleString()}`,
+    image: auction.car.mainImageUrl || 'https://placehold.co/320x176/000/FFF?text=No+Image',
+  })) || [];
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -99,7 +68,7 @@ export default function RecentSales() {
             className="flex gap-4 overflow-x-auto scroll-smooth px-2 sm:px-0 snap-x snap-mandatory pb-4"
             style={{ scrollBehavior: "smooth" }}
           >
-            {cars.map((car) => (
+            {cars.map((car:any) => (
               <div
                 key={car.id}
                 className="flex flex-col gap-2 flex-shrink-0 w-[80%] sm:w-72 md:w-80 snap-center"

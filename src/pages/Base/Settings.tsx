@@ -247,7 +247,11 @@ export default function Settings() {
     });
   }, [notificationSettingsFromBackend]);
 
-const [theme, setTheme] = useState<Theme>(() => { const saved = localStorage.getItem("theme") as Theme | null; if (saved === "light" || saved === "dark") return saved; return "system"; });
+const [theme, setTheme] = useState<Theme>(() => { 
+  const saved = localStorage.getItem("theme") as Theme | null;
+   if (saved === "light" || saved === "dark") return saved;
+    return "system"; 
+  });
 
   const toggleSection = (key: SectionKey) => {
     setOpenSections((prev) => ({

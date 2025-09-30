@@ -1,6 +1,7 @@
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import type { Auction } from "@/features/types/Auction";
 import type {ManagingAuctionPageDto} from "@/features/types/Car.ts";
+import type { PagedResult } from "@/features/types/types"; // <-- Add this import
 import type {
   AddAnswerRequest,
   AddCommentRequest,
@@ -9,9 +10,10 @@ import type {
   UpdateAuctionStatusRequest
 } from "@/features/types/AuctionDetailed.ts";
 
+
 export const AuctionsEndpoints = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAuctions: builder.query<Auction[], {PageNumber?:number ,PageSize?: number}>({
+    getAuctions: builder.query<PagedResult<Auction[]>, {PageNumber?:number ,PageSize?: number}>({
       query: ({PageNumber = 1, PageSize = 50}) => `/Auctions?pageNumber=${PageNumber}&pageSize=${PageSize}`,
     }),
 
@@ -50,7 +52,11 @@ export const AuctionsEndpoints = apiSlice.injectEndpoints({
         }
       },
     }),
+    getAuctionFiltered: builder.query<PagedResult<void>, {PageNumber?:number ,PageSize?: number ,sortBy:string , ModelSearch: string, minMileage:number,maxMileage:number , bodyStyle:string ,trasmission:string}>({
 
+      query: ({PageNumber =1,PageSize=10, ModelSearch = null, minMileage = null , maxMileage = null, sortBy= "EndingSoon", bodyStyle = null, trasmission = null}) => `/Auctions/filtered?pageNumber=${PageNumber}&pageSize=${PageSize}&makeModelSearch=${ModelSearch}&transmission=${trasmission}&bodyStyle=${bodyStyle}&minMileage=${minMileage}&maxMileage=${maxMileage}&sortBy=${sortBy}&sortDescending=true`,
+    })
+    ,
     updateAuctionStatus: builder.mutation<void, UpdateAuctionStatusRequest>({
       query: (data) => {
         return {
@@ -120,5 +126,6 @@ export const {
   useAddAuctionQuestionMutation,
   useAddAuctionAnswerMutation,
   useAddToWishListMutation,
-  useRemoveFromWishListMutation
+  useRemoveFromWishListMutation,
+  useGetAuctionFilteredQuery,
 } = AuctionsEndpoints;
