@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store"; // Adjust the path if your store file is elsewhere
 import Sidebar from "@/components/Main/SidebarProfile";
 import {
   useGetUserNotificationSettingsQuery,
@@ -7,7 +9,10 @@ import {
 import type { UpdateUserNotificationSettingDto } from "@/features/types/Profile";
 import { ChangePasswordModal, EditBioModal } from "@/components/Main/Modal";
 import { useGetProfileQuery, useUpdateProfileMutation } from "@/features/api/endpoints/Profile";
+import { skipToken } from "@reduxjs/toolkit/query";
 
+
+type Theme = "light" | "dark" | "system";
 interface OpenSections {
   mentionedInComments: boolean;
   repliedToInComments: boolean;
@@ -62,12 +67,57 @@ interface ToggleProps {
   checked: boolean;
   onChange: () => void;
 }
-
+function parseJwtPayload(token: string | null | undefined) {
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    // base64url -> base64
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Failed parsing token payload", e);
+    return null;
+  }
+}
 export default function Settings() {
 
   const [isUsernameModalOpen, setUsernameModalOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-  const { data: profile } = useGetProfileQuery();
+      const accessTokenFromRedux = useSelector((state: RootState) => (state as any).auth?.accessToken);
+ const accessToken = accessTokenFromRedux || localStorage.getItem("accessToken") || localStorage.getItem("token") || null;
+
+  const jwtPayload = parseJwtPayload(accessToken);
+
+  const rawId =
+    jwtPayload?.nameid ??
+    jwtPayload?.nameidentifier ??
+    jwtPayload?.sub ??
+    jwtPayload?.id ??
+    jwtPayload?.userId ??
+    jwtPayload?.UserId ??
+    null;
+
+  console.log("UserId from token:", jwtPayload);
+  const userId = rawId ? Number(rawId) : undefined
+  {
+    /*Routes */
+  }
+ 
+  {
+    /*RTK Queue */
+  }
+  const { data: profile } = useGetProfileQuery(
+    userId ? { userId } : skipToken,
+    { refetchOnFocus: true, refetchOnReconnect: true }
+  );
   const [updateProfile] = useUpdateProfileMutation();
 
   const [username, setUsername] = useState("Username");
@@ -197,7 +247,7 @@ export default function Settings() {
     });
   }, [notificationSettingsFromBackend]);
 
-
+const [theme, setTheme] = useState<Theme>(() => { const saved = localStorage.getItem("theme") as Theme | null; if (saved === "light" || saved === "dark") return saved; return "system"; });
 
   const toggleSection = (key: SectionKey) => {
     setOpenSections((prev) => ({
@@ -205,6 +255,32 @@ export default function Settings() {
       [key]: !prev[key],
     }));
   };
+
+  // слухаємо системну тему 
+  useEffect(() => {
+     if (theme !== "system") return; 
+     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)"); 
+     const handler = (e: MediaQueryListEvent) => { 
+      document.documentElement.classList.toggle("dark", e.matches);
+     }; 
+     handler(mediaQuery as any); // ініціалізація
+   
+  
+  mediaQuery.addEventListener("change", handler);
+   return () => mediaQuery.removeEventListener("change", handler); 
+  }, [theme]); 
+  // застосування теми 
+  useEffect(() => {
+     const root = document.documentElement; 
+     if (theme === "dark") { 
+      root.classList.add("dark"); 
+    } else if (theme === "light") { 
+      root.classList.remove("dark"); 
+    } else { 
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches; 
+      root.classList.toggle("dark", isDark); 
+    } localStorage.setItem("theme", theme); 
+  }, [theme]);
 
   const toggleNotification = async (section: NotifSection | "dailyEmail" | "weeklyEmail" | "playSound", type?: "email" | "inSite") => {
     const newSettings = {
@@ -370,17 +446,17 @@ export default function Settings() {
                     <div className="justify-start text-[#2F2F2F] dark:text-[#d0d0d0] text-base font-normal">Light</div>
                   </div>
 
-                  <div className="border-black dark:border-white border-1 rounded">
+                  <div className={`  flex items-center gap-3 cursor-pointer ${ theme === "light" ? "ring-2 ring-red-500 rounded-md" : "" }`} onClick={() => setTheme("light")}>
                     <svg width="66" height="56" viewBox="0 0 66 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="66" height="56" rx="4" fill="#2C2C2C" />
+
                       <rect width="66" height="56" rx="4" fill="white" />
                       <rect x="12" y="8" width="17" height="16" rx="2" fill="#626262" />
                       <rect x="12" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
-                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#626262" />
+                    
                       <rect x="37" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
-                      <rect x="12" y="32" width="17" height="16" rx="2" fill="#626262" />
+        
                       <rect x="12" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
-                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#626262" />
+                
                       <rect x="37" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
                     </svg>
                   </div>
@@ -389,18 +465,16 @@ export default function Settings() {
                   <div className="px-0.5 flex justify-start items-center gap-2.5">
                     <div className="justify-start text-[#2F2F2F] dark:text-[#d0d0d0] text-base font-normal">Dark</div>
                   </div>
-                  <div className="border-white dark:border-black border-1 rounded">
+                  <div className={` flex items-center gap-3 cursor-pointer ${ theme === "dark" ? "ring-2 ring-red-500 rounded-md" : "" }`} onClick={() => setTheme("dark")}>
                     <svg width="66" height="56" viewBox="0 0 66 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="66" height="56" rx="4" fill="white" />
                       <rect width="66" height="56" rx="4" fill="#121212" />
-                      <rect x="12" y="8" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="12" y="8" width="17" height="16" rx="2" fill="#212121" />
-                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#212121" />
-                      <rect x="12" y="32" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="12" y="32" width="17" height="16" rx="2" fill="#212121" />
-                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#212121" />
+                      <rect x="12" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
+                    
+                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
+        
+                      <rect x="12" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
+                
+                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
                     </svg>
                   </div>
                 </div>
@@ -408,17 +482,17 @@ export default function Settings() {
                   <div className="px-0.5 flex justify-start items-center gap-2.5">
                     <div className="justify-start text-[#2F2F2F] dark:text-[#d0d0d0] text-base font-normal">System based</div>
                   </div>
-                  <div className="border-black dark:border-white border-1 rounded">
+                  <div className={` flex items-center gap-3 cursor-pointer ${ theme === "system" ? "ring-2 ring-red-500 rounded-md" : "" }`} onClick={() => setTheme("system")}>
                     <svg width="66" height="56" viewBox="0 0 66 56" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect width="66" height="56" rx="4" fill="url(#paint0_linear_1674_8695)" />
                       <rect x="12" y="8" width="17" height="16" rx="2" fill="#626262" />
                       <rect x="12" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
-                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#212121" />
-                      <rect x="12" y="32" width="17" height="16" rx="2" fill="#626262" />
+               
+                      <rect x="37" y="8" width="17" height="16" rx="2" fill="#D0D0D0" />
+                    
                       <rect x="12" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
-                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#E9E9E9" />
-                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#212121" />
+        
+                      <rect x="37" y="32" width="17" height="16" rx="2" fill="#D0D0D0" />
                       <defs>
                         <linearGradient id="paint0_linear_1674_8695" x1="66" y1="28" x2="0" y2="28" gradientUnits="userSpaceOnUse">
                           <stop offset="0.5" stop-color="#121212" />
