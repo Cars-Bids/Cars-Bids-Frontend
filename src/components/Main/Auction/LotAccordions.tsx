@@ -32,13 +32,7 @@ export default function LotAccordions({ car }: { car: CarData }) {
     <div className="space-y-3">
       {sections.map((s) => (
         <Accordion key={s.title} title={s.title} defaultOpen={s.title === "Highlights"}>
-          {s.bullets && (
-            <ul className="list-inside list-disc space-y-2">
-              {s.bullets.map((b, i) => b.startsWith("- ")
-                  ? <li key={i} className="leading-relaxed pl-5">{b.replace("- ", "")}</li>
-                  : !b.startsWith("# ") && <p key={i} className="leading-relaxed">{b}</p>)}
-            </ul>
-          )}
+          
         </Accordion>
       ))}
     </div>

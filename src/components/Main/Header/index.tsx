@@ -357,10 +357,10 @@ export default function Navbar() {
               >
                 <Links
                   to={userId ? `/profile/${userId}` : "#"}
-                  className="self-stretch inline-flex justify-between items-center"
+                  className="self-stretch inline-flex justify-between items-center text-black dark:text-white"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                 >
-                  <div className="justify-start ...">Profile</div>
+                  <div className="justify-start text-black dark:text-white  font-medium text-base font-synonym  cursor-pointer hover:text-red-500">Profile</div>
                   <img
                     className="w-7 h-7 rounded-3xl relative"
                     src={
