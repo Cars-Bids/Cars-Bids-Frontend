@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { message } from "antd"; // Added Ant Design message import
 import Loader from "@/components/Main/Preloader";
 import { AuctionCards } from "@/components/Main/Auction/Cards";
 import { SettingsMenu } from "@/components/Main/Auction/Menu";
 import { useGetAuctionFilteredQuery } from "@/features/api/endpoints/Auction";
+import { useSaveSearchMutation, useGetSavedSearchesQuery } from "@/features/api/endpoints/Wishlist";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetModelsByMakeQuery } from "@/features/api/endpoints/Models";
 import { Links } from "@/components/Main/Links";
@@ -11,10 +13,7 @@ import { Links } from "@/components/Main/Links";
 export const SearchPage = () => {
   const { id } = useParams<{ id: string }>();
   const [makeId, setMakeId] = useState<number | null>(null);
-
-  const [activeTab, setActiveTab] = useState<"ending" | "new" | "inspected">(
-    "ending"
-  );
+  const [activeTab, setActiveTab] = useState<"ending" | "new" | "inspected">("ending");
   const [filters, setFilters] = useState<{
     mileage?: string;
     transmission?: string;
@@ -28,36 +27,65 @@ export const SearchPage = () => {
       PageNumber: currentPage,
       PageSize: pageSize,
       sortBy:
-        activeTab === "ending"
-          ? "EndingSoon"
-          : activeTab === "new"
-          ? "NewCars"
-          : "Inspected",
+        activeTab === "ending" ? "EndingSoon" : activeTab === "new" ? "NewCars" : "Inspected",
       ModelSearch: id || "",
-      minMileage: filters.mileage?.split("-")[0]
-        ? Number(filters.mileage.split("-")[0])
-        : 0,
-      maxMileage: filters.mileage?.split("-")[1]
-        ? Number(filters.mileage.split("-")[1])
-        : 1000000000,
+      minMileage: filters.mileage?.split("-")[0] ? Number(filters.mileage.split("-")[0]) : 0,
+      maxMileage: filters.mileage?.split("-")[1] ? Number(filters.mileage.split("-")[1]) : 1000000000,
       bodyStyle: filters.bodyType || "",
       trasmission: filters.transmission || "",
     },
     { refetchOnFocus: true, refetchOnReconnect: true }
   );
 
-  // Встановлюємо makeId після завантаження body
+  // Fetch saved searches to check if the current search is already saved
+  const { data: savedSearches } = useGetSavedSearchesQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
+
+  const [saveSearch] = useSaveSearchMutation();
+
+  // Set makeId after body is loaded
   useEffect(() => {
     if (body?.makeIds && body.makeIds.length > 0) {
       setMakeId(Number(body.makeIds[0]));
     }
   }, [body]);
 
-  // Виклик запиту тільки якщо makeId не null
-  const { data: models } = useGetModelsByMakeQuery(
-  makeId,
-    { skip: makeId === null, refetchOnFocus: true, refetchOnReconnect: true }
-  );
+  // Check if the current search is already saved
+  const isSearchSaved = savedSearches?.some((search: any) => {
+    if (body?.modelIds?.length === 1) {
+      return search.makeId === makeId && search.modelId === body.modelIds[0];
+    }
+    return search.makeId === makeId && !search.modelId;
+  });
+
+  // Handle saving the search with message notifications
+  const handleSaveSearch = async () => {
+    if (makeId === null || isSearchSaved) {
+      message.info("Search is already saved or invalid.");
+      return;
+    }
+
+    const searchData: { makeId: number; modelId?: number | null } = { makeId };
+    if (body?.modelIds?.length === 1) {
+      searchData.modelId = body.modelIds[0];
+    }
+
+    try {
+      await saveSearch(searchData).unwrap();
+      message.success("Search successfully saved to wishlist!");
+    } catch (error) {
+      console.error("Failed to save search:", error);
+      message.error("Failed to save search. Please try again.");
+    }
+  };
+
+  const { data: models } = useGetModelsByMakeQuery(makeId, {
+    skip: makeId === null,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -92,27 +120,32 @@ export const SearchPage = () => {
     <section className="w-full px-6 py-16 flex flex-col lg:flex-row items-center justify-center gap-12 mx-auto min-h-[80vh]">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full px-6 grid grid-cols-4 items-center gap-3 my-4">
-         <div>  </div>
-          <div> </div>
-          <div> </div>
-          <div className=" w-full px-2 py-2 bg-yellow-400 rounded-md flex justify-center items-right cursor-pointer">
-            <div className="justify-start text-graphite- text-base font-medium font-synonym">
-              Save Search and Notify Me Later
+          <div></div>
+          <div></div>
+          <div></div>
+          <div
+            className={`w-full px-2 py-2 rounded-md flex justify-center items-right cursor-pointer ${
+              isSearchSaved ? "bg-gray-400" : "bg-yellow-400"
+            }`}
+            onClick={handleSaveSearch}
+          >
+            <div className="justify-start text-graphite text-base font-medium font-synonym">
+              {isSearchSaved ? "Search Saved" : "Save Search and Notify Me Later"}
             </div>
           </div>
-         
         </div>
-  <div className="px-6 w-full flex dark:text-white text-black  items-center  gap-2 font-bold font-amulya m-4 overflow-x-auto min-w-full">
-            {models?.map((model: any) => (
-              <Links to={`/search/${model.name}`} className="text-[12px] border-1 border-white  p-2 rounded-md" key={model.id}>{model.name} </Links>
-            ))}
-          </div>
+        <div className="px-6 w-full flex dark:text-white text-black items-center gap-2 font-bold font-amulya m-4 overflow-x-auto min-w-full">
+          {models?.map((model: any) => (
+            <Links to={`/search/${model.name}`} className="text-[12px] border-1 border-white p-2 rounded-md" key={model.id}>
+              {model.name}
+            </Links>
+          ))}
+        </div>
         <div className="px-6 grid grid-cols-3 items-center gap-5 min-w-full">
           <div className="text-black dark:text-white text-2xl font-bold font-amulya">
-            {id} Auctions (
-            <span className="text-lg">{body?.totalCount} Results Found</span>)
+            {id} Auctions (<span className="text-lg">{body?.totalCount} Results Found</span>)
           </div>
-          <div className="flex justify-center items-center gap-5 ">
+          <div className="flex justify-center items-center gap-5">
             {["ending", "new", "inspected"].map((tab) => (
               <div
                 key={tab}
@@ -126,11 +159,7 @@ export const SearchPage = () => {
                     : "text-black dark:text-white font-normal font-synonym"
                 }`}
               >
-                {tab === "ending"
-                  ? "Ending soon"
-                  : tab === "new"
-                  ? "New cars"
-                  : "Inspected"}
+                {tab === "ending" ? "Ending soon" : tab === "new" ? "New cars" : "Inspected"}
               </div>
             ))}
           </div>
@@ -152,9 +181,7 @@ export const SearchPage = () => {
             </div>
           </>
         )}
-        {!isLoading && body?.items?.length > 0 && (
-          <Pagination totalItems={body?.totalCount || 0} />
-        )}
+        {!isLoading && body?.items?.length > 0 && <Pagination totalItems={body?.totalCount || 0} />}
       </div>
     </section>
   );

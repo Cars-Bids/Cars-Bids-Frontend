@@ -5,6 +5,7 @@ import {
   useDeleteSavedSearchMutation,
   useDeleteWishlistByIdMutation,
 } from "@/features/api/endpoints/Wishlist";
+import { Link } from "react-router-dom";
 import Sidebar from "@/components/Main/SidebarProfile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { AuctionWishlistDto, SavedSearchDto, WishlistFilteredDto } from "@/features/types/Wishlist";
@@ -89,7 +90,7 @@ function AuctionCarCard({
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M7.68335 1.53009C7.71257 1.47107 7.7577 1.42138 7.81365 1.38664C7.86961 1.3519 7.93416 1.3335 8.00002 1.3335C8.06588 1.3335 8.13043 1.3519 8.18639 1.38664C8.24234 1.42138 8.28747 1.47107 8.31669 1.53009L9.85669 4.64942C9.958 4.85484 10.1077 5.03255 10.293 5.16727C10.4782 5.30198 10.6934 5.38966 10.92 5.42276L14.364 5.92676C14.4293 5.93621 14.4906 5.96374 14.541 6.00622C14.5914 6.04871 14.629 6.10446 14.6494 6.16716C14.6698 6.22987 14.6722 6.29703 14.6564 6.36105C14.6406 6.42507 14.6072 6.48339 14.56 6.52942L12.0694 8.95476C11.905 9.11473 11.782 9.3123 11.711 9.53043C11.64 9.74856 11.6232 9.98068 11.662 10.2068L12.25 13.6334C12.2615 13.6987 12.2545 13.7658 12.2297 13.8272C12.2049 13.8886 12.1633 13.9418 12.1097 13.9808C12.0561 14.0197 11.9927 14.0428 11.9266 14.0474C11.8605 14.052 11.7945 14.0379 11.736 14.0068L8.65735 12.3881C8.45453 12.2815 8.22883 12.2258 7.99969 12.2258C7.77055 12.2258 7.54484 12.2815 7.34202 12.3881L4.26402 14.0068C4.20557 14.0377 4.13962 14.0516 4.07365 14.0469C4.00769 14.0422 3.94437 14.0191 3.89088 13.9802C3.8374 13.9413 3.79591 13.8882 3.77112 13.8269C3.74634 13.7656 3.73926 13.6986 3.75069 13.6334L4.33802 10.2074C4.37693 9.98124 4.36018 9.74899 4.28921 9.53074C4.21824 9.31248 4.09519 9.11479 3.93069 8.95476L1.44002 6.53009C1.39242 6.48411 1.35868 6.42569 1.34266 6.36147C1.32664 6.29726 1.32898 6.22984 1.34941 6.16689C1.36983 6.10393 1.40753 6.04799 1.4582 6.00541C1.50888 5.96284 1.57049 5.93536 1.63602 5.92609L5.07935 5.42276C5.30623 5.38987 5.5217 5.30228 5.70718 5.16756C5.89266 5.03283 6.04258 4.85501 6.14402 4.64942L7.68335 1.53009Z"
+                d="M7.68335 1.53009C7.71257 1.47107 7.7577 1.42138 7.81365 1.38664C7.86961 1.3519 7.93416 1.3335 8.00002 1.3335C8.06588 1.3335 8.13043 1.3519 8.18639 1.38664C8.24234 1.42138 8.28747 1.47107 8.31669 1.53009L9.85669 4.64942C9.958 4.85484 10.1077 5.03255 10.293 5.16727C10.4782 5.30198 10.6934 5.38966 10.92 5.42276L14.364 5.92676C14.4293 5.93621 14.4906 5.96374 14.541 6.00622C14.5914 6.04871 14.629 6.10446 14.6494 6.16716C14.6698 6.22987 14.6722 6.29703 14.6564 6.36105C14.6406 6.42507 14.6072 6.48339 14.56 6.52942L12.0694 8.95476C11.905 9.11473 11.782 9.3123 11.711 9.53043C11.64 9.74856 11.6232 9.98068 11.662 10.2068L12.25 13.6334C12.2615 13.6987 12.2545 13.7658 12.2297 13.8272C12.2049 13.8886 12.1633 13.9418 12.1097 13.9808C12.0561 14.0197 12.9927 14.0428 11.9266 14.0474C11.8605 14.052 11.7945 14.0379 11.736 14.0068L8.65735 12.3881C8.45453 12.2815 8.22883 12.2258 7.99969 12.2258C7.77055 12.2258 7.54484 12.2815 7.34202 12.3881L4.26402 14.0068C4.20557 14.0377 4.13962 14.0516 4.07365 14.0469C4.00769 14.0422 3.94437 14.0191 3.89088 13.9802C3.8374 13.9413 3.79591 13.8882 3.77112 13.8269C3.74634 13.7656 3.73926 13.6986 3.75069 13.6334L4.33802 10.2074C4.37693 9.98124 4.36018 9.74899 4.28921 9.53074C4.21824 9.31248 4.09519 9.11479 3.93069 8.95476L1.44002 6.53009C1.39242 6.48411 1.35868 6.42569 1.34266 6.36147C1.32664 6.29726 1.32898 6.22984 1.34941 6.16689C1.36983 6.10393 1.40753 6.04799 1.4582 6.00541C1.50888 5.96284 1.57049 5.93536 1.63602 5.92609L5.07935 5.42276C5.30623 5.38987 5.5217 5.30228 5.70718 5.16756C5.89266 5.03283 6.04258 4.85501 6.14402 4.64942L7.68335 1.53009Z"
                 stroke="none"
                 strokeWidth="1.5"
                 strokeLinecap="round"
@@ -152,6 +153,9 @@ interface SavedSearchItemProps {
   showInspected?: boolean;
   showNoReserve?: boolean;
   onDelete: () => void;
+  modelName?: string;
+  makeName: string;
+  auctionId?: string; // Added auctionId prop
 }
 
 function SavedSearchItem({
@@ -166,8 +170,14 @@ function SavedSearchItem({
   showInspected,
   showNoReserve,
   onDelete,
+  modelName,
+  makeName,
+  auctionId,
 }: SavedSearchItemProps) {
-  const moreCount = Math.max(0, totalMatchingAuctions - 1);
+  const moreCount = Math.max(0, totalMatchingAuctions);
+  const searchLink = modelName ? `/en/search/${modelName}` : `/en/search/${makeName}`;
+  const auctionLink = auctionId ? `/en/auction/${auctionId}` : "#"; // Fallback to "#" if no auctionId
+
   return (
     <div className="flex w-full max-w-[518px] flex-col items-start gap-3">
       <div className="flex w-full px-3 justify-between items-center">
@@ -175,11 +185,14 @@ function SavedSearchItem({
           {searchTerm}
         </div>
         <div className="flex items-center gap-5">
-          <div className="flex px-3 py-1 justify-center items-center gap-2.5 rounded-md bg-[#CE2023]">
+          <Link
+            to={searchLink}
+            className="flex px-3 py-1 justify-center items-center gap-2.5 rounded-md bg-[#CE2023]"
+          >
             <div className="text-black dark:text-white text-xs font-medium leading-[140%]">
               +{moreCount} more {searchTerm}
             </div>
-          </div>
+          </Link>
           <button
             onClick={onDelete}
             className="cursor-pointer text-black dark:text-white text-xs font-medium leading-[140%]"
@@ -188,17 +201,19 @@ function SavedSearchItem({
           </button>
         </div>
       </div>
-      <AuctionCarCard
-        carName={carName}
-        carDescription={carDescription}
-        carImage={carImage}
-        location={location}
-        endTime={endTime}
-        currentBid={currentBid}
-        showInspected={showInspected}
-        showNoReserve={showNoReserve}
-        showStar={false}
-      />
+      <Link to={auctionLink}>
+        <AuctionCarCard
+          carName={carName}
+          carDescription={carDescription}
+          carImage={carImage}
+          location={location}
+          endTime={endTime}
+          currentBid={currentBid}
+          showInspected={showInspected}
+          showNoReserve={showNoReserve}
+          showStar={false}
+        />
+      </Link>
     </div>
   );
 }
@@ -299,22 +314,19 @@ export default function Watchlist() {
                   <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-5 w-full sm:pl-[40px]">
                     <button
                       onClick={() => handleFilterChange("endingSoon")}
-                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.endingSoon ? "font-bold" : "font-normal"
-                        }`}
+                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.endingSoon ? "font-bold" : "font-normal"}`}
                     >
                       Ending soon
                     </button>
                     <button
                       onClick={() => handleFilterChange("newCars")}
-                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.newCars ? "font-bold" : "font-normal"
-                        }`}
+                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.newCars ? "font-bold" : "font-normal"}`}
                     >
                       New cars
                     </button>
                     <button
                       onClick={() => handleFilterChange("inspected")}
-                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.inspected ? "font-bold" : "font-normal"
-                        }`}
+                      className={`text-black dark:text-white text-base leading-normal text-center w-full sm:w-auto ${filters.inspected ? "font-bold" : "font-normal"}`}
                     >
                       Inspected
                     </button>
@@ -359,7 +371,7 @@ export default function Watchlist() {
                     savedSearches?.items.map((search: SavedSearchDto) => (
                       <SavedSearchItem
                         key={search.id}
-                        searchTerm={search.makeName || "Unknown Make"}
+                        searchTerm={`${search.makeName}${search.modelName ? " " + search.modelName : ""}` || "Unknown Make"}
                         totalMatchingAuctions={search.totalMatchingAuctions || 0}
                         carName={
                           search.firstAuction
@@ -378,6 +390,9 @@ export default function Watchlist() {
                         endTime={search.firstAuction?.endTime}
                         currentBid={search.firstAuction?.currentPrice}
                         showInspected={search.firstAuction?.isInspected || false}
+                        modelName={search.modelName}
+                        makeName={search.makeName}
+                        auctionId={search.firstAuction?.id} // Pass auctionId
                         onDelete={() => deleteSavedSearch({ id: search.id })}
                       />
                     ))

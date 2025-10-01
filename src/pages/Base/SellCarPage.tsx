@@ -331,7 +331,7 @@ const SellCarPage = () => {
                                             name="description"
                                             label="Specialty installed options or equipment"
                                             placeholder="For example: sport package, range battery, FSD or other important factory-installed features"
-                                            maxLength={180}
+                                            maxLength={300}
                                             minRows={1}
                                             maxRows={6}
                                         />
