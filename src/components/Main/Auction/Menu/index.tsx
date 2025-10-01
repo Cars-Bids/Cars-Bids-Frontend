@@ -85,6 +85,7 @@ export const SettingsMenu = ({ filters, setFilters }: MenuAuctionProps) => {
   const [open, setOpen] = useState(false);
 
   return (
+    <div>
     <div className="relative flex item-end justify-end z-40">
      
         {open ? (<ChevronLeft onClick={()=> setOpen((prev) => !prev)} className="w-5 h-5  text-black dark:text-white" />) : (<Settings2 onClick={()=> setOpen((prev) => !prev)} className="w-5 h-5 text-black dark:text-white" />)}
@@ -97,6 +98,7 @@ export const SettingsMenu = ({ filters, setFilters }: MenuAuctionProps) => {
           <MenuAuction filters={filters} setFilters={setFilters} />
         </div>
       )}
+    </div>
     </div>
   );
 };

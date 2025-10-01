@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, DollarSign } from "lucide-react";
 import AuctionTimer from "@/components/Main/Clock";
 
+
 interface CarCardProps {
   data: any[]; // масив машин
 }
@@ -9,7 +10,7 @@ interface CarCardProps {
 export const CarCard = ({ data }: CarCardProps) => {
   const [startIndex, setStartIndex] = useState(0); // індекс лівої картки
   const total = data.length;
-
+console.log(data);
   const prevCars = () => setStartIndex((prev) => (prev === 0 ? total - 2 : prev - 1));
   const nextCars = () => setStartIndex((prev) => (prev + 2 >= total ? 0 : prev + 1));
 

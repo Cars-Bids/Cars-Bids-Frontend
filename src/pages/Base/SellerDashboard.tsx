@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronRight, Clock as ClockIcon, CircleDollarSign, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // Added Link import
+import { Link } from "react-router-dom"; // Added Link import
 import { useSelector } from "react-redux";
 import Sidebar from "@/components/Main/SidebarProfile";
 import {
@@ -18,7 +18,7 @@ import { AuctionStatus, DrivetrainType, TransmissionType } from "@/features/type
 type TabType = "in-progress" | "live-auctions" | "comments" | "past-listings";
 
 export default function SellerDashboard() {
-    const navigate = useNavigate();
+
     const currentLang = useSelector((state: RootState) => state.lang.current);
     const [activeTab, setActiveTab] = useState<TabType>("in-progress");
     const [pagination, setPagination] = useState({
