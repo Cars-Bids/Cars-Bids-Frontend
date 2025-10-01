@@ -26,29 +26,20 @@ export default function LotOtherAuctions({ items }: { items: OtherAuction[]; }) 
 function AuctionItem({ item, getTimeRemaining }: {
     item: OtherAuction;
     getTimeRemaining: (start: Date) => {
+        days: number;
         hours: number;
         minutes: number;
         seconds: number;
     };
 }) {
-    const [timeLeft, setTimeLeft] = useState({hours: 0, minutes: 0, seconds: 0});
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        let time: Date;
-        if (item.startTime && new Date(item.startTime) > new Date()) {
-            time = item.startTime;
-        }
-        else if (item.endTime && new Date(item.endTime) > new Date()) {
-            time = item.endTime;
-        }
-        else {
-            return;
-        }
         const timer = setInterval(() => {
-            setTimeLeft(getTimeRemaining(time));
+            setTimeLeft(getTimeRemaining(item.endTime ?? item.startTime ?? new Date()));
         }, 1000);
         return () => clearInterval(timer);
-    }, [item.endTime]);
+    }, [item.startTime, item.endTime]);
 
     const format = (num: number) => String(num).padStart(2, "0");
     const currentLang = useSelector((state: RootState) => state.lang.current);
@@ -63,7 +54,7 @@ function AuctionItem({ item, getTimeRemaining }: {
                     Featured
                 </span>
                 <div className="absolute bottom-1 left-1 rounded-md text-xs text-zinc-100 bg-zinc-800 border border-zinc-100">
-                    <span className="px-2 border-r border-zinc-100">{format(timeLeft.hours)}:{format(timeLeft.minutes)}:{format(timeLeft.seconds)}</span>
+                    <span className="px-2 border-r border-zinc-100">{timeLeft.days > 0 ? timeLeft.days + "d " : ""}{format(timeLeft.hours)}:{format(timeLeft.minutes)}:{format(timeLeft.seconds)}</span>
                     <span className="px-2">${item.currentPrice}</span>
                 </div>
             </div>
