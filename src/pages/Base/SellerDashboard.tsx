@@ -29,11 +29,6 @@ export default function SellerDashboard() {
     });
 
     const pageSize = 3;
-
-
-
-
-
     const {
         data: inReviewCarsData,
         isLoading: isInReviewLoading,
