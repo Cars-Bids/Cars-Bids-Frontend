@@ -9,6 +9,8 @@ interface ScrollManagerProps {
   useEffect(() => {
     const handleScroll = () => {
       scrollPositions.set(window.location.pathname, window.scrollY)
+      // дебаг: показує поточний скрол
+      // console.log(`[ScrollManager] Прокрутка: ${window.location.pathname} → Y=${window.scrollY}`)
     }
 
     window.addEventListener("scroll", handleScroll)
@@ -18,8 +20,10 @@ interface ScrollManagerProps {
   useEffect(() => {
     if (restoreScroll) {
       const y = scrollPositions.get(window.location.pathname) ?? 0;
+      // console.log(`[ScrollManager] Відновлюємо скрол: ${window.location.pathname} → Y=${y}`)
       window.scrollTo({ top: y, behavior: "smooth" })
     } else {
+      // console.log(`[ScrollManager] Скидаємо скрол на верх: ${window.location.pathname}`)
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
   }, [restoreScroll]);

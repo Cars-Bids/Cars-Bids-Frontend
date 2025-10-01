@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight, Clock as ClockIcon, CircleDollarSign, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // Added Link import
+import { Link } from "react-router-dom"; // Added Link import
 import { useSelector } from "react-redux";
 import Sidebar from "@/components/Main/SidebarProfile";
 import {
@@ -18,7 +18,7 @@ import { AuctionStatus, DrivetrainType, TransmissionType } from "@/features/type
 type TabType = "in-progress" | "live-auctions" | "comments" | "past-listings";
 
 export default function SellerDashboard() {
-    const navigate = useNavigate();
+
     const currentLang = useSelector((state: RootState) => state.lang.current);
     const [activeTab, setActiveTab] = useState<TabType>("in-progress");
     const [pagination, setPagination] = useState({
@@ -29,7 +29,6 @@ export default function SellerDashboard() {
     });
 
     const pageSize = 3;
-
     const {
         data: inReviewCarsData,
         isLoading: isInReviewLoading,
@@ -143,7 +142,7 @@ export default function SellerDashboard() {
         let tagColors: string[] = [];
         let publishDate = null;
 
-        if (car.auction && car.auction.status.toString() === "inPending") {
+        if (car.auction && car.auction.status.toString() === "pending") {
             statusLabel = "Will be published on";
             publishDate = car.auction.startTime
                 ? new Date(car.auction.startTime).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
@@ -238,6 +237,38 @@ export default function SellerDashboard() {
         username: comment.userName,
         comment: comment.text,
     });
+
+        const calculateTimeLeft = (endTime: string | Date) => {
+        const end = new Date(endTime);
+        const now = new Date();
+        const diff = end.getTime() - now.getTime();
+        if (diff <= 0) return "00:00:00";
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
+
+    const [liveAuctionsWithTime, setLiveAuctionsWithTime] = useState(() =>
+        activeAuctionsData?.items.map(auction => ({
+            ...auction,
+            timeLeft: calculateTimeLeft(auction.endTime),
+        })) || []
+    );
+
+    useEffect(() => {
+        if (!activeAuctionsData?.items) return;
+
+        const interval = setInterval(() => {
+            setLiveAuctionsWithTime(activeAuctionsData.items.map(auction => ({
+                ...auction,
+                timeLeft: calculateTimeLeft(auction.endTime),
+            })));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [activeAuctionsData]);
 
     const mapAuctionToListing = (auction: AuctionDto) => {
         const drivetrain =
@@ -384,10 +415,10 @@ export default function SellerDashboard() {
                                                                     </h4>
                                                                     <p
                                                                         className={`text-sm mb-6 ${mappedCar.statusMessage
-                                                                                ? mappedCar.statusMessage === "No additional information needed."
-                                                                                    ? "text-[#8EBF0B]"
-                                                                                    : "text-[14px]"
-                                                                                : "hidden"
+                                                                            ? mappedCar.statusMessage === "No additional information needed."
+                                                                                ? "text-[#8EBF0B]"
+                                                                                : "text-[14px]"
+                                                                            : "hidden"
                                                                             }`}
                                                                     >
                                                                         {mappedCar.statusMessage}
@@ -440,7 +471,7 @@ export default function SellerDashboard() {
                                         <p className="text-black dark:text-white">No data available :)</p>
                                     ) : (
                                         <>
-                                            {activeAuctionsData?.items.map((auction, index) => {
+                                            {liveAuctionsWithTime.map((auction, index) => {
                                                 const mappedAuction = mapActiveAuctionToListing(auction);
                                                 return (
                                                     <div key={auction.id}>

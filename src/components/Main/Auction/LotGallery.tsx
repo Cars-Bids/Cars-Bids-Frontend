@@ -1,20 +1,53 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { Image as ImgIcon, Play } from "lucide-react";
-import type {CarImageData} from "@/features/types/AuctionDetailed.ts";
+import type { CarImageData } from "@/features/types/AuctionDetailed.ts";
+import AuctionFilesManager from "@/components/Main/Modal/Auction/AuctionFilesManager.tsx";
 
-
-export default function LotGallery({ photos, title }: {
+export default function LotGallery({ photos, videos, title }: {
     photos: CarImageData[];
+    videos: string[];
     title: string;
 }) {
     // Активне фото, за замовчуванням — перше
-    const [activePhoto, setActivePhoto] = useState<CarImageData>(photos[0]);
+    const [activePhoto, setActivePhoto] = useState<CarImageData>({
+        id: -1,
+        imageUrl: "https://wsa3.pakwheels.com/assets/default-display-image-car-6873f23250596c4daa082e7223e5bbb5d1fbcaf7bb5d7113003daa9ebd3c66a8.png",
+        imageCategory: "Default"
+    });
+
+    const [isManagerOpen, setIsManagerOpen] = useState(false);
+    const [isVideoMode, setIsVideoMode] = useState(false);
+
+    const [carImages, setCarImages] = useState<{
+        mainPhoto: CarImageData[];
+        interior: CarImageData[];
+        exterior: CarImageData[];
+        others: CarImageData[];
+    }>({
+        mainPhoto: [],
+        interior: [],
+        exterior: [],
+        others: []
+    });
+    const [carVideos, setCarVideos] = useState<string[]>([]);
 
     useEffect(() => {
         if (photos.length > 0) {
             setActivePhoto(photos[0]);
+            setCarImages({
+                mainPhoto: photos.filter(x => x.imageCategory == "Main"),
+                interior: photos.filter(x => x.imageCategory == "Interior"),
+                exterior: photos.filter(x => x.imageCategory == "Exterior"),
+                others: photos.filter(x => x.imageCategory == "Other")
+            });
         }
-    }, [photos]);
+        setCarVideos(videos);
+    }, [photos, videos]);
+
+    const handleClick = (isVideo: boolean) => {
+        setIsVideoMode(isVideo);
+        setIsManagerOpen(true);
+    };
 
     return (
         <section>
@@ -33,11 +66,10 @@ export default function LotGallery({ photos, title }: {
                     <button
                         key={p.id}
                         onClick={() => setActivePhoto(p)}
-                        className={`relative h-24 w-32 flex-none overflow-hidden border transition-all duration-200 ${
-                            p.id === activePhoto.id
+                        className={`relative h-24 w-32 flex-none overflow-hidden border transition-all duration-200 ${p.id === activePhoto.id
                                 ? "border-blue-500"
                                 : "border-zinc-800 hover:border-zinc-400"
-                        }`}
+                            }`}
                     >
                         <img
                             src={p.imageUrl}
@@ -49,34 +81,44 @@ export default function LotGallery({ photos, title }: {
 
                 {/* Кнопка "All Photos" */}
                 {photos.length > 2 &&
-                <button
-                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
-                    style={{
-                        backgroundImage: `url(${photos[photos.length - 2].imageUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                    }}
-                >
-                    <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
-                    <ImgIcon className="h-4 w-4 relative z-10" />
-                    <span className="relative z-10">All Photos</span>
-                </button>}
+                    <button
+                        onClick={() => handleClick(false)}
+                        className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900 cursor-pointer"
+                        style={{
+                            backgroundImage: `url(${photos[photos.length - 2].imageUrl})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }}
+                    >
+                        <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
+                        <ImgIcon className="h-4 w-4 relative z-10" />
+                        <span className="relative z-10">All Photos</span>
+                    </button>}
 
                 {/* Кнопка "Videos" */}
                 {photos.length > 2 &&
-                <button
-                    className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900"
-                    style={{
-                        backgroundImage: `url(${photos[photos.length - 1].imageUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                    }}
-                >
-                    <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
-                    <Play className="h-4 w-4 relative z-10" />
-                    <span className="relative z-10">Videos</span>
-                </button>}
+                    <button
+                        onClick={() => handleClick(true)}
+                        className="relative h-24 w-32 flex-none items-center gap-2 border border-zinc-800 text-xs text-white overflow-hidden flex justify-center hover:bg-zinc-900 cursor-pointer"
+                        style={{
+                            backgroundImage: `url(${photos[photos.length - 1].imageUrl})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }}
+                    >
+                        <span className="absolute inset-0 bg-black/30"></span> {/* затемнення */}
+                        <Play className="h-4 w-4 relative z-10" />
+                        <span className="relative z-10">Videos</span>
+                    </button>}
             </div>
+
+            <AuctionFilesManager
+                isOpen={isManagerOpen}
+                onClose={() => setIsManagerOpen(false)}
+                isVideoMode={isVideoMode}
+                images={carImages}
+                videos={carVideos}
+            />
         </section>
     );
 }

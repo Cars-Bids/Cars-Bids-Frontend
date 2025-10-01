@@ -18,8 +18,9 @@ import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import {CreateAuctionPage} from "@/pages/Base/AuctionCreatePage.tsx";
 import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 import ProtectedRoute from "@/hooks/Protector";
-import AcceptPage from './pages/Admin/AcceptPage';
 import {NotificationSignalRProvider} from "@/features/signalr/NotificationSignalRProvider.tsx";
+import AcceptPage from '@/pages/Admin/AcceptPage';
+import { SearchPage } from './pages/Base/Search';
 
 function LangWrapper() {
   useLangFromURL();
@@ -33,39 +34,48 @@ function LangWrapper() {
           <Routes>
               <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
 
-              <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
-                  <Route index element={<HomePage />} />
-                  <Route path="home" element={<HomePage />} />
-                  <Route path="reset-password" element={<HomePage />} />
-                  <Route path="sell-your-car" element={<SellYourCar />} />
-                  <Route path="auction/:id" element={<AuctionPage />} />
-                  <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
-                  <Route path="sell-car" element={<SellCarPage />} />
-                  <Route path="chat/:id" element={<ChatPage />} />
-                  <Route path="create-auction/:id" element={<CreateAuctionPage />} />
-                  <Route path="profile/:id" element={<ProfilePage />} />
-                  <Route path="whats-steria" element={<AboutPage />} />
-                  <Route path="seller-dashboard" element={<SellerDashboard />} />
-                  <Route path="watchlist" element={<WatchList />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="*" element={<NotFound404 />} />
+      <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
+        <Route index element={<HomePage />} />
+        <Route path="home" element={<HomePage />} />
+        <Route path="reset-password" element={<HomePage />} />
+        <Route path="sell-your-car" element={<SellYourCar />} />
+        <Route path="auction/:id" element={<AuctionPage />} />
+        <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
+        <Route path="sell-car" element={<SellCarPage />} />
+        <Route path="chat/:id" element={<ChatPage />} />
+        <Route path="create-auction/:id" element={<CreateAuctionPage />} />
+        <Route path="profile/:id" element={<ProfilePage />} />
+        <Route path="whats-steria" element={<AboutPage />} />
+        <Route path="seller-dashboard" element={<SellerDashboard />} />
+        <Route path="watchlist" element={<WatchList />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="*" element={<NotFound404/>} /> 
+        <Route path="search/:id" element={<SearchPage/>}/>
 
-                  <Route
-                      path="dashboard"
-                      element={
-                          <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
-                              <ManagerDashboard />
-                          </ProtectedRoute>
-                      }
-                  />
-                  <Route
-                      path="accept-page/:id"
-                      element={
-                          <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
-                              <AcceptPage />
-                          </ProtectedRoute>
-                      }
-                  />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="accept-page/:id"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <AcceptPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="create-auction/:id"
+          element={
+            <ProtectedRoute allowedRoles={['Manager', 'Admin']}>
+              <CreateAuctionPage />
+            </ProtectedRoute>
+          }
+        />
 
               </Route>
 

@@ -212,7 +212,7 @@ export function CustomDropdownSelector({
                         <div
                             key={opt.id}
                             onMouseDown={(e) => {
-                                e.preventDefault(); // Prevent blur from firing
+                                e.preventDefault();
                                 handleSelect(opt);
                             }}
                             className={optionClassName || defaultOptionClassName}

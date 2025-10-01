@@ -19,10 +19,11 @@ import { skipToken } from "@reduxjs/toolkit/query";
 
 import { apiSlice } from "@/features/api/Slices/apiSlice";
 import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
-import LangMenu from "@/components/MenuLang";
+// import LangMenu from "@/components/MenuLang";
 
 import { Links } from "@/components/Main/Links";
 import NotificationPopup from "@/components/ui/NotificationPopup.tsx";
+
 
 
 function parseJwtPayload(token: string | null | undefined) {
@@ -51,7 +52,11 @@ export default function Navbar() {
     /*UseState */
   }
   const [search, setSearch] = useState("");
-
+ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      navigate(`/en/search/${encodeURIComponent(search)}`);
+    }
+  };
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -82,6 +87,7 @@ export default function Navbar() {
   const activeItem = useSelector((state: RootState) => state.navbar.activeItem);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuth);
   const accessTokenFromRedux = useSelector((state: RootState) => (state as any).auth?.accessToken);
+  const role = useSelector((state: RootState) => state.auth.role);
   const accessToken = accessTokenFromRedux || localStorage.getItem("accessToken") || localStorage.getItem("token") || null;
 
   const jwtPayload = parseJwtPayload(accessToken);
@@ -95,6 +101,7 @@ export default function Navbar() {
     jwtPayload?.UserId ??
     null;
 
+  console.log("UserId from token:", jwtPayload);
   const userId = rawId ? Number(rawId) : undefined
   {
     /*Routes */
@@ -315,6 +322,7 @@ export default function Navbar() {
               placeholder="Search for car or model"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+               onKeyDown={handleKeyDown}
             />
           </div>
           <div
@@ -385,6 +393,17 @@ export default function Navbar() {
                     <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
                       Sign out
                     </div>
+                </div>
+                {role === "Admin" || role === "Manager" ? (
+<div className="w-24 h-7 relative">
+                  <Links to={"/dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                    Mg Panel
+                  </Links>
+                </div>
+                ) : (<></>) }
+                <div onClick={handleLogout} className="w-16 h-7 relative">
+                  <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
+                    Sign out
                   </div>
                 </div>
               </div>
@@ -397,7 +416,7 @@ export default function Navbar() {
             </Button>
           )}
 
-          <LangMenu />
+          {/* <LangMenu /> */}
           <AuthPopup
             isOpen={isLoginOpen}
             onClose={() => setIsLoginOpen(false)}

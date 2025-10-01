@@ -17,7 +17,7 @@ export default function AuctionApprovalPage() {
             <main className="mx-auto max-w-7xl gap-3 px-4 py-5 lg:grid lg:grid-cols-12">
                 <div className="lg:col-span-7 xl:col-span-8">
 
-                    <LotGallery photos={data.images} title={data.car.title} />
+                    <LotGallery photos={data.images} videos={data.car.videoLinks} title={data.car.title} />
 
                     <div className="mt-6">
                         <LotSpecs car={data.car} />

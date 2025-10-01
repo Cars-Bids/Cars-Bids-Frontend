@@ -185,7 +185,7 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
 
                     <p className="text-xs font-semibold">
                         Last Bid<span className="text-xs font-normal ml-1 mr-4 text-red-600">${auction.currentPrice}</span>
-                        Time left<span className="text-xs font-normal ml-1 text-red-600">{format(timeLeft.hours)}:{format(timeLeft.minutes)}:{format(timeLeft.seconds)}</span>
+                        Time left<span className="text-xs font-normal ml-1 text-red-600">{timeLeft.days > 0 ? timeLeft.days + "d " : ""}{format(timeLeft.hours)}:{format(timeLeft.minutes)}:{format(timeLeft.seconds)}</span>
                     </p>
                     <hr className="w-full"/>
 
@@ -194,7 +194,7 @@ export default function LotBidPanel({ auction, title, about, mainPhoto } :
                         onChange={(e) => setBidAmount(e.target.value)}
                         placeholder={`Bid ${auction.currentPrice + bidStep} or more`}
                         className="border dark:border-zinc-100 border-zinc-800 p-1 text-sm outline-none
-                        focus:border-zinc-600 rounded-md w-full bg-zinc-700"
+                        focus:border-zinc-600 rounded-md w-full bg-zinc-100 dark:bg-zinc-700"
                     />
                     <button onClick={handleConfirm}
                             className="rounded-md bg-red-800 px-4 py-1 text-sm font-semibold text-white hover:bg-red-950 cursor-pointer">

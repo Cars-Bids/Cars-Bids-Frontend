@@ -1,13 +1,13 @@
 import type { AuctionData } from "@/features/types/AuctionDetailed";
-import {User, Calendar} from "lucide-react";
+import { User, Calendar } from "lucide-react";
 import { message } from "antd";
-import {useUpdateAuctionStatusMutation} from "@/features/api/endpoints/Auction.ts";
-import {Link, useNavigate} from "react-router-dom";
-import {useSelector} from "react-redux";
-import type {RootState} from "@/app/store.ts";
+import { useUpdateAuctionStatusMutation } from "@/features/api/endpoints/Auction.ts";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store.ts";
 
-export default function LotBidPanelApproval({ auction, title, about } :
-                                    { auction: AuctionData; title: string; about: string; }) {
+export default function LotBidPanelApproval({ auction, title, about }:
+    { auction: AuctionData; title: string; about: string; }) {
 
     const fmtCurrency = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
     const [updateStatus] = useUpdateAuctionStatusMutation();
@@ -96,21 +96,43 @@ export default function LotBidPanelApproval({ auction, title, about } :
             <h5 className="font-bold mt-5">About {title}</h5>
             <p className="text-xs my-3">{about}</p>
 
-            {auction.isSeller ?
-                (<div className="flex items-center justify-center gap-5 mt-15">
-                    <button onClick={handleDecline}
-                            className="rounded-md bg-red-700 px-4 py-1 text-sm font-semibold text-white hover:bg-red-800 cursor-pointer">
-                        Decline
-                    </button>
+            {auction.isSeller ? (
+                auction.status === "Pending" ? (
+                    <div className="text-center text-gray-400 font-semibold mt-5">
+                        Auction is already pending
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center gap-5 mt-15">
+                        <button
+                            onClick={handleDecline}
+                            disabled={auction.status !== "Approved"}
+                            className={`rounded-md px-4 py-1 text-sm font-semibold text-white
+          ${auction.status === "Approved"
+                                    ? "bg-red-700 hover:bg-red-800 cursor-pointer"
+                                    : "bg-gray-500 cursor-not-allowed"
+                                }`}
+                        >
+                            Decline
+                        </button>
 
-                    <button onClick={handleApprove}
-                            className="rounded-md bg-blue-500 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-800 cursor-pointer">
-                        Approve
-                    </button>
-                </div>)
-                :
-                (<div className="text-xl text-red-700 text-center font-bold">You don't have access to manage this auction</div>)
-            }
+                        <button
+                            onClick={handleApprove}
+                            disabled={auction.status !== "Approved"}
+                            className={`rounded-md px-4 py-1 text-sm font-semibold text-white
+          ${auction.status === "Approved"
+                                    ? "bg-blue-500 hover:bg-blue-800 cursor-pointer"
+                                    : "bg-gray-500 cursor-not-allowed"
+                                }`}
+                        >
+                            Approve
+                        </button>
+                    </div>
+                )
+            ) : (
+                <div className="text-xl text-red-700 text-center font-bold">
+                    You don't have access to manage this auction
+                </div>
+            )}
         </section>
     );
 }

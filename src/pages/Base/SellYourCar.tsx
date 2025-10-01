@@ -224,9 +224,11 @@ const SellYourCar = () => {
 </div>
 
     <div className="px-4 sm:px-6 py-2 sm:py-3 inline-flex justify-center items-center gap-2.5">
-      <button className="px-5 sm:px-7 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-base sm:text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
+       <Links
+         key="Sell Car"
+         to="/sell-car" className="px-5 sm:px-7 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-md text-base sm:text-xl md:text-2xl font-bold font-amulya hover:from-transparent hover:to-transparent hover:bg-none hover:text-red-500 hover:border hover:border-red-500 text-white mt-4 transition-all duration-200 border border-transparent">
         Get started now
-      </button>
+      </Links>
     </div>
   </div>
 </section>

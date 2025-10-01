@@ -64,14 +64,14 @@ export interface CarData {
     about?: string;
 
     videoLinks: string[];
-    highlights: string[];
-    serviceHistory: string[];
-    equipment: string[];
-    flaws: string[];
-    modifications: string[];
-    otherItems: string[];
-    ownershipHistory: string[];
-    sellerNotes: string[];
+    highlights: string;
+    serviceHistory: string;
+    equipment: string;
+    flaws: string;
+    modifications: string;
+    otherItems: string;
+    ownershipHistory: string;
+    sellerNotes: string;
 }
 
 export interface CarImageData {

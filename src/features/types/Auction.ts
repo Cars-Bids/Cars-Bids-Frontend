@@ -17,17 +17,23 @@ export interface Auction{
 
 
 export interface AuctionDto {
-  id: number;
-  car: CarDto
+  auctionId: number;
+  engine: string;
+  location: string;
+  car: CarDto;
   sellerId: number;
-  startPrice: number;
-  currentPrice: number;
+  mileage: number;
+  currentBid: number;
   currentBidder?: string;
   startTime: string;
   endTime: string;
   createdAt: string;
-  isInspected: boolean;
+  inspected: boolean;
   approvedAt?: string;
   status: number;
- 
+  mainImage?: string;
+ transmission: string;
+ makeName: string;
+  modelName: string;
+  year: number;
 }
