@@ -22,6 +22,7 @@ import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 // import LangMenu from "@/components/MenuLang";
 
 import { Links } from "@/components/Main/Links";
+import NotificationPopup from "@/components/ui/NotificationPopup.tsx";
 
 
 
@@ -59,6 +60,7 @@ export default function Navbar() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("theme");
@@ -76,6 +78,7 @@ export default function Navbar() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
   const langTriggerRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
 
   {
     /*Redux */
@@ -170,28 +173,21 @@ export default function Navbar() {
   }, [location.search, dispatch]);
 
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
+    const handleOutsideClick = (e: MouseEvent) => {
       if (
-        isSheetOpen &&
-        sheetRef.current &&
-        !sheetRef.current.contains(event.target as Node)
-      ) {
-        setIsSheetOpen(false);
-      }
-
-      const profileRefs = [profileRef, triggerRef];
-      if (
-        isProfileOpen &&
-        !profileRefs.some((ref) => ref.current?.contains(event.target as Node))
+          profileRef.current &&
+          !profileRef.current.contains(e.target as Node) &&
+          triggerRef.current &&
+          !triggerRef.current.contains(e.target as Node)
       ) {
         setIsProfileOpen(false);
       }
-      const langRefs = [langMenuRef, langTriggerRef];
+
       if (
-        isLangOpen &&
-        !langRefs.some((ref) => ref.current?.contains(event.target as Node))
+          notificationRef.current &&
+          !notificationRef.current.contains(e.target as Node)
       ) {
-        setIsLangOpen(false);
+        setIsNotifOpen(false);
       }
     };
 
@@ -341,56 +337,62 @@ export default function Navbar() {
             )}
           </div>
           {isAuthenticated ? (
-            <div className="inline-flex justify-start items-start gap-2 relative profile-trigger">
-              <div className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200">
-                <Bell className="cursor-pointer" />
-              </div>
-              <div
-                className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200"
-                ref={triggerRef}
-              >
-                <User
-                  onClick={() => setIsProfileOpen((prev) => !prev)}
-                  className="cursor-pointer"
-                />
-              </div>
+              <div className="inline-flex justify-start items-start gap-2 relative profile-trigger">
+                <NotificationPopup />
 
-              <div
-                ref={profileRef}
-                className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 flex flex-col gap-4 shadow-extra-lg dark:shadow-none z-50 transform transition-all duration-200
+                {/* аватар */}
+                <div
+                    className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200"
+                    ref={triggerRef}
+                >
+                  <User
+                      onClick={() => setIsProfileOpen((prev) => !prev)}
+                      className="cursor-pointer"
+                  />
+                </div>
+
+                {/* випадаюче меню профілю */}
+                <div
+                    ref={profileRef}
+                    className={`profile-dropdown absolute top-14 left-0 bg-white dark:bg-neutral-900 rounded-xl px-6 py-5 flex flex-col gap-4 shadow-extra-lg dark:shadow-none z-50 transform transition-all duration-200
                   ${isProfileOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"}
                 `}
-              >
-                <Links
-                  to={userId ? `/profile/${userId}` : "#"}
-                  className="self-stretch inline-flex justify-between items-center text-black dark:text-white"
-                  onClick={() => setIsProfileOpen((prev) => !prev)}
                 >
-                  <div className="justify-start text-black dark:text-white  font-medium text-base font-synonym  cursor-pointer hover:text-red-500">Profile</div>
-                  <img
-                    className="w-7 h-7 rounded-3xl relative"
-                    src={
-                      profile?.profilePictureUrl ||
-                      `https://ui-avatars.com/api/?name=${profile?.username}?background=random`
-                    }
-                    alt="User Avatar"
-                  />
-                </Links>
+                  <Links
+                      to={userId ? `/profile/${userId}` : "#"}
+                      className="self-stretch inline-flex justify-between items-center"
+                      onClick={() => setIsProfileOpen((prev) => !prev)}
+                  >
+                    <div className="justify-start ...">Profile</div>
+                    <img
+                        className="w-7 h-7 rounded-3xl relative"
+                        src={
+                            profile?.profilePictureUrl ||
+                            `https://ui-avatars.com/api/?name=${profile?.username}?background=random`
+                        }
+                        alt="User Avatar"
+                    />
+                  </Links>
 
-                <div className="w-16 h-7 relative">
-                  <Links to={"/settings"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
-                    Settings
-                  </Links>
-                </div>
-                <div className="w-32 h-7 relative">
-                  <Links to={"/seller-dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
-                    Seller dashboard
-                  </Links>
-                </div>
-                <div className="w-20 h-7 relative">
-                  <Links to={"/watchlist"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
-                    Watchlist
-                  </Links>
+                  <div className="w-16 h-7 relative">
+                    <Links to={"/settings"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500 ">
+                      Settings
+                    </Links>
+                  </div>
+                  <div className="w-32 h-7 relative">
+                    <Links to={"/seller-dashboard"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                      Seller dashboard
+                    </Links>
+                  </div>
+                  <div className="w-20 h-7 relative">
+                    <Links to={"/watchlist"} className="left-0 top-0 absolute justify-start text-black dark:text-white font-medium text-base font-synonym cursor-pointer hover:text-red-500">
+                      Watchlist
+                    </Links>
+                  </div>
+                  <div onClick={handleLogout} className="w-16 h-7 relative">
+                    <div className="left-0 top-0 absolute justify-start text-red-600 font-medium text-base font-synonym cursor-pointer hover:text-red-400">
+                      Sign out
+                    </div>
                 </div>
                 {role === "Admin" || role === "Manager" ? (
 <div className="w-24 h-7 relative">
@@ -405,7 +407,6 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-            </div>
           ) : (
             <Button
               onClick={() => setIsLoginOpen((prev) => !prev)}

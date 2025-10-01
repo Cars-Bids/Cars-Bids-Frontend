@@ -38,19 +38,6 @@ export const ImageCategory = {
 } as const;
 export type ImageCategory = typeof ImageCategory[keyof typeof ImageCategory];
 
-export const NotificationSource = {
-  Auction: 0,
-  AuctionBid: 1,
-  AuctionComment: 2,
-  Profile: 3,
-  Search: 4,
-  Community: 5,
-  CommunityComment: 6,
-  None: 7,
-} as const;
-export type NotificationSource =
-  typeof NotificationSource[keyof typeof NotificationSource];
-
 export const TransmissionType = {
   Automatic: 0,
   Manual: 1,

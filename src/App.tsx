@@ -18,6 +18,7 @@ import ManagerDashboard from "@/pages/Admin/ManagerDashbord.tsx";
 import {CreateAuctionPage} from "@/pages/Base/AuctionCreatePage.tsx";
 import AuctionApprovalPage from "@/pages/Base/AuctionApprovalPage.tsx";
 import ProtectedRoute from "@/hooks/Protector";
+import {NotificationSignalRProvider} from "@/features/signalr/NotificationSignalRProvider.tsx";
 import AcceptPage from '@/pages/Admin/AcceptPage';
 import { SearchPage } from './pages/Base/Search';
 
@@ -29,8 +30,9 @@ function LangWrapper() {
 
   if (!currentLang) return null;
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
+      <NotificationSignalRProvider>
+          <Routes>
+              <Route path="/" element={<Navigate to={`/${currentLang.toLowerCase()}/home`} replace />} />
 
       <Route path="/:lang" element={<MainLayout restoreScroll={true} />}>
         <Route index element={<HomePage />} />
@@ -41,6 +43,7 @@ function LangWrapper() {
         <Route path="auction-approval/:id" element={<AuctionApprovalPage />} />
         <Route path="sell-car" element={<SellCarPage />} />
         <Route path="chat/:id" element={<ChatPage />} />
+        <Route path="create-auction/:id" element={<CreateAuctionPage />} />
         <Route path="profile/:id" element={<ProfilePage />} />
         <Route path="whats-steria" element={<AboutPage />} />
         <Route path="seller-dashboard" element={<SellerDashboard />} />
@@ -74,9 +77,10 @@ function LangWrapper() {
           }
         />
 
-      </Route>
+              </Route>
 
-    </Routes>
+          </Routes>
+      </NotificationSignalRProvider>
   );
 }
 
