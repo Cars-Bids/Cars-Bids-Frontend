@@ -48,6 +48,13 @@ export const ChatEndpoints = apiSlice.injectEndpoints({
             }),
             invalidatesTags: (result, error, { chatId }) => [{ type: "ChatRequirements", id: chatId }],
         }),
+
+        getChatInfo: builder.query<{ username: string; make: string; model: string; year: number }, { chatId: number }>({
+            query: ({ chatId }) => ({
+                url: `/Chat/${chatId}/ChatInfo`,
+                method: "GET"
+            })
+        })
     }),
 });
 
@@ -55,4 +62,6 @@ export const {
     useGetChatMessagesQuery,
     useGetChatRequirementsQuery,
     useAddRequirementMutation,
-    useDeleteRequirementMutation,} = ChatEndpoints;
+    useDeleteRequirementMutation,
+    useGetChatInfoQuery
+} = ChatEndpoints;

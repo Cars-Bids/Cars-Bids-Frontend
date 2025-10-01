@@ -2,8 +2,8 @@
 import ChatMessage from "@/components/ui/ChatMessage.tsx";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetChatMessagesQuery } from "@/features/api/endpoints/Chat";
-import {ChatSignalRProvider} from "@/features/signalr/ChatSignalRProvider.tsx";
+import {useGetChatInfoQuery, useGetChatMessagesQuery} from "@/features/api/endpoints/Chat";
+import {ChatSignalRProvider, useChatSignalR} from "@/features/signalr/ChatSignalRProvider.tsx";
 import ChatInput from "@/components/ui/ChatInput.tsx";
 import RequiredInfoPanel from "@/components/ui/RequiredInfoPanel.tsx";
 import TypingIndicator from "@/components/ui/TypingIndicator.tsx";
@@ -104,6 +104,7 @@ function ChatPage({ chatId }: { chatId: number }) {
     const [page, setPage] = useState(1);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+    const { data: chatInfo, isLoading: isInfoLoading } = useGetChatInfoQuery({ chatId });
     const { data: chatData, isLoading, isFetching, error } = useGetChatMessagesQuery({ chatId, page, pageSize: 50 });
     const [activeDate, setActiveDate] = useState<string | null>(null);
     const [isDateVisible, setIsDateVisible] = useState(false);
@@ -112,13 +113,8 @@ function ChatPage({ chatId }: { chatId: number }) {
     const totalCount = chatData?.totalCount ?? 0;
 
     useEffect(() => {
-        const userId = getUserIdFromToken();
-        setCurrentUserId(userId);
-    }, []);
-
-    useEffect(() => {
-        const role = getUserRoleFromToken();
-        setCurrentUserRole(role);
+        setCurrentUserId(getUserIdFromToken());
+        setCurrentUserRole(getUserRoleFromToken());
     }, []);
 
     useEffect(() => {
@@ -195,12 +191,21 @@ function ChatPage({ chatId }: { chatId: number }) {
 
             <section className="w-3/4 flex flex-col rounded-md bg-[#212121] relative">
                 <div className="flex items-center justify-between px-3 py-2.5 border-b border-white">
-          <span className="font-amulya font-bold text-lg text-white">
-            2022 Porsche 911 Turbo S Coupe
-          </span>
+                    <span className="font-amulya font-bold text-lg text-white">
+                        {isInfoLoading
+                            ? "Loading car info..."
+                            : chatInfo
+                                ? `${chatInfo.year} ${chatInfo.make} ${chatInfo.model}`
+                                : "Unknown car"}
+                    </span>
                     <span className="text-base font-synonym font-medium text-white">
-            Working manager: <span className="font-amulya font-bold ml-3">Alik</span>
-          </span>
+                        {currentUserRole === "Manager" ? "Seller:" : "Working manager:"}
+                        <span className="font-amulya font-bold ml-3">
+                            {isInfoLoading
+                                ? "Loading..."
+                                : chatInfo?.username ?? "Unknown user"}
+                        </span>
+                    </span>
                 </div>
 
                 {activeDate && (
@@ -209,9 +214,9 @@ function ChatPage({ chatId }: { chatId: number }) {
                             isDateVisible ? "opacity-100" : "opacity-0"
                         }`}
                     >
-            <span className="bg-gray-400 text-white text-sm px-3 py-1 rounded-full shadow">
-              {activeDate}
-            </span>
+                        <span className="bg-gray-400 text-white text-sm px-3 py-1 rounded-full shadow">
+                          {activeDate}
+                        </span>
                     </div>
                 )}
 
