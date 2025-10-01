@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { LoginInput } from "@/components/ui/loginInput.tsx";
-import { Menu, User, Bell } from "lucide-react";
+import { Menu, User, Bell, Sun, Moon } from "lucide-react";
 import { AuthPopup } from "../Modal";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,6 +22,7 @@ import { useGetProfileQuery } from "@/features/api/endpoints/Profile";
 // import LangMenu from "@/components/MenuLang";
 
 import { Links } from "@/components/Main/Links";
+
 
 
 function parseJwtPayload(token: string | null | undefined) {
@@ -50,18 +51,22 @@ export default function Navbar() {
     /*UseState */
   }
   const [search, setSearch] = useState("");
-
+ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      navigate(`/en/search/${encodeURIComponent(search)}`);
+    }
+  };
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
 
-  // const [theme, setTheme] = useState<"light" | "dark">(() => {
-  //   const saved = localStorage.getItem("theme");
-  //   if (saved === "light" || saved === "dark") return saved;
-  //   return window.matchMedia("(prefers-color-scheme: dark)").matches
-  //     ? "dark"
-  //     : "light";
-  // });
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") return saved;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
 
   {
     /*Ref`s*/
@@ -120,9 +125,9 @@ export default function Navbar() {
     clearTokens();
     navigate("/");
   };
-  // const toggleTheme = () => {
-  //   setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  // };
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
   const handleLinkClick = (link: string) => {
     dispatch(setActiveItem(link));
     setIsSheetOpen(false);
@@ -131,26 +136,26 @@ export default function Navbar() {
   {
     /*UseEffects */
   }
-  // useEffect(() => {
-  //   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  //   const handler = (e: MediaQueryListEvent) => {
-  //     if (!localStorage.getItem("theme")) {
-  //       setTheme(e.matches ? "dark" : "light");
-  //     }
-  //   };
-  //   mediaQuery.addEventListener("change", handler);
-  //   return () => mediaQuery.removeEventListener("change", handler);
-  // }, []);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem("theme")) {
+        setTheme(e.matches ? "dark" : "light");
+      }
+    };
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
 
-  // useEffect(() => {
-  //   const root = document.documentElement;
-  //   if (theme === "dark") {
-  //     root.classList.add("dark");
-  //   } else {
-  //     root.classList.remove("dark");
-  //   }
-  //   localStorage.setItem("theme", theme);
-  // }, [theme]);
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -321,9 +326,10 @@ export default function Navbar() {
               placeholder="Search for car or model"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+               onKeyDown={handleKeyDown}
             />
           </div>
-          {/* <div
+          <div
             onClick={toggleTheme}
             className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200"
             aria-label="Toggle theme"
@@ -333,7 +339,7 @@ export default function Navbar() {
             ) : (
               <Sun className="h-5 w-5" />
             )}
-          </div> */}
+          </div>
           {isAuthenticated ? (
             <div className="inline-flex justify-start items-start gap-2 relative profile-trigger">
               <div className="p-2 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-black dark:text-white rounded-lg transition-all duration-200">
@@ -418,7 +424,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-3">
-          {/* <Button
+          <Button
             onClick={toggleTheme}
             variant="ghost"
             size="icon"
@@ -430,7 +436,7 @@ export default function Navbar() {
             ) : (
               <Sun className="h-5 w-5" />
             )}
-          </Button> */}
+          </Button>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
