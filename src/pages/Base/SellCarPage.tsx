@@ -1,16 +1,17 @@
-﻿import {Button} from "@/components/ui/button.tsx";
-import {ErrorMessage, Field, Form, Formik} from "formik";
-import {validationUpdateCarCommandSchema} from "@/components/Main/Modal/Validation";
-import {Label} from "@/components/ui/label.tsx";
-import {useState} from "react";
-import {SimpleInput} from "@/components/ui/simpleInput.tsx";
-import {useGetMakesQuery} from "@/features/api/endpoints/Make.ts";
-import {useGetModelsByMakeQuery} from "@/features/api/endpoints/Models.ts";
-import {TextareaWithCounter} from "@/components/ui/TextAreaWithCounter.tsx";
-import {ToggleGroup} from "@/components/ui/ToggleGroup.tsx";
-import {useRequestNewCarMutation} from "@/features/api/endpoints/CarEndpoints.ts";
-import {CustomDropdownSelector} from "@/components/ui/CustomDropdownSelector.tsx";
-import {CustomFileUpload} from "@/components/ui/CustomFileUpload.tsx";
+﻿import { Button } from "@/components/ui/button.tsx";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { validationUpdateCarCommandSchema } from "@/components/Main/Modal/Validation";
+import { Label } from "@/components/ui/label.tsx";
+import { useState } from "react";
+import { SimpleInput } from "@/components/ui/simpleInput.tsx";
+import { useGetMakesQuery } from "@/features/api/endpoints/Make.ts";
+import { useGetModelsByMakeQuery } from "@/features/api/endpoints/Models.ts";
+import { TextareaWithCounter } from "@/components/ui/TextAreaWithCounter.tsx";
+import { ToggleGroup } from "@/components/ui/ToggleGroup.tsx";
+import { useRequestNewCarMutation } from "@/features/api/endpoints/CarEndpoints.ts";
+import { CustomDropdownSelector } from "@/components/ui/CustomDropdownSelector.tsx";
+import { CustomFileUpload } from "@/components/ui/CustomFileUpload.tsx";
+import { message } from "antd";
 
 //TODO: add auto-writing user data(phone + fullname) if exists
 //TODO: add adaptive design
@@ -50,9 +51,10 @@ const SellCarPage = () => {
                     onSubmit={async (values, { setSubmitting, resetForm }) => {
                         try {
                             await requestNewCar(values).unwrap();
+                            message.success("Application submitted successfully!"); // Повідомлення про успіх
                             resetForm();
                         } catch (err: any) {
-                            console.error(err);
+                            message.error(err?.data?.message || "An error occurred during submission"); // Відображаємо лише помилку
                         } finally {
                             setSubmitting(false);
                         }
@@ -66,7 +68,6 @@ const SellCarPage = () => {
                           setFieldTouched,
                           isSubmitting,
                       }) => {
-
                         const { data: models = [] } = useGetModelsByMakeQuery(values.brandId!, {
                             skip: !values.brandId,
                         });
@@ -197,8 +198,8 @@ const SellCarPage = () => {
                                                 showChevron={false}
                                                 placeholder="Select brand"
                                                 className="mt-1 p-2 w-full border rounded-md dark:border-[#d0d0d0]"
-                                                dropdownClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c]  w-full absolute border border-[#121212] rounded-md shadow-lg max-h-48 overflow-y-auto z-50 mt-1"
-                                                optionClassName="p-2 hover:bg-[#c2c2c2] cursor-pointer text-[#121212] font-synonym text-sm border-b border-[#121212] last:border-b-0"
+                                                dropdownClassName="bg-[#d0d0d0] dark:bg-[#2c2c2c] w-full absolute border border-[#121212] rounded-md shadow-lg max-h-48 overflow-y-auto z-50 mt-1"
+                                                optionClassName="p-2 text-[#121212] dark:text-white hover:bg-[#c2c2c2] cursor-pointer font-synonym text-sm border-b border-[#121212] last:border-b-0"
                                             />
                                             {touched.brandId && (
                                                 <ErrorMessage
@@ -250,7 +251,7 @@ const SellCarPage = () => {
                                                 placeholder="Select model"
                                                 className="mt-1 p-2 w-full border rounded-md dark:border-[#d0d0d0]"
                                                 dropdownClassName="dark:bg-[#2c2c2c] bg-[#d0d0d0] w-full absolute border border-[#121212] rounded-md shadow-lg max-h-48 overflow-y-auto z-50 mt-1"
-                                                optionClassName="p-2 hover:bg-[#c2c2c2] cursor-pointer text-[#121212] font-synonym text-sm border-b border-[#121212] last:border-b-0"
+                                                optionClassName="p-2 text-[#121212] dark:text-white hover:bg-[#c2c2c2] cursor-pointer font-synonym text-sm border-b border-[#121212] last:border-b-0"
                                             />
                                             {touched.modelId && (
                                                 <ErrorMessage
@@ -276,7 +277,7 @@ const SellCarPage = () => {
                                                 placeholder="Select transmission"
                                                 className="mt-1 p-2 w-full border dark:border-[#d0d0d0] rounded-md"
                                                 dropdownClassName="dark:bg-[#2c2c2c] bg-[#d0d0d0] w-full absolute border border-[#121212] rounded-md shadow-lg max-h-48 overflow-y-auto z-50 mt-1"
-                                                optionClassName="p-2 hover:bg-[#c2c2c2] cursor-pointer text-[#121212] font-synonym text-sm border-b border-[#121212] last:border-b-0"
+                                                optionClassName="p-2 text-[#121212] dark:text-white hover:bg-[#c2c2c2] cursor-pointer font-synonym text-sm border-b border-[#121212] last:border-b-0"
                                                 chevronClassName="dark:text-white text-[#121212] w-6 h-6 text-gray-400 transition-transform duration-200"
                                             />
                                             {touched.transmissionId && (
